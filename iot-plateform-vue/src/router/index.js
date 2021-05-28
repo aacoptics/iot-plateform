@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory} from "vue-router";
 import Login from "../views/login/Login.vue";
 import routeMap from "./components"
-import {setMenuInfo, setMenuItems, getUsername, getAccessToken} from '@/utils/auth'
+import {setMenuInfo, setMenuItems, getUsername, getAccessToken, getMenuItems} from '@/utils/auth'
 import {getMenuByUsername} from "@/api/user";
 
 const routes = [
@@ -18,12 +18,6 @@ const routes = [
         component: Login
     }
 ]
-
-const errorRoute = {
-    path: '/:catchAll(.*)',
-    redirect: '/404'
-}
-
 
 let isFetchRemote = true;
 
@@ -62,7 +56,7 @@ const formatRoutes = function (routes, routeData) {
                     component: routeMap['Dashboard']
                 },
                 {
-                    path: '/404',
+                    path: '/:catchAll(.*)',
                     name: '404',
                     meta: {
                         title: '找不到页面'
@@ -82,7 +76,6 @@ const formatRoutes = function (routes, routeData) {
     }
     routes.length && routes.forEach(route => {
         if (route.path) {
-            //route.component = routeMap[route.name];
             routeData.children.push({
                 path: route.path,
                 name: route.name,
@@ -108,7 +101,7 @@ router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title} | 光学IoT平台`;
     if (!getAccessToken() && to.path !== '/login') {
         next('/login');
-    } else if (isFetchRemote && to.path !== '/login') {
+    } else if ((isFetchRemote || !getMenuItems()) && to.path !== '/login') {
         getMenuByUsername(getUsername()).then((response) => {
             if (response.code === '000000') {
                 isFetchRemote = false;
@@ -118,7 +111,8 @@ router.beforeEach((to, from, next) => {
                 const menuItems = formatMenus(menuData);
                 setMenuItems(menuItems);
                 router.addRoute(routesData)
-                router.addRoute(errorRoute)
+                const asd = router.getRoutes()
+                console.log(asd)
                 router.push({
                     path: to.path,
                     query: to.query

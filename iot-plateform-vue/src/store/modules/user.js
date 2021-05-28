@@ -2,7 +2,7 @@ import {login, getUserInfo} from '@/api/user'
 import {
     getAccessToken, getRefreshToken,
     setAccessToken, setRefreshToken,
-    getUsername, setUsername, setUserDetail, getUserDetail
+    getUsername, setUsername, setUserDetail
 } from '@/utils/auth'
 
 const state = {
@@ -18,6 +18,10 @@ const mutations = {
 
     SET_REFRESH_TOKEN: (state, token) => {
         state.refreshToken = token
+    },
+
+    SET_USER_NAME: (state, username) => {
+        state.username = username
     }
 }
 
@@ -33,15 +37,14 @@ const actions = {
                 setRefreshToken(refresh_token)
                 commit('SET_ACCESS_TOKEN', access_token)
                 commit('SET_REFRESH_TOKEN', refresh_token)
+                commit('SET_USER_NAME', username.trim())
                 getUserInfo(username.trim()).then(response => {
                     const {data} = response
                     setUserDetail(data)
-
-                    console.log(getUserDetail())
+                    resolve()
                 }).catch(error => {
-                    console.log(error)
+                    reject(error)
                 })
-                resolve()
             }).catch(error => {
                 reject(error)
             })
