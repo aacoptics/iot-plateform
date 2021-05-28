@@ -3,6 +3,7 @@ import Login from "../views/login/Login.vue";
 import routeMap from "./components"
 import {setMenuInfo, setMenuItems, getUsername, getAccessToken, getMenuItems} from '@/utils/auth'
 import {getMenuByUsername} from "@/api/user";
+import {saveRefreshTime} from "@/api";
 
 const routes = [
     {
@@ -98,6 +99,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    saveRefreshTime()
     document.title = `${to.meta.title} | 光学IoT平台`;
     if (!getAccessToken() && to.path !== '/login') {
         next('/login');
