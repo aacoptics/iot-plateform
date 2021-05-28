@@ -1,0 +1,19 @@
+server:
+  port: 8012
+spring:
+  application:
+    name: iot-fanuc-dashboard
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.69.76.40:8848
+        namespace: iot-plateform
+        group: iot-plateform-dashboard
+      config:
+        server-addr: 10.69.76.40:8848
+        namespace: iot-plateform
+        group: iot-plateform-dashboard
+        file-extension: yaml
+    sentinel:
+      transport:
+        dashboard: 10.69.76.40:8844

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.provider.organization.dao.MenuMapper">
+    <!-- 获取登录用户拥有的菜单权限 -->
+    <select id="getAllMenu" resultType="com.aac.optics.provider.organization.entity.po.Menu">
+			  	select id
+					,parent_id
+					,path
+					,component
+					,icon
+					,name
+					,title
+					,description
+					,order_num
+					,created_time
+					,updated_time
+					,created_by
+					,updated_by
+					,stuff((
+					select ','+ convert(varchar, role_id)
+					from role_menu_relation b
+					where b.menu_id= a.id
+					for xml path('')),1,1,'') roles
+			from iot_sys_menu a group by id
+										,parent_id
+										,path
+										,component
+										,icon
+										,name
+										,title
+										,description
+										,order_num
+										,created_time
+										,updated_time
+										,created_by
+										,updated_by
+	</select>
+
+
+    <select id="getMenuByUsername" resultType="com.aac.optics.provider.organization.entity.po.Menu">
+			  	 		  	select id
+					,parent_id
+					,path
+					,component
+					,icon
+					,name
+					,title
+					,description
+					,order_num
+					,created_time
+					,updated_time
+					,created_by
+					,updated_by
+			from iot_sys_menu a
+			where id in (select t3.menu_id from users t1
+		join user_role_relation t2
+		on t1.id = t2.user_id
+		join role_menu_relation t3
+		on t2.role_id = t3.role_id
+		where username = #{username})
+			group by id
+										,parent_id
+										,path
+										,component
+										,icon
+										,name
+										,title
+										,description
+										,order_num
+										,created_time
+										,updated_time
+										,created_by
+										,updated_by
+										order by order_num
+	</select>
+</mapper>
