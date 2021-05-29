@@ -45,12 +45,7 @@
   </div>
 </template>
 <script>
-import {
-  getUserDetail, getUsername,
-  removeMenuInfo, removeAccessToken,
-  removeMenuItems, removeRefreshToken,
-  removeUserDetail, removeUsername
-} from "@/utils/auth";
+import {getUserDetail, getUsername, removeLoginInfo} from "@/utils/auth";
 
 export default {
   data() {
@@ -74,12 +69,7 @@ export default {
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command === "logout") {
-        removeMenuInfo()
-        removeAccessToken()
-        removeMenuItems()
-        removeRefreshToken()
-        removeUserDetail()
-        removeUsername()
+        removeLoginInfo()
         this.$router.push("/login");
       }
     },

@@ -7,6 +7,7 @@ import com.aac.optics.gateway.web.service.IPermissionService;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.ribbon.proxy.annotation.Http;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -63,18 +64,20 @@ public class AccessGatewayFilter implements GlobalFilter {
 
         Result res = permissionService.permission(authentication, url, method);
         //调用签权服务看用户是否有权限，若有权限进入下一个filter
-        if (res.isSuccess() && (boolean) res.getData()) {
-            ServerHttpRequest.Builder builder = request.mutate();
-            //TODO 转发的请求都加上服务间认证token
-            builder.header(X_CLIENT_TOKEN, "TODO zhoutaoo添加服务间简单认证");
-            //将jwt token中的用户信息传给服务
-            builder.header(X_CLIENT_TOKEN_USER, getUserToken(authentication));
-            return chain.filter(exchange.mutate().request(builder.build()).build());
-        } else if (res.isSuccess() && !(boolean) res.getData()) {
-            res = Result.fail(SystemErrorType.AUTHORIZATION_FAILED);
-            return unauthorized(exchange, res);
+        if (res.isSuccess()) {
+            if ((boolean) res.getData()) {
+                ServerHttpRequest.Builder builder = request.mutate();
+                //TODO 转发的请求都加上服务间认证token
+                builder.header(X_CLIENT_TOKEN, "TODO zhoutaoo添加服务间简单认证");
+                //将jwt token中的用户信息传给服务
+                builder.header(X_CLIENT_TOKEN_USER, getUserToken(authentication));
+                return chain.filter(exchange.mutate().request(builder.build()).build());
+            } else {
+                res = Result.fail(SystemErrorType.AUTHORIZATION_FAILED);
+                return unauthorized(exchange, res, HttpStatus.FORBIDDEN);
+            }
         } else {
-            return unauthorized(exchange, res);
+            return unauthorized(exchange, res, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -95,20 +98,20 @@ public class AccessGatewayFilter implements GlobalFilter {
         return token;
     }
 
-    /**
-     * 网关拒绝，返回401
-     *
-     * @param
-     */
-    private Mono<Void> unauthorized(ServerWebExchange serverWebExchange) {
-        serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        DataBuffer buffer = serverWebExchange.getResponse()
-                .bufferFactory().wrap(HttpStatus.UNAUTHORIZED.getReasonPhrase().getBytes());
-        return serverWebExchange.getResponse().writeWith(Flux.just(buffer));
-    }
+//    /**
+//     * 网关拒绝，返回401
+//     *
+//     * @param
+//     */
+//    private Mono<Void> unauthorized(ServerWebExchange serverWebExchange) {
+//        serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+//        DataBuffer buffer = serverWebExchange.getResponse()
+//                .bufferFactory().wrap(HttpStatus.UNAUTHORIZED.getReasonPhrase().getBytes());
+//        return serverWebExchange.getResponse().writeWith(Flux.just(buffer));
+//    }
 
-    private Mono<Void> unauthorized(ServerWebExchange serverWebExchange, Result result) {
-        serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+    private Mono<Void> unauthorized(ServerWebExchange serverWebExchange, Result result, HttpStatus httpStatus) {
+        serverWebExchange.getResponse().setStatusCode(httpStatus);
         DataBuffer dataBuffer = serverWebExchange.getResponse().bufferFactory().wrap(JSONObject.toJSONBytes(result));
         return serverWebExchange.getResponse().writeWith(Flux.just(dataBuffer));
     }

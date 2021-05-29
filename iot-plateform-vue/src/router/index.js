@@ -105,9 +105,10 @@ router.beforeEach((to, from, next) => {
         next('/login');
     } else if ((isFetchRemote || !getMenuItems()) && to.path !== '/login') {
         getMenuByUsername(getUsername()).then((response) => {
-            if (response.code === '000000') {
+            const responseData = response.data
+            if (responseData.code === '000000') {
                 isFetchRemote = false;
-                const menuData = response.data;
+                const menuData = responseData.data;
                 setMenuInfo(menuData);
                 const routesData = formatRoutes(menuData);
                 const menuItems = formatMenus(menuData);

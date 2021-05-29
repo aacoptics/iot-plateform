@@ -2,15 +2,15 @@ package com.aac.optics.auth.server.exception;
 
 import com.aac.optics.common.core.vo.Result;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
 @JsonSerialize(using = CustomOauthExceptionSerializer.class)
 class CustomOauthException extends OAuth2Exception {
 
+    @Getter
     private final Result result;
 
     CustomOauthException(OAuth2Exception oAuth2Exception) {

@@ -19,6 +19,24 @@ export function login(loginInfo) {
     })
 }
 
+export function refreshToken(token) {
+    return request({
+        url: '/auth-server/oauth/token',
+        method: 'post',
+        auth: {
+            username: 'iot_client',
+            password: '123456!iot'
+        },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        params: {
+            grant_type: 'refresh_token',
+            refresh_token: token
+        }
+    })
+}
+
 export function getUserInfo(username) {
     return request({
         url: '/organization/user',
