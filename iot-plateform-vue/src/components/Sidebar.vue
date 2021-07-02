@@ -52,7 +52,6 @@
 </template>
 
 <script>
-// import bus from "../common/bus";
 import {getMenuItems} from "@/utils/auth";
 
 export default {
@@ -96,7 +95,7 @@ export default {
 }
 
 .sidebar-el-menu:not(.el-menu--collapse) {
-  width: 250px;
+  width: 200px;
 }
 
 .sidebar > ul {

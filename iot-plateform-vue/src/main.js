@@ -4,6 +4,8 @@ import router from './router'
 import store from './store'
 import installElementPlus from './plugins/element'
 import './assets/css/icon.css'
+import './styles/common.css'
+import './assets/css/font.css'
 const app = createApp(App)
 installElementPlus(app)
 app

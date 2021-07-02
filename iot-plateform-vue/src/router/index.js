@@ -78,7 +78,7 @@ const formatRoutes = function (routes, routeData) {
     routes.length && routes.forEach(route => {
         if (route.path) {
             routeData.children.push({
-                path: route.path,
+                path: route.path.indexOf('?') > -1  ? route.path.split('?')[0] : route.path,
                 name: route.name,
                 component: () => import('../' + route.component),
                 meta: {

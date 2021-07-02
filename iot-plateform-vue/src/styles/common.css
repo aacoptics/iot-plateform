@@ -1,0 +1,140 @@
+.typeItem_orderNum_red {
+    background-color: #F5325A;
+    display: inline-block;
+    font-size: 20px;
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    border-radius: 50%;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.typeItem_orderNum_yellow {
+    background-color: #FFB400;
+    display: inline-block;
+    font-size: 20px;
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    border-radius: 50%;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.typeItem_orderNum_green {
+    background-color: #17C671;
+    display: inline-block;
+    font-size: 20px;
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    border-radius: 50%;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.statue_count_div {
+    position: relative;
+    width: 150px;
+    margin-left: 30px;
+    height: 90px;
+    float:left;
+    border-radius:5px;
+    color: black;
+    font-weight: bold;
+    font-family: 楷体;
+    font-size: 22px;
+    line-height: 40px;
+    text-align: center;
+}
+
+.item_disconnect {
+    background-color: gray;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_manual {
+    background-color: dodgerblue;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_wait{
+    background-color: yellow;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_automatic{
+    background-color: green;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_alarm{
+    background-color: red;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_hold{
+    background-color: hotpink;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_semiAuto{
+    background-color: chocolate;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
+
+.item_otherStatus{
+    background-color: orangered;
+    line-height: 85px;
+    text-align: center;
+    height: 100%;
+    font-weight: bold;
+    color: white;
+    border:1px solid cornflowerblue;
+    border-radius: 3px;
+}
