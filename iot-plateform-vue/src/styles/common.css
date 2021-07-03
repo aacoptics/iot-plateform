@@ -138,3 +138,9 @@
     border:1px solid cornflowerblue;
     border-radius: 3px;
 }
+
+.tableHead{
+    font-size: xx-small;
+    color: black;
+    text-align: center;
+}
