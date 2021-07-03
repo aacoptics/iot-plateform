@@ -8,11 +8,11 @@ spring:
       discovery:
         server-addr: 10.69.76.40:8848
         namespace: iot-plateform
-        group: iot-plateform-dashboard
+        group: iot-plateform
       config:
         server-addr: 10.69.76.40:8848
         namespace: iot-plateform
-        group: iot-plateform-dashboard
+        group: iot-plateform
         file-extension: yaml
     sentinel:
       transport:
