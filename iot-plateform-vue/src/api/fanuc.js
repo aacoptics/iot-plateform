@@ -40,3 +40,33 @@ export function getCondData(startTime, endTime, machineName) {
         }
     })
 }
+
+export function getMonitData(startTime, endTime, machineName) {
+    return request({
+        url: '/fanuc/getMonitData',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            startTime: startTime,
+            endTime: endTime,
+            machineName: machineName
+        }
+    })
+}
+
+export function getAlarmData(startTime, endTime, machineName) {
+    return request({
+        url: '/fanuc/getAlarmData',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            startTime: startTime,
+            endTime: endTime,
+            machineName: machineName
+        }
+    })
+}

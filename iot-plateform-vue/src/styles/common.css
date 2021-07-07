@@ -144,3 +144,45 @@
     color: black;
     text-align: center;
 }
+
+.fanuc_div_type{
+    width: 230px;
+    height: 85px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 70px;
+    margin-bottom: 20px;
+    float: left;
+}
+
+.coating_div_type{
+    width: 230px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    float: left;
+}
+
+.item_coating_offline{
+    background-color: gray;
+    font-family: "Microsoft YaHei", monospace;
+    font-weight: bold;
+    color: black;
+
+}
+
+.item_coating_running{
+    background-color: green;
+    font-family: "Microsoft YaHei", monospace;
+    font-weight: bold;
+    color: black;
+
+}
+
+.item_coating_alarm{
+    background-color: red;
+    font-family: "Microsoft YaHei", monospace;
+    font-weight: bold;
+    color: white;
+}
