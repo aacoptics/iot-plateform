@@ -1,10 +1,10 @@
 <template>
   <div class="login-wrap">
     <div class="ms-login">
-      <div class="ms-title">后台管理系统</div>
+      <div class="ms-title">光学IoT平台</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
         <el-form-item prop="username">
-          <el-input v-model="param.username" placeholder="username">
+          <el-input v-model="param.username" placeholder="用户名">
             <template #prepend>
               <el-button icon="el-icon-user"></el-button>
             </template>
@@ -13,7 +13,7 @@
         <el-form-item prop="password">
           <el-input
               type="password"
-              placeholder="password"
+              placeholder="密码"
               v-model="param.password"
               @keyup.enter="submitForm()"
           >
@@ -25,7 +25,6 @@
         <div class="login-btn">
           <el-button type="primary" @click="submitForm()">登录</el-button>
         </div>
-        <p class="login-tips">Tips : 用户名和密码随便填。</p>
       </el-form>
     </div>
   </div>
@@ -36,8 +35,8 @@ export default {
   data() {
     return {
       param: {
-        username: "60054916",
-        password: "1234567!a"
+        username: '',
+        password: ''
       },
       rules: {
         username: [
@@ -78,7 +77,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  background-image: url(../../assets/img/login-bg.jpg);
+  background-image: url(../../assets/img/login-bg.png);
   background-size: 100%;
 }
 

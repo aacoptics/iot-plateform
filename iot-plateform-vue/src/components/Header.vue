@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <!-- 折叠按钮 -->
-    <div class="collapse-btn" @click="collapseChage">
+    <div class="collapse-btn" @click="collapseChange">
       <i v-if="!collapse" class="el-icon-s-fold"></i>
       <i v-else class="el-icon-s-unfold"></i>
     </div>
@@ -9,18 +9,18 @@
     <div class="header-right">
       <div class="header-user-con">
         <!-- 消息中心 -->
-        <div class="btn-bell">
-          <el-tooltip
-              effect="dark"
-              :content="message?`有${message}条未读消息`:`消息中心`"
-              placement="bottom"
-          >
-            <router-link to="/tabs">
-              <i class="el-icon-bell"></i>
-            </router-link>
-          </el-tooltip>
-          <span class="btn-bell-badge" v-if="message"></span>
-        </div>
+        <!--        <div class="btn-bell">-->
+        <!--          <el-tooltip-->
+        <!--              effect="dark"-->
+        <!--              :content="message?`有${message}条未读消息`:`消息中心`"-->
+        <!--              placement="bottom"-->
+        <!--          >-->
+        <!--            <router-link to="/tabs">-->
+        <!--              <i class="el-icon-bell"></i>-->
+        <!--            </router-link>-->
+        <!--          </el-tooltip>-->
+        <!--          <span class="btn-bell-badge" v-if="message"></span>-->
+        <!--        </div>-->
         <!-- 用户头像 -->
         <div class="user-avator">
           <img src="../assets/img/img.jpg"/>
@@ -28,14 +28,14 @@
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
-                        {{ username }}
+                        {{ userRealName }}
                         <i class="el-icon-caret-bottom"></i>
                     </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-                <el-dropdown-item>项目仓库</el-dropdown-item>
-              </a>
+              <h3 style="text-align: center">
+                {{ username }}
+              </h3>
               <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -58,8 +58,13 @@ export default {
   computed: {
     username() {
       let userName = getUsername()
-      let realName = getUserDetail() && getUserDetail().name ? getUserDetail().name : userName;
-      return realName? realName : this.name;
+      return userName ? userName : this.name;
+    },
+    userRealName() {
+      let userName = getUsername()
+      let userDetail = getUserDetail()
+      let realName = userDetail && userDetail.name ? userDetail.name : userName;
+      return realName ? realName : this.name;
     },
     collapse() {
       return this.$store.state.collapse;
@@ -74,13 +79,13 @@ export default {
       }
     },
     // 侧边栏折叠
-    collapseChage() {
+    collapseChange() {
       this.$store.commit("handleCollapse", !this.collapse);
     }
   },
   mounted() {
     if (document.body.clientWidth < 1500) {
-      this.collapseChage();
+      this.collapseChange();
     }
   }
 };
@@ -156,6 +161,7 @@ export default {
 
 .user-avator {
   margin-left: 20px;
+  margin-right: 10px;
 }
 
 .user-avator img {

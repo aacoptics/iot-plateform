@@ -100,7 +100,7 @@ export function removeRefreshTime() {
     return window.localStorage.removeItem('refresh_time')
 }
 
-export function removeLoginInfo(){
+export function removeLoginInfo() {
     removeMenuInfo()
     removeAccessToken()
     removeMenuItems()

@@ -46,7 +46,7 @@ const actions = {
                 setExpireTime(expireDate)
                 setRefreshTime(expireDate)
                 getUserInfo(username.trim()).then(response => {
-                    const {data} = response
+                    const {data} = response.data
                     setUserDetail(data)
                     resolve()
                 }).catch(error => {

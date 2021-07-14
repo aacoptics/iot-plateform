@@ -1,6 +1,6 @@
 {
-    "name": "vue-manage-system",
-    "version": "5.0.0",
+    "name": "iot-plateform-vue",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
