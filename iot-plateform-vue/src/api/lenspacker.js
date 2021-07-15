@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getAlarmDetail(startTime, endTime) {
     return request({
-        url: '/lenspacker/getAlarmDetail',
+        url: '/lenspacker/lenspackerDashboard/getAlarmDetail',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
@@ -16,7 +16,7 @@ export function getAlarmDetail(startTime, endTime) {
 
 export function getAlarmCount(startTime, endTime) {
     return request({
-        url: '/lenspacker/getAlarmCount',
+        url: '/lenspacker/lenspackerDashboard/getAlarmCount',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
@@ -31,7 +31,7 @@ export function getAlarmCount(startTime, endTime) {
 
 export function getMachineCapacity(startTime, endTime) {
     return request({
-        url: '/lenspacker/getMachineCapacity',
+        url: '/lenspacker/lenspackerDashboard/getMachineCapacity',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'

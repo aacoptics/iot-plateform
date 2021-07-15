@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getByFloor(floor) {
     return request({
-        url: '/fanuc/getByFloor',
+        url: '/fanuc/fanucDashboard/getByFloor',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
@@ -15,7 +15,7 @@ export function getByFloor(floor) {
 
 export function getDetailInfo(machineName) {
     return request({
-        url: '/fanuc/getDetailInfo',
+        url: '/fanuc/fanucDashboard/getDetailInfo',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
@@ -28,7 +28,7 @@ export function getDetailInfo(machineName) {
 
 export function getCondData(startTime, endTime, machineName) {
     return request({
-        url: '/fanuc/getCondData',
+        url: '/fanuc/fanucDashboard/getCondData',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export function getCondData(startTime, endTime, machineName) {
 
 export function getMonitData(startTime, endTime, machineName) {
     return request({
-        url: '/fanuc/getMonitData',
+        url: '/fanuc/fanucDashboard/getMonitData',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ export function getMonitData(startTime, endTime, machineName) {
 
 export function getAlarmData(startTime, endTime, machineName) {
     return request({
-        url: '/fanuc/getAlarmData',
+        url: '/fanuc/fanucDashboard/getAlarmData',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'

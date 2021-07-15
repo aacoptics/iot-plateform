@@ -181,7 +181,7 @@ export default {
         })
       }
     },
-    getAlarmData(){
+    getAlarmData() {
       this.alarmDetailLoading = true
       this.alarmCountLoading = true
       this.getLensPackerAlarmCount()

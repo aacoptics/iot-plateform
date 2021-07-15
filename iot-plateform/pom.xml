@@ -16,6 +16,7 @@
         <module>iot-provider-notification</module>
         <module>iot-fanuc-dashboard</module>
         <module>iot-coating-dashboard</module>
+        <module>iot-lenspacker-dashboard</module>
     </modules>
 
     <packaging>pom</packaging>

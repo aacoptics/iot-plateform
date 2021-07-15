@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/notification")
+@RequestMapping(value = "/message")
 @Api("notification")
 @Slf4j
 public class NotificationController {
@@ -33,7 +33,7 @@ public class NotificationController {
     private RabbitTemplate rabbitTemplate;
 
     @ApiOperation(value = "发送邮件", notes = "发送邮件")
-    @ApiImplicitParam(name = "EmailSendForm", value = "邮件发送表单", required = true, dataType = "EmailSend")
+    @ApiImplicitParam(name = "EmailSendForm", value = "邮件发送表单", required = true, dataType = "EmailSendForm")
     @PostMapping(value = "/sendEmail")
     public Result sendEmail(@Valid @RequestBody EmailSendForm emailSendForm) {
         String messageId = String.valueOf(UUID.randomUUID());
