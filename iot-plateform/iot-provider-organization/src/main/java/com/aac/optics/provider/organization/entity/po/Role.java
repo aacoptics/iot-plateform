@@ -22,4 +22,7 @@ public class Role extends BasePo {
 
     @TableField(exist = false)
     private Set<Long> resourceIds;
+
+    @TableField(exist = false)
+    private Set<Long> menuIds;
 }

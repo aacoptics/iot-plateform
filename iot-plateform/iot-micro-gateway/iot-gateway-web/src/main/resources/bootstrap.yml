@@ -6,17 +6,17 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 10.69.76.40:8848
+        server-addr: iottest.aacoptics.com:8848
         namespace: iot-plateform
         group: iot-plateform
       config:
-        server-addr: 10.69.76.40:8848
+        server-addr: iottest.aacoptics.com:8848
         namespace: iot-plateform
         group: iot-plateform
         file-extension: yaml
     sentinel:
       transport:
-        dashboard: 10.69.76.40:8844
+        dashboard: iottest.aacoptics.com:8844
     gateway:
       globalcors:
         cors-configurations:

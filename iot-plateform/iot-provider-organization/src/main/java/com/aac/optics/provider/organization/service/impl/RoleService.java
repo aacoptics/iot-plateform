@@ -52,6 +52,7 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
     public boolean update(Role role) {
         boolean isSuccess = this.updateById(role);
         roleResourceService.saveBatch(role.getId(), role.getResourceIds());
+
         return isSuccess;
     }
 
