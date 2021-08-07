@@ -114,8 +114,6 @@ router.beforeEach((to, from, next) => {
                 const menuItems = formatMenus(menuData);
                 setMenuItems(menuItems);
                 router.addRoute(routesData)
-                const asd = router.getRoutes()
-                console.log(asd)
                 router.push({
                     path: to.path,
                     query: to.query

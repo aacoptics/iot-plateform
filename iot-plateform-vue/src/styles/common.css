@@ -145,13 +145,23 @@
     text-align: center;
 }
 
-.fanuc_div_type{
-    width: 230px;
-    height: 85px;
+.fanuc_card_type{
+    width: 300px;
+    height: 255px;
     border:1px solid cornflowerblue;
     background-color: #f0f0f0;
     margin-right: 70px;
     margin-bottom: 20px;
+    float: left;
+}
+
+.coating_card_type{
+    width: 240px;
+    height: 60px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 10px;
+    margin-bottom: 10px;
     float: left;
 }
 
@@ -160,6 +170,7 @@
     border:1px solid cornflowerblue;
     background-color: #f0f0f0;
     margin-right: 10px;
+    margin-bottom: 5px;
     float: left;
 }
 

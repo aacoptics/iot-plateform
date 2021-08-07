@@ -50,8 +50,24 @@ export default {
   },
   created() {
     this.$store.commit("clearTags");
+    this.ssoLogin()
   },
   methods: {
+    ssoLogin(){
+      if(this.$route.query.token){
+        const token = this.$route.query.token;
+
+        this.param.username = 'ssoToken'
+        this.param.password = token
+        this.$store.dispatch('user/login', this.param)
+            .then(() => {
+              this.$router.push("/");
+            })
+            .catch(() => {
+            })
+      }
+
+    },
     submitForm() {
       this.$refs.login.validate(valid => {
         if (valid) {

@@ -9,32 +9,58 @@
       </el-breadcrumb>
     </div>
     <div class="container">
-      <el-card v-for="(item, index) of fanucMachineInfo" :key="index" :body-style="{ padding: '0px', height:'80px'}"
+      <el-card v-for="(item, index) of fanucMachineInfo" :key="index" :body-style="{ padding: '0px', height:'255px'}"
                shadow="hover"
-               class="fanuc_div_type"
+               class="fanuc_card_type"
+               style="cursor: pointer"
                @click="onCardClick(item.monitMcName)">
+        <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ item.monitMcName }}</p>
+        <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
+          <el-col :span="24">
+            <div :style="'background-color:' + this.statusColor[item.monitStatus] + ';height:30px;line-height:30px'">
+              {{ this.status[item.monitStatus] }}
+            </div>
+          </el-col>
+        </el-row>
         <el-row>
-          <el-col :span="17">
-            <div>
-              <p style="font-weight: bold;text-align: center">{{ item.monitMcName }}</p>
-              <p style="margin-top: 5px">{{ item.condMoldFileName }}</p>
-              <p v-if="checkMachineStatus(item.monitStatus)">
-                <span style="margin-right: 10px">{{ item.monitShotCount }}</span>
-                <span>{{ item.monitCycle }}秒</span>
-              </p>
-              <p v-if="checkMachineStatus(item.monitStatus)">
-                <span style="margin-right: 10px">{{ item.monitGoodCount }}</span>
-                <span>{{
+          <el-col>
+            <div style="font-weight: bold">
+              <p style="margin-top: 5px">模具文件名：{{ item.condMoldFileName }}</p>
+              <el-row>
+                <el-col :span="12">射出数：{{ item.monitShotCount }}</el-col>
+                <el-col v-if="checkMachineStatus(item.monitStatus)" :span="12">周期：{{ item.monitCycle }}秒</el-col>
+                <el-col v-else :span="12">周期：</el-col>
+              </el-row>
+              <!--              <p >-->
+              <!--                <span style="margin-right: 10px">{{ item.monitShotCount }}</span>-->
+              <!--                <span>{{ item.monitCycle }}秒</span>-->
+              <!--              </p>-->
+              <el-row>
+                <el-col :span="12">良品数：{{ item.monitGoodCount }}</el-col>
+                <el-col v-if="checkMachineStatus(item.monitStatus)" :span="12">时间：{{
                     this.$moment(item.monitDateTime, 'YYMMDDHHmmss')
                         .format('MM/DD HH:mm')
-                  }}</span>
-              </p>
+                  }}
+                </el-col>
+                <el-col v-else :span="12">时间：</el-col>
+              </el-row>
+              <!--              <p v-if="checkMachineStatus(item.monitStatus)" style="text-align: center">-->
+              <!--                <span style="margin-right: 10px">{{ item.monitGoodCount }}</span>-->
+              <!--                <span>{{-->
+              <!--                    this.$moment(item.monitDateTime, 'YYMMDDHHmmss')-->
+              <!--                        .format('MM/DD HH:mm')-->
+              <!--                  }}</span>-->
+              <!--              </p>-->
             </div>
           </el-col>
-          <el-col :span="7">
-            <div :class="getStatusType(item.monitStatus)">{{ getStatusName(item.monitStatus) }}
-            </div>
-          </el-col>
+          <!--          <el-col :span="7">-->
+          <!--            <div :class="getStatusType(item.monitStatus)">{{ getStatusName(item.monitStatus) }}-->
+          <!--            </div>-->
+          <!--          </el-col>-->
+        </el-row>
+        <el-row style="border-top: 1px dashed cornflowerblue">
+          <div v-if="checkMachineStatus(item.monitStatus)" :id="'circleChart' + item.monitMcName"
+               style="margin-top: 10px;height: 120px;width: 280px"></div>
         </el-row>
       </el-card>
 
@@ -134,7 +160,7 @@
               <el-radio-button label="成型条件"></el-radio-button>
               <el-radio-button label="监控数据"></el-radio-button>
               <el-radio-button label="报警履历"></el-radio-button>
-              <el-radio-button label="数据分析"></el-radio-button>
+              <!--              <el-radio-button label="数据分析"></el-radio-button>-->
             </el-radio-group>
             <div v-if="tabRadio === '成型条件'" class="block">
               <el-date-picker
@@ -515,9 +541,9 @@
                 <el-table-column :width="180" prop="dbCreateTime" label="插入时间"></el-table-column>
               </el-table>
             </div>
-            <div v-if="tabRadio === '数据分析'" class="block">
-              数据分析
-            </div>
+            <!--            <div v-if="tabRadio === '数据分析'" class="block">-->
+            <!--              数据分析-->
+            <!--            </div>-->
           </el-col>
         </el-row>
       </el-dialog>
@@ -534,10 +560,12 @@ import XLSX from 'xlsx'
 export default {
   name: "FanucMonitor",
   created() {
-    this.getFanucDataByFloor()
     this.timer = setInterval(() => {
       this.getFanucDataByFloor()
     }, 10000)
+  },
+  mounted() {
+    this.getFanucDataByFloor()
   },
   computed: {
     fanucMachineInfo() {
@@ -568,6 +596,13 @@ export default {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.fanucMonitorInfo = responseData.data;
+          setTimeout(() => { //延时加载echarts初始化函数
+            for (let fanucMachineInfoElement of this.fanucMachineInfo) {
+              if (fanucMachineInfoElement.monitStatus === '-1')
+                continue;
+              this.refreshData(fanucMachineInfoElement, 'circleChart' + fanucMachineInfoElement.monitMcName)
+            }
+          }, 0)
         }
       })
     },
@@ -676,20 +711,147 @@ export default {
             labelLine: {
               show: false
             },
-            data: this.getMoldData()
+            data: this.getMoldData(this.fanucDialogData)
           }
-        ]
+        ],
+        color: ["rgba(59,162,114,1)", "rgba(250,200,88,1)", "rgba(84,112,198,1)", "rgba(238,102,102,1)", "rgba(154,96,180,1)", "gray", "rgba(252,132,82,1)"]
       };
-      option && myChart.setOption(option);
+      myChart.setOption(option);
     },
-    getMoldData() {
+    drawCircleChart(fanucData, chartId) {
+      const chartDom = document.getElementById(chartId);
+      const myChart = echarts.init(chartDom);
+      let option;
+
+      const listData = this.getMoldData(fanucData)
+
+      option = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {d}%'
+        },
+        legend: {
+          itemWidth: 10,
+          itemHeight: 10,
+          icon: 'circle',
+          x: 'right',
+          y: 'center',
+          orient: 'vertical', //设置图例排列纵向显示
+          align: 'left',       //设置图例中文字位置在icon标识符的右侧
+          itemGap: 3,         //设置图例之间的间距
+          padding: [0, 0, 0, 0], //设置图例与圆环图之间的间距
+          bottom: '55%',       //距离下边距
+          formatter: function (name) {  //该函数用于设置图例显示后的百分比
+            let value = 0;
+            listData.forEach((item) => {
+              if (item.name === name) {
+                value = item.value;
+              }
+            })
+            return `${name}  ${value}%`;  //返回出图例所显示的内容是名称+百分比
+          },
+          textStyle: { //图例文字的样式
+            color: 'black',
+            fontSize: 12,
+          },
+          data: ['自动运转', '运转待机', '手动运转', '报警', '生产完成', '停机', '其他'],
+        },
+        // graphic: [  //为环形图中间添加文字
+        //   {
+        //     tooltip: {
+        //       trigger: 'item',
+        //       formatter: "当前状态: " + this.status[fanucData.monitStatus]
+        //     },
+        //     elements: [{
+        //       type: "circle",
+        //       shape: {
+        //         cx: 40,
+        //         cy: 40,
+        //         r: 20
+        //
+        //       },
+        //       left: "12.3%",
+        //       top: "39%",
+        //       style: {
+        //         fill: this.statusColor[fanucData.monitStatus],
+        //       }
+        //     }]
+        //
+        //   },
+        // ],
+        series: [{
+          name: '状态占比',
+          type: 'pie',
+          radius: ['50%', '62%'],
+          center: ['20%', '50%'],
+          data: listData,
+          label: false,
+          labelLine: false,
+        }
+        ],
+        color: ["rgba(59,162,114,1)", "rgba(250,200,88,1)", "rgba(84,112,198,1)", "rgb(238,102,102)", "rgba(154,96,180,1)", "gray", "rgba(252,132,82,1)"]
+      }
+
+      // setInterval(() => {
+      //   const list = this.getMoldData(fanucData)
+      //   myChart.setOption({
+      //     legend: {
+      //       formatter: function (name) {  //该函数用于设置图例显示后的百分比
+      //         let value = 0;
+      //         list.forEach((item) => {
+      //           if (item.name === name) {
+      //             value = item.value;
+      //           }
+      //         })
+      //         return `${name}  ${value}%`;  //返回出图例所显示的内容是名称+百分比
+      //       }
+      //     },
+      //     series: [{
+      //       data: list
+      //     }]
+      //   });
+      // }, 10000);
+
+      myChart.setOption(option);
+    },
+    refreshData(fanucData, chartId) {
+      const chartDom = document.getElementById(chartId);
+      const myChart = echarts.getInstanceByDom(chartDom)
+      if (!myChart) {
+        this.drawCircleChart(fanucData, chartId)
+        return;
+      }
+
+      //更新数据
+      const list = this.getMoldData(fanucData)
+      myChart.setOption({
+        legend: {
+          formatter: function (name) {  //该函数用于设置图例显示后的百分比
+            let value = 0;
+            list.forEach((item) => {
+              if (item.name === name) {
+                value = item.value;
+              }
+            })
+            return `${name}  ${value}%`;  //返回出图例所显示的内容是名称+百分比
+          }
+        },
+        series: [{
+          data: list
+        }]
+      });
+      // const option = myChart.getOption();
+      // option.series[0].data = data;
+      // myChart.setOption(option);
+    },
+    getMoldData(fanucData) {
       const moldData = [];
-      const mold_automate = this.fanucDialogData.moldData.mold_automate.replace('%', '').trim()
-      const mold_wait = this.fanucDialogData.moldData.mold_wait.replace('%', '').trim()
-      const mold_manual = this.fanucDialogData.moldData.mold_manual.replace('%', '').trim()
-      const mold_alarm = this.fanucDialogData.moldData.mold_alarm.replace('%', '').trim()
-      const mold_complete = this.fanucDialogData.moldData.mold_complete.replace('%', '').trim()
-      const mold_shutdown = this.fanucDialogData.moldData.mold_shutdown.replace('%', '').trim()
+      const mold_automate = fanucData.moldData.mold_automate.replace('%', '').trim()
+      const mold_wait = fanucData.moldData.mold_wait.replace('%', '').trim()
+      const mold_manual = fanucData.moldData.mold_manual.replace('%', '').trim()
+      const mold_alarm = fanucData.moldData.mold_alarm.replace('%', '').trim()
+      const mold_complete = fanucData.moldData.mold_complete.replace('%', '').trim()
+      const mold_shutdown = fanucData.moldData.mold_shutdown.replace('%', '').trim()
       const mold_other = (100.00 - mold_automate - mold_wait - mold_manual - mold_alarm - mold_complete - mold_shutdown).toFixed(2)
       moldData.push({value: mold_automate, name: '自动运转'})
       moldData.push({value: mold_wait, name: '运转待机'})
@@ -760,10 +922,24 @@ export default {
         '01': '运转待机',
         '02': '自动运转',
         '03': '报警',
+        '16': '冷间启动',
         '17': '低温保持',
-        '50': '半自动'
+        '11': '清料',
+        '50': '半自动',
+        default: '其他'
+      },
+      statusColor: {
+        '-1': "gray",
+        '00': "rgba(84,112,198,1)",
+        '01': "rgba(250,200,88,1)",
+        '02': "rgba(59,162,114,1)",
+        '03': "rgba(238,102,102,1)",
+        '17': "rgba(252,132,82,1)",
+        '16': "rgba(252,132,82,1)",
+        '11': "rgba(252,132,82,1)",
+        '50': "rgba(154,96,180,1)",
+        default: "rgba(252,132,82,1)"
       }
-
     }
   }
 };

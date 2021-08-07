@@ -42,3 +42,23 @@ export function getMachineCapacity(startTime, endTime) {
         }
     })
 }
+
+export function getMachineStatus() {
+    return request({
+        url: '/lenspacker/lenspackerDashboard/getStatus',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+export function getMachineAlarms() {
+    return request({
+        url: '/lenspacker/lenspackerDashboard/getAlarmInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

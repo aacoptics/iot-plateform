@@ -1,15 +1,18 @@
 import axios from 'axios';
-import {getAccessToken, getRefreshTime,
+import {
+    getAccessToken, getRefreshTime,
     setAccessToken, setExpireTime,
-    setRefreshToken, getRefreshToken, removeLoginInfo} from "@/utils/auth";
+    setRefreshToken, getRefreshToken, removeLoginInfo
+} from "@/utils/auth";
 import router from "@/router";
 import {refreshToken} from "@/api/user";
 import {ElMessage} from "element-plus";
+import {saveRefreshTime} from "@/api";
 
 const service = axios.create({
     // process.env.NODE_ENV === 'development' 来判断是否开发环境
     // easy-mock服务挂了，暂时不使用了
-    baseURL: 'http://10.69.76.40:8009'
+    baseURL: 'http://iottest.aacoptics.com:8009'
 });
 
 service.interceptors.request.use(
@@ -28,6 +31,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
     response => {
         if (response.status === 200) {
+            saveRefreshTime();
             return response;
         }
         // else {
@@ -42,7 +46,7 @@ service.interceptors.response.use(
                 if (getRefreshTime() && (curTime <= refreshTime)) {
                     return refreshToken(getRefreshToken()).then((response) => {
                         if (response.data.access_token) {
-                            ElMessage.success('刷新Token成功! 加载中...')
+                            //ElMessage.success('刷新Token成功! 加载中...')
                             const {access_token, refresh_token, expires_in} = response.data
                             setAccessToken(access_token)
                             setRefreshToken(refresh_token)
@@ -59,7 +63,7 @@ service.interceptors.response.use(
                     });
                 } else {
                     // 返回 401，并且不知用户操作活跃期内 清除token信息并跳转到登录页面
-                    if(error.response.data.msg){
+                    if (error.response.data.msg) {
                         ElMessage.error(error.response.data.msg)
                     }
                     removeLoginInfo()
@@ -68,16 +72,16 @@ service.interceptors.response.use(
             }
             // 403 无权限
             if (error.response.status === 403) {
-                if(error.response.data.msg){
+                if (error.response.data.msg) {
                     ElMessage.error(error.response.data.msg)
-                }else {
+                } else {
                     ElMessage.error('失败！该操作无权限')
                 }
                 return Promise.reject();
             }
         }
         console.log(error);
-        if(error.response.data.msg){
+        if (error.response.data.msg) {
             ElMessage.error(error.response.data.msg)
         }
         return error.response; // 返回接口返回的错误信息

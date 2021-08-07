@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import {getStatus} from "@/api/coating";
+import {getMachineStatus, getMachineAlarms} from "@/api/lenspacker";
 
 export default {
   name: "CoatingMachineMonitor",
