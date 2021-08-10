@@ -1,0 +1,19 @@
+server:
+  port: 8014
+spring:
+  application:
+    name: iot-lenspacker-dashboard
+  cloud:
+    nacos:
+      discovery:
+        server-addr: iottest.aacoptics.com:8848
+        namespace: iot-plateform
+        group: iot-plateform
+      config:
+        server-addr: iottest.aacoptics.com:8848
+        namespace: iot-plateform
+        group: iot-plateform
+        file-extension: yaml
+    sentinel:
+      transport:
+        dashboard: iottest.aacoptics.com:8844

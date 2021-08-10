@@ -1,0 +1,59 @@
+package com.aac.optics.lenspacker.dashboard.controller;
+
+import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.lenspacker.dashboard.service.LensPackerDashboardService;
+import com.aac.optics.lenspacker.dashboard.service.ValueStreamService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/lenspackerDashboard")
+@Api("lenspacker")
+@Slf4j
+public class LensPackerDashboardController {
+
+    @Autowired
+    ValueStreamService valueStreamService;
+
+    @Autowired
+    LensPackerDashboardService lensPackerDashboardService;
+
+    @ApiOperation(value = "查询机台报警详细数据", notes = "查询机台报警详细数据")
+    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+    @GetMapping("/getAlarmDetail")
+    public Result getMachineAlarmDetail(@RequestParam Map<String, String> params) {
+        return Result.success(valueStreamService.getMachineAlarmDetail(params.get("startTime"), params.get("endTime")));
+    }
+
+    @ApiOperation(value = "查询机台报警次数详细数据", notes = "查询机台报警次数详细数据")
+    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+    @GetMapping("/getAlarmCount")
+    public Result getMachineAlarmCount(@RequestParam Map<String, String> params) {
+        return Result.success(valueStreamService.getMachineAlarmCount(params.get("startTime"), params.get("endTime")));
+    }
+
+    @ApiOperation(value = "查询机台产能数据", notes = "查询机台产能数据")
+    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+    @GetMapping("/getMachineCapacity")
+    public Result getMachineCapacity(@RequestParam Map<String, String> params) {
+        return Result.success(valueStreamService.getMachineCapacity(params.get("startTime"), params.get("endTime")));
+    }
+
+    @ApiOperation(value = "查询机台实时状态", notes = "查询机台实时状态")
+    @GetMapping("/getAllStatus")
+    public Result getAllStatus() {
+        return Result.success(lensPackerDashboardService.getStatusInfo());
+    }
+
+    @ApiOperation(value = "查询机台实时报警", notes = "查询机台实时报警")
+    @GetMapping("/getCurrentAlarm")
+    public Result getCurrentAlarm() {
+        return Result.success(lensPackerDashboardService.getCurrentAlarmInfo());
+    }
+}
