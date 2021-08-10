@@ -30,4 +30,10 @@ public class CoatingDashboardController {
     public Result getAlarmInfo() {
         return Result.success(coatingDashboardService.getCoatingMachineAlarmInfo());
     }
+
+    @ApiOperation(value = "查询机台实时状态数量", notes = "查询机台实时状态数量")
+    @GetMapping("/getStatusCount")
+    public Result getStatusCount() {
+        return Result.success(coatingDashboardService.getStatusCount());
+    }
 }

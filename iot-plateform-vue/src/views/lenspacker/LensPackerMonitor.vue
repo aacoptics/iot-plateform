@@ -22,9 +22,9 @@
                   <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ singleMachineInfo.machineNo.substr(4) }}</p>
                 </el-col>
 <!--                <el-col :span="16">-->
-<!--                  <div :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
 <!--                    {{ getMachineStatus(singleMachineInfo.status) }}-->
-<!--                  </div>-->
+<!--                  <div :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
+                <!--                  </div>-->
 <!--                </el-col>-->
               </el-row>
               <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">

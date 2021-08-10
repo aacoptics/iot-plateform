@@ -56,4 +56,10 @@ public class LensPackerDashboardController {
     public Result getCurrentAlarm() {
         return Result.success(lensPackerDashboardService.getCurrentAlarmInfo());
     }
+
+    @ApiOperation(value = "查询机台状态数量", notes = "查询机台状态数量")
+    @GetMapping("/getStatusCount")
+    public Result getStatusCount() {
+        return Result.success(lensPackerDashboardService.getStatusCount());
+    }
 }
