@@ -165,6 +165,16 @@
     float: left;
 }
 
+.lenspacker_card_type{
+    width: 260px;
+    height: 120px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 50px;
+    margin-bottom: 20px;
+    float: left;
+}
+
 .coating_div_type{
     width: 230px;
     border:1px solid cornflowerblue;
