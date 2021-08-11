@@ -13,7 +13,7 @@
         "core-js": "~3.9.1",
         "echarts": "^5.1.1",
         "element-plus": "1.0.2-beta.53",
-        "js-cookie": "^2.2.1",
+        "js-cookie": "^3.0.0",
         "moment": "^2.29.1",
         "qs": "^6.10.1",
         "vue": "~3.0.7",

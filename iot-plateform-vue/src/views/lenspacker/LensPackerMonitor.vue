@@ -9,6 +9,12 @@
       </el-breadcrumb>
     </div>
     <div class="container">
+      <div style="margin-bottom: 20px">
+        <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
+             :style="'background-color:' + statusType[item] + ';text-align:center'" @click="onStatusRadioClick(item)">
+          {{ item + '(' + this.statusCount[item] + ')' }}
+        </div>
+      </div>
       <el-card v-for="(singleMachineInfo, index) of LensPackerMachineInfo" :key="index" :body-style="{ padding: '0px', height:'120px'}"
                shadow="hover"
                class="lenspacker_card_type"
@@ -79,10 +85,13 @@ export default {
   computed: {
     LensPackerMachineInfo() {
       const pages = []
+      this.setDefaultCount()
       const position = this.$route.query.position;
       this.LensPackerInfoList.forEach((item) => {
-        if (item.machineNo.indexOf(position) === 0) {
+        const statusName = this.getMachineStatus(item.status)
+        if (item.machineNo.indexOf(position) === 0  && this.statusRadioValue.indexOf(statusName) > -1) {
           pages.push(item)
+          this.statusCount[statusName]++
         }
       })
       return pages
@@ -97,6 +106,20 @@ export default {
       } else if (statusCode === 2) {
         return '报警'
       }
+    },
+    setDefaultCount() {
+      this.statusCount = {
+        '设备离线': 0,
+        '正常运行': 0,
+        '报警': 0
+      }
+    },
+    onStatusRadioClick(statusCode) {
+      const idx = this.statusRadioValue.indexOf(statusCode)
+      if (idx > -1)
+        this.statusRadioValue.splice(idx, 1)
+      else
+        this.statusRadioValue.push(statusCode)
     },
     getLensPackerStatus() {
       getMachineStatus().then((response) => {
@@ -129,6 +152,13 @@ export default {
         '设备离线': "gray",
         '正常运行': "rgba(59,162,114,1)",
         '报警': "rgba(238,102,102,1)"
+      },
+      statusRadio: ['正常运行', '报警', '设备离线'],
+      statusRadioValue: ['正常运行', '报警', '设备离线'],
+      statusCount: {
+        '设备离线': 0,
+        '正常运行': 0,
+        '报警': 0
       }
     }
   }

@@ -62,3 +62,13 @@ export function getMachineAlarms() {
         }
     })
 }
+
+export function getLensPackerStatusCount() {
+    return request({
+        url: '/lenspacker/lenspackerDashboard/getStatusCount',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

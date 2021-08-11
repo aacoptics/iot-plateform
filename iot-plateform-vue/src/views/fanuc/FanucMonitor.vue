@@ -9,6 +9,12 @@
       </el-breadcrumb>
     </div>
     <div class="container">
+      <div style="margin-bottom: 20px">
+        <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
+          {{ this.status[item] + '(' + this.statusCount[item] + ')' }}
+        </div>
+      </div>
       <el-card v-for="(item, index) of fanucMachineInfo" :key="index" :body-style="{ padding: '0px', height:'255px'}"
                shadow="hover"
                class="fanuc_card_type"
@@ -17,8 +23,8 @@
         <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ item.monitMcName }}</p>
         <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
           <el-col :span="24">
-            <div :style="'background-color:' + this.statusColor[item.monitStatus] + ';height:30px;line-height:30px'">
-              {{ this.status[item.monitStatus] }}
+            <div :style="'background-color:' + getStatusColor(item.monitStatus) + ';height:30px;line-height:30px'">
+              {{ this.status[item.monitStatus] ? this.status[item.monitStatus] : this.status.default }}
             </div>
           </el-col>
         </el-row>
@@ -571,16 +577,36 @@ export default {
     fanucMachineInfo() {
       const pages = []
       const position = this.$route.query.position;
+      this.setDefaultCount()
       const floor = position.substring(2, position.length)
       this.fanucMonitorInfo.forEach((item) => {
         if (item.monitMcName.indexOf(floor) === 0) {
-          pages.push(item)
+          if (this.status[item.monitStatus]) {
+            if (this.statusRadioValue.indexOf(item.monitStatus) > -1) {
+              pages.push(item)
+            }
+            this.statusCount[item.monitStatus]++
+          } else {
+            if (this.statusRadioValue.indexOf("default") > -1) {
+              pages.push(item)
+            }
+            this.statusCount.default++
+          }
         }
       })
       return pages
     }
   },
   methods: {
+    getStatusColor(statusCode) {
+      return this.statusColor[statusCode] ? this.statusColor[statusCode] : this.statusColor.default
+    },
+    getStatusRadioColor(statusCode) {
+      if (this.statusRadioValue.indexOf(statusCode) > -1)
+        return this.statusColor[statusCode]
+      else
+        return "rgba(235,235,235,1)"
+    },
     exportExcel(tableId, excelFileName) {
       const wb = XLSX.utils.table_to_book(document.querySelector(tableId));
       const wbOut = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'});
@@ -605,6 +631,13 @@ export default {
           }, 0)
         }
       })
+    },
+    onStatusRadioClick(statusCode) {
+      const idx = this.statusRadioValue.indexOf(statusCode)
+      if (idx > -1)
+        this.statusRadioValue.splice(idx, 1)
+      else
+        this.statusRadioValue.push(statusCode)
     },
     onRadioClick() {
       this.fanucDialogCondData = []
@@ -861,6 +894,20 @@ export default {
       moldData.push({value: mold_shutdown, name: '停机'})
       moldData.push({value: mold_other, name: '其他'})
       return moldData;
+    },
+    setDefaultCount() {
+      this.statusCount = {
+        '02': 0,
+        '00': 0,
+        '01': 0,
+        '17': 0,
+        '03': 0,
+        '16': 0,
+        '11': 0,
+        '50': 0,
+        '-1': 0,
+        default: 0
+      }
     }
   },
   beforeUnmount() {
@@ -928,6 +975,8 @@ export default {
         '50': '半自动',
         default: '其他'
       },
+      statusRadio: ['02', '00', '01', '17', '03', '16', '11', '50', '-1', 'default'],
+      statusRadioValue: ['02', '00', '01', '17', '03', '16', '11', '50', '-1', 'default'],
       statusColor: {
         '-1': "gray",
         '00': "rgba(84,112,198,1)",
@@ -939,6 +988,18 @@ export default {
         '11': "rgba(252,132,82,1)",
         '50': "rgba(154,96,180,1)",
         default: "rgba(252,132,82,1)"
+      },
+      statusCount: {
+        '02': 0,
+        '00': 0,
+        '01': 0,
+        '17': 0,
+        '03': 0,
+        '16': 0,
+        '11': 0,
+        '50': 0,
+        '-1': 0,
+        default: 0
       }
     }
   }

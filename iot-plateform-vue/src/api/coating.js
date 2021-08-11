@@ -19,3 +19,13 @@ export function getAlarmInfo() {
         }
     })
 }
+
+export function getCoatingStatusCount() {
+    return request({
+        url: '/coating/coatingDashboard/getStatusCount',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

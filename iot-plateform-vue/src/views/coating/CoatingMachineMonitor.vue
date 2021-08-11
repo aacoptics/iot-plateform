@@ -9,7 +9,14 @@
       </el-breadcrumb>
     </div>
     <div class="container">
-      <el-card v-for="(singleMachineInfo, index) of coatingStatusInfo" :key="index" :body-style="{ padding: '0px', height:'60px'}"
+      <div style="margin-bottom: 20px">
+        <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
+             :style="'background-color:' + statusType[item] + ';text-align:center'" @click="onStatusRadioClick(item)">
+          {{ item + '(' + this.statusCount[item] + ')' }}
+        </div>
+      </div>
+      <el-card v-for="(singleMachineInfo, index) of coatingStatusInfo" :key="index"
+               :body-style="{ padding: '0px', height:'60px'}"
                shadow="hover"
                class="coating_card_type"
                style="cursor: pointer">
@@ -17,12 +24,15 @@
         <el-row>
           <el-col>
             <div style="font-weight: bold">
-              <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;border-bottom: 1px solid cornflowerblue">
+              <el-row
+                  style="text-align: center;height:30px; font-weight: bold;font-size: 16px;border-bottom: 1px solid cornflowerblue">
                 <el-col :span="8">
-                  <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ singleMachineInfo.name }}</p>
+                  <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">
+                    {{ singleMachineInfo.name }}</p>
                 </el-col>
                 <el-col :span="16">
-                  <div :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline)] + ';height:30px;line-height:30px'">
+                  <div
+                      :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline)] + ';height:30px;line-height:30px'">
                     {{ getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline) }}
                   </div>
                 </el-col>
@@ -35,29 +45,29 @@
           </el-col>
         </el-row>
       </el-card>
-<!--      <div v-for="(singleMachineInfo, index) of coatingStatusInfo" :key="index"-->
-<!--           class="coating_div_type">-->
-<!--        <div :class="statusType[getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline)]">-->
-<!--          <el-row style="margin-bottom: 10px">-->
-<!--            <el-col :span="12">-->
-<!--              <span style="width: 200px">机台号：{{ singleMachineInfo.name }}</span>-->
-<!--            </el-col>-->
-<!--            <el-col :span="12">-->
-<!--              <span>状态：{{ getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline) }}</span>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-<!--          <el-row>-->
-<!--            <el-col :span="12">-->
-<!--              <span>产能：</span>-->
-<!--              <span>{{ singleMachineInfo.totalNums }}</span>-->
-<!--            </el-col>-->
-<!--            <el-col :span="12">-->
-<!--              <span>累计锅次：</span>-->
-<!--              <span>{{ singleMachineInfo.runNo }}</span>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      <div v-for="(singleMachineInfo, index) of coatingStatusInfo" :key="index"-->
+      <!--           class="coating_div_type">-->
+      <!--        <div :class="statusType[getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline)]">-->
+      <!--          <el-row style="margin-bottom: 10px">-->
+      <!--            <el-col :span="12">-->
+      <!--              <span style="width: 200px">机台号：{{ singleMachineInfo.name }}</span>-->
+      <!--            </el-col>-->
+      <!--            <el-col :span="12">-->
+      <!--              <span>状态：{{ getMachineStatus(singleMachineInfo.status, singleMachineInfo.isOnline) }}</span>-->
+      <!--            </el-col>-->
+      <!--          </el-row>-->
+      <!--          <el-row>-->
+      <!--            <el-col :span="12">-->
+      <!--              <span>产能：</span>-->
+      <!--              <span>{{ singleMachineInfo.totalNums }}</span>-->
+      <!--            </el-col>-->
+      <!--            <el-col :span="12">-->
+      <!--              <span>累计锅次：</span>-->
+      <!--              <span>{{ singleMachineInfo.runNo }}</span>-->
+      <!--            </el-col>-->
+      <!--          </el-row>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </div>
   </div>
 </template>
@@ -76,9 +86,12 @@ export default {
   computed: {
     coatingStatusInfo() {
       const pages = []
+      this.setDefaultCount()
       this.coatingMachineInfoList.forEach((item) => {
-        if (this.checkCoatingPhase(item.name)) {
+        const statusName = this.getMachineStatus(item.status, item.isOnline)
+        if (this.checkCoatingPhase(item.name) && this.statusRadioValue.indexOf(statusName) > -1) {
           pages.push(item)
+          this.statusCount[statusName]++
         }
       })
       return pages
@@ -125,6 +138,20 @@ export default {
         }
       }
     },
+    setDefaultCount() {
+      this.statusCount = {
+        '设备离线': 0,
+        '正常运行': 0,
+        '上料预警': 0
+      }
+    },
+    onStatusRadioClick(statusCode) {
+      const idx = this.statusRadioValue.indexOf(statusCode)
+      if (idx > -1)
+        this.statusRadioValue.splice(idx, 1)
+      else
+        this.statusRadioValue.push(statusCode)
+    },
     getCoatingMachineInfo() {
       getStatus().then((response) => {
         const responseData = response.data
@@ -149,6 +176,13 @@ export default {
         '设备离线': "gray",
         '正常运行': "rgba(59,162,114,1)",
         '上料预警': "rgba(238,102,102,1)"
+      },
+      statusRadio: ['正常运行', '上料预警', '设备离线'],
+      statusRadioValue: ['正常运行', '上料预警', '设备离线'],
+      statusCount: {
+        '设备离线': 0,
+        '正常运行': 0,
+        '上料预警': 0
       }
     }
   }

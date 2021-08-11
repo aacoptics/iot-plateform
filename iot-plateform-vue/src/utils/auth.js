@@ -5,7 +5,7 @@ export function getUsername() {
 }
 
 export function setUsername(username) {
-    return Cookies.set('username', username)
+    return Cookies.set('username', username, { expires: 7 })
 }
 
 export function removeUsername() {
@@ -33,7 +33,7 @@ export function getAccessToken() {
 }
 
 export function setAccessToken(token) {
-    return Cookies.set('access_token', token)
+    return Cookies.set('access_token', token, { expires: 7 })
 }
 
 export function removeAccessToken() {
@@ -45,7 +45,7 @@ export function getRefreshToken() {
 }
 
 export function setRefreshToken(token) {
-    return Cookies.set('refresh_token', token)
+    return Cookies.set('refresh_token', token, { expires: 7 })
 }
 
 export function removeRefreshToken() {
@@ -100,7 +100,7 @@ export function removeRefreshTime() {
     return window.localStorage.removeItem('refresh_time')
 }
 
-export function removeLoginInfo() {
+export function removeLoginInfo(){
     removeMenuInfo()
     removeAccessToken()
     removeMenuItems()

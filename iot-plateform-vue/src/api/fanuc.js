@@ -13,6 +13,16 @@ export function getByFloor(floor) {
     })
 }
 
+export function getFanucStatusCount() {
+    return request({
+        url: '/fanuc/fanucDashboard/getStatusCount',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
 export function getDetailInfo(machineName) {
     return request({
         url: '/fanuc/fanucDashboard/getDetailInfo',
