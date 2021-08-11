@@ -11,7 +11,7 @@
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
-             :style="'background-color:' + statusType[item] + ';text-align:center'" @click="onStatusRadioClick(item)">
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
           {{ item + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
@@ -89,8 +89,10 @@ export default {
       this.setDefaultCount()
       this.coatingMachineInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status, item.isOnline)
-        if (this.checkCoatingPhase(item.name) && this.statusRadioValue.indexOf(statusName) > -1) {
-          pages.push(item)
+        if (this.checkCoatingPhase(item.name)) {
+          if(this.statusRadioValue.indexOf(statusName) > -1){
+            pages.push(item)
+          }
           this.statusCount[statusName]++
         }
       })
@@ -145,6 +147,12 @@ export default {
         '上料预警': 0
       }
     },
+    getStatusRadioColor(statusCode) {
+      if (this.statusRadioValue.indexOf(statusCode) > -1)
+        return this.statusType[statusCode]
+      else
+        return "rgba(235,235,235,1)"
+    },
     onStatusRadioClick(statusCode) {
       const idx = this.statusRadioValue.indexOf(statusCode)
       if (idx > -1)
@@ -173,9 +181,9 @@ export default {
       //   '上料预警': 'item_coating_alarm'
       // }
       statusType: {
-        '设备离线': "gray",
-        '正常运行': "rgba(59,162,114,1)",
-        '上料预警': "rgba(238,102,102,1)"
+        "设备离线": "gray",
+        "正常运行": "rgba(59,162,114,1)",
+        "上料预警": "rgba(238,102,102,1)"
       },
       statusRadio: ['正常运行', '上料预警', '设备离线'],
       statusRadioValue: ['正常运行', '上料预警', '设备离线'],

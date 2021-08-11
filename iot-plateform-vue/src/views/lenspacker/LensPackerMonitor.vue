@@ -11,7 +11,7 @@
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
-             :style="'background-color:' + statusType[item] + ';text-align:center'" @click="onStatusRadioClick(item)">
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
           {{ item + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
@@ -89,8 +89,10 @@ export default {
       const position = this.$route.query.position;
       this.LensPackerInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status)
-        if (item.machineNo.indexOf(position) === 0  && this.statusRadioValue.indexOf(statusName) > -1) {
-          pages.push(item)
+        if (item.machineNo.indexOf(position) === 0) {
+          if(this.statusRadioValue.indexOf(statusName) > -1) {
+            pages.push(item)
+          }
           this.statusCount[statusName]++
         }
       })
@@ -106,6 +108,12 @@ export default {
       } else if (statusCode === 2) {
         return '报警'
       }
+    },
+    getStatusRadioColor(statusCode) {
+      if (this.statusRadioValue.indexOf(statusCode) > -1)
+        return this.statusType[statusCode]
+      else
+        return "rgba(235,235,235,1)"
     },
     setDefaultCount() {
       this.statusCount = {
