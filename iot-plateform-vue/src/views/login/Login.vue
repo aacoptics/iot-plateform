@@ -4,9 +4,9 @@
       <div class="ms-title">光学IoT平台</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
         <el-form-item prop="username">
-          <el-input v-model="param.username" placeholder="用户名">
+          <el-input v-model="param.username" placeholder="用户名" tabindex="1">
             <template #prepend>
-              <el-button icon="el-icon-user"></el-button>
+              <el-button icon="el-icon-user" tabindex="-1"></el-button>
             </template>
           </el-input>
         </el-form-item>
@@ -16,14 +16,15 @@
               placeholder="密码"
               v-model="param.password"
               @keyup.enter="submitForm()"
+              tabindex="2"
           >
             <template #prepend>
-              <el-button icon="el-icon-lock"></el-button>
+              <el-button icon="el-icon-lock" tabindex="-1"></el-button>
             </template>
           </el-input>
         </el-form-item>
         <div class="login-btn">
-          <el-button type="primary" @click="submitForm()">登录</el-button>
+          <el-button type="primary" @click="submitForm()" tabindex="3">登录</el-button>
         </div>
       </el-form>
     </div>

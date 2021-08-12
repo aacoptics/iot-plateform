@@ -42,6 +42,7 @@ public class WebServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .and()
                 .logout()
+                .logoutUrl("/oauth/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll();
     }

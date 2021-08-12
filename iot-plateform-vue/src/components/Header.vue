@@ -46,7 +46,7 @@
 </template>
 <script>
 import {getUserDetail, getUsername, removeLoginInfo} from "@/utils/auth";
-
+import {logout} from "@/api/user";
 export default {
   data() {
     return {
@@ -75,6 +75,11 @@ export default {
     handleCommand(command) {
       if (command === "logout") {
         removeLoginInfo()
+        logout().then((response) => {
+          if (response.status === 200) {
+            this.$message.success("退出成功");
+          }
+        })
         this.$router.push("/login");
       }
     },

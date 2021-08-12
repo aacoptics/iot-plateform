@@ -19,6 +19,13 @@ export function login(loginInfo) {
     })
 }
 
+export function logout() {
+    return request({
+        url: '/auth-server/oauth/logout',
+        method: 'get'
+    })
+}
+
 export function refreshToken(token) {
     return request({
         url: '/auth-server/oauth/token',
