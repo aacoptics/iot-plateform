@@ -4,7 +4,7 @@
       <el-col :span="8">
         <el-card shadow="hover" class="mgb20" style="height:280px;">
           <div class="user-info">
-            <img src="../../assets/img/img.jpg" class="user-avator" alt/>
+            <img src="../../assets/img/avator.png" class="user-avator" alt/>
             <div class="user-info-cont">
               <div class="user-info-name">{{ userRealName }}</div>
               <div>{{ role }}</div>
@@ -25,7 +25,8 @@
           <div class="card-header" style="font-weight: bold">
             <span>注塑机</span>
           </div>
-          <el-card v-for="(item, index) of getFanucCount" :key="index" style="margin-top: 10px;cursor: pointer" @click="onCardClick(item.floor, 'fanuc')">
+          <el-card v-for="(item, index) of getFanucCount" :key="index" style="margin-top: 10px;cursor: pointer"
+                   @click="onCardClick(item.floor, 'fanuc')">
             <div class="card-header" style="margin-bottom: 20px">
               <span>{{ item.floor.replace('F', '楼') }}</span>
             </div>
@@ -51,15 +52,18 @@
               </el-col>
               <el-col :span="4">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(252,132,82,1)">{{ getFanucTotalCount(item.floor)
-                - (item['02'] ? item['02'] : 0)
-                - (item['17'] ? item['17'] : 0)
-                - (item['00'] ? item['00'] : 0)
-                - (item['03'] ? item['03'] : 0)
-                - (item['-1'] ? item['-1'] : 0)}}</span>
+                      style="background-color: rgba(252,132,82,1)">{{
+                    getFanucTotalCount(item.floor)
+                    - (item['02'] ? item['02'] : 0)
+                    - (item['17'] ? item['17'] : 0)
+                    - (item['00'] ? item['00'] : 0)
+                    - (item['03'] ? item['03'] : 0)
+                    - (item['-1'] ? item['-1'] : 0)
+                  }}</span>
               </el-col>
             </el-row>
-            <el-row align="middle" style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
+            <el-row align="middle"
+                    style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
               <el-col :span="4">
                 <span>自动运转</span>
               </el-col>
@@ -87,7 +91,8 @@
           <div class="card-header" style="font-weight: bold">
             <span>包料机</span>
           </div>
-          <el-card v-for="(item, index) of getLensPackerCount" :key="index" style="margin-top: 10px;cursor: pointer" @click="onCardClick(item.floor, 'lensPacker')">
+          <el-card v-for="(item, index) of getLensPackerCount" :key="index" style="margin-top: 10px;cursor: pointer"
+                   @click="onCardClick(item.floor, 'lensPacker')">
             <div class="card-header" style="margin-bottom: 10px">
               <span>{{ item.floor.replace('F', '楼') }}</span>
             </div>
@@ -105,7 +110,8 @@
                       style="background-color: gray">{{ item['0'] ? item['0'] : 0 }}</span>
               </el-col>
             </el-row>
-            <el-row align="middle" style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
+            <el-row align="middle"
+                    style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
               <el-col :span="8">
                 <span>自动运转</span>
               </el-col>
@@ -124,7 +130,8 @@
           <div class="card-header" style="font-weight: bold">
             <span>镀膜机</span>
           </div>
-          <el-card v-for="(item, index) of getCoatingCount" :key="index" style="margin-top: 10px;cursor: pointer" @click="onCardClick(item.floor, 'coating')">
+          <el-card v-for="(item, index) of getCoatingCount" :key="index" style="margin-top: 10px;cursor: pointer"
+                   @click="onCardClick(item.floor, 'coating')">
             <div class="card-header" style="margin-bottom: 10px">
               <span>{{ item.floor }}</span>
             </div>
@@ -135,14 +142,15 @@
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(238,102,102,1)">{{ item['1'] ? item['1'] : 0 }}</span>
+                      style="background-color: rgba(154,96,180,1)">{{ item['1'] ? item['1'] : 0 }}</span>
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
                       style="background-color: gray">{{ item['-1'] ? item['-1'] : 0 }}</span>
               </el-col>
             </el-row>
-            <el-row align="middle" style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
+            <el-row align="middle"
+                    style="text-align: center;font-family: 'Microsoft YaHei',serif;font-size: 14px;font-weight: bold;margin-top: 10px">
               <el-col :span="8">
                 <span>自动运转</span>
               </el-col>
@@ -173,8 +181,7 @@ export default {
     return {
       lensPacker: {},
       fanuc: {},
-      coating: {},
-      test: []
+      coating: {}
     };
   },
   created() {
@@ -424,7 +431,12 @@ export default {
     },
     refreshTotalCountData() {
       const chartDom = document.getElementById('totalStatusCount');
-      const myChart = echarts.getInstanceByDom(chartDom)
+      let myChart = undefined;
+      try {
+        myChart = echarts.getInstanceByDom(chartDom)
+      } catch {
+        return;
+      }
       if (!myChart) {
         this.drawTotalCountChart()
         return;
@@ -514,13 +526,13 @@ export default {
       }
       return nums
     },
-    onCardClick(floor, machineType){
-      if(machineType === 'fanuc') {
+    onCardClick(floor, machineType) {
+      if (machineType === 'fanuc') {
         this.$router.push('/fanuc' + floor + '?position=3B' + floor)
-      }else if(machineType === 'lensPacker'){
+      } else if (machineType === 'lensPacker') {
         this.$router.push('/lensPacker' + floor + '?position=3B' + floor)
-      }else if(machineType === 'coating') {
-        this.$router.push('/coating' + floor.substring(0,1) + '?position=' + floor.substring(0,1))
+      } else if (machineType === 'coating') {
+        this.$router.push('/coating' + floor.substring(0, 1) + '?position=' + floor.substring(0, 1))
       }
     }
   }

@@ -183,7 +183,7 @@ export default {
       statusType: {
         "设备离线": "gray",
         "正常运行": "rgba(59,162,114,1)",
-        "上料预警": "rgba(238,102,102,1)"
+        "上料预警": "rgba(154,96,180,1)"
       },
       statusRadio: ['正常运行', '上料预警', '设备离线'],
       statusRadioValue: ['正常运行', '上料预警', '设备离线'],
