@@ -6,6 +6,7 @@ import {
     setUserDetail, setExpireTime,
     getExpireTime, setRefreshTime
 } from '@/utils/auth'
+import {ElMessage} from "element-plus";
 
 const state = {
     refreshToken: getRefreshToken(),
@@ -34,6 +35,13 @@ const actions = {
         const {username, password} = userInfo
         return new Promise((resolve, reject) => {
             login({username: username.trim(), password: password}).then(response => {
+                if (response.status !== 200) {
+                    reject()
+                    if (response.status === 401) {
+                        ElMessage.error("没有此用户，请联系IT开通！")
+                    }
+                    return
+                }
                 const {access_token, refresh_token, expires_in} = response.data
                 setUsername(username.trim())
                 setAccessToken(access_token)

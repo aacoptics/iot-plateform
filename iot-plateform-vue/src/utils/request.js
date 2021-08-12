@@ -10,8 +10,6 @@ import {ElMessage} from "element-plus";
 import {saveRefreshTime} from "@/api";
 
 const service = axios.create({
-    // process.env.NODE_ENV === 'development' 来判断是否开发环境
-    // easy-mock服务挂了，暂时不使用了
     baseURL: 'http://iottest.aacoptics.com:8009'
 });
 
@@ -80,7 +78,6 @@ service.interceptors.response.use(
                 return Promise.reject();
             }
         }
-        console.log(error);
         if (error.response.data.msg) {
             ElMessage.error(error.response.data.msg)
         }
