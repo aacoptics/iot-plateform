@@ -1,5 +1,6 @@
 package com.aac.optics.auth.server.config;
 
+import com.aac.optics.auth.server.oauth2.LogoutSuccessHandler;
 import com.aac.optics.auth.server.oauth2.granter.LdapAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class WebServerSecurityConfig extends WebSecurityConfigurerAdapter {
     @Qualifier("ldapUserDetailsService")
     private UserDetailsService ldapUserDetailsService;
 
+    @Autowired
+    private LogoutSuccessHandler logoutSuccessHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
@@ -35,7 +39,11 @@ public class WebServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().permitAll();
+                .formLogin()
+                .and()
+                .logout()
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .permitAll();
     }
 
     /**
