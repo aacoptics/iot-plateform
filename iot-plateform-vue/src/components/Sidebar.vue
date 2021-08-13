@@ -59,7 +59,7 @@ export default {
     return {
       items: [
         {
-          icon: "el-icon-lx-home",
+          icon: "el-icon-s-home",
           index: "dashboard",
           title: "系统首页"
         }
