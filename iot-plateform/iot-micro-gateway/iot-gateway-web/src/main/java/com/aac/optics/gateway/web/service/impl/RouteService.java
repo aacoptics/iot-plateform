@@ -7,6 +7,7 @@ import com.alicp.jetcache.anno.CreateCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
 public class RouteService implements IRouteService {
 
     private static final String GATEWAY_ROUTES = "gateway_routes::";
+
+    @Value("${swagger.ignore.gatewayRoute}")
+    private String ignoreSwaggerRoutes = "iot-auth-server";
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -59,6 +64,11 @@ public class RouteService implements IRouteService {
         });
         routeDefinitionMaps.putAll(allRoutes);
         log.info("共初使化路由信息：{}", routeDefinitionMaps.size());
+    }
+
+    @Override
+    public boolean ignoreSwaggerRoute(String routeId) {
+        return Stream.of(this.ignoreSwaggerRoutes.split(",")).anyMatch(ignoreRoutes -> routeId.equals(org.apache.commons.lang.StringUtils.trim(ignoreRoutes)));
     }
 
     @Override

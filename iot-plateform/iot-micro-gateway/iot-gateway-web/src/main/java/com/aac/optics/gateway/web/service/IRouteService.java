@@ -10,4 +10,6 @@ public interface IRouteService {
     boolean save(RouteDefinition routeDefinition);
 
     boolean delete(String routeId);
+
+    boolean ignoreSwaggerRoute(String routeId);
 }

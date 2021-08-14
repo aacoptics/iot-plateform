@@ -29,8 +29,12 @@ public class SwaggerProvider implements SwaggerResourcesProvider {
                 .forEach(routeDefinition -> routeDefinition.getPredicates().stream()
                         .filter(predicateDefinition -> "Path".equalsIgnoreCase(predicateDefinition.getName()))
                         .peek(predicateDefinition -> log.debug("路由配置参数：{}", predicateDefinition.getArgs()))
-                        .forEach(predicateDefinition -> resources.add(swaggerResource(routeDefinition.getId(),
-                                predicateDefinition.getArgs().get("pattern").replace("/**", API_URI)))));
+                        .forEach(predicateDefinition -> {
+                            if(routeService.ignoreSwaggerRoute(routeDefinition.getId()))
+                                return;
+                            resources.add(swaggerResource(routeDefinition.getId(),
+                                    predicateDefinition.getArgs().get("pattern").replace("/**", API_URI)));
+                        }));
         log.debug("resources:{}", resources);
         return resources;
     }
