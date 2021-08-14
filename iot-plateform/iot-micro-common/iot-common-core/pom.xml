@@ -12,7 +12,6 @@
     <artifactId>iot-common-core</artifactId>
 
     <dependencies>
-        <!--Swagger2 - RESTful API文档-->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>

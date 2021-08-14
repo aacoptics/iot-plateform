@@ -33,7 +33,7 @@ public class NotificationController {
     private RabbitTemplate rabbitTemplate;
 
     @ApiOperation(value = "发送邮件", notes = "发送邮件")
-    @ApiImplicitParam(name = "EmailSendForm", value = "邮件发送表单", required = true, dataType = "EmailSendForm")
+    @ApiImplicitParam(name = "emailSendForm", value = "邮件发送表单", required = true, dataType = "EmailSendForm")
     @PostMapping(value = "/sendEmail")
     public Result sendEmail(@Valid @RequestBody EmailSendForm emailSendForm) {
         String messageId = String.valueOf(UUID.randomUUID());
