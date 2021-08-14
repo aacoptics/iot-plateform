@@ -1,6 +1,6 @@
 package com.aac.optics.auth.server.oauth2.granter;
 
-import com.aac.optics.auth.server.provider.LdapProvider;
+import com.aac.optics.auth.server.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class LdapAuthenticationProvider extends DaoAuthenticationProvider {
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    UserService userService;
 
     public LdapAuthenticationProvider(UserDetailsService userDetailsService) {
         super.setUserDetailsService(userDetailsService);
@@ -31,7 +34,7 @@ public class LdapAuthenticationProvider extends DaoAuthenticationProvider {
             throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         } else {
             String presentedPassword = authentication.getCredentials().toString();
-            String ldapInfo = LdapProvider.GetADInfo("ldap://cz.ldap.aacoptics.com:389", userDetails.getUsername(), presentedPassword);
+            String ldapInfo = userService.GetADInfo(userDetails.getUsername(), presentedPassword);
             if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()) && ldapInfo == null) {
                 this.logger.debug("Authentication failed: password does not match stored value");
                 throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));

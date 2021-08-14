@@ -15,4 +15,6 @@ public interface IUserService {
      */
     @Cacheable(value = "#id")
     User getByUniqueId(String uniqueId);
+
+    String GetADInfo(String name, String pwd);
 }
