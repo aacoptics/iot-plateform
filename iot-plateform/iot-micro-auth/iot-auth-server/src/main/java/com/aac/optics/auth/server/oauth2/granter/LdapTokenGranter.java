@@ -53,7 +53,6 @@ public class LdapTokenGranter extends ResourceOwnerPasswordTokenGranter {
             throw new InvalidGrantException("Could not authenticate user: " + username);
         }
 
-
         OAuth2Request storedOAuth2Request = getRequestFactory().createOAuth2Request(client, tokenRequest);
         return new OAuth2Authentication(storedOAuth2Request, userAuth);
     }
