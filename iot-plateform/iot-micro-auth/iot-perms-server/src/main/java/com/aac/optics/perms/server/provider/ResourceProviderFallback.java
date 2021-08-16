@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.provider;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.provider.organization.Resource;
+import com.aac.optics.perms.server.entity.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.HashSet;

@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.service.impl;
 
 import com.aac.optics.perms.server.service.IAuthenticationService;
-import com.aac.optics.provider.organization.Resource;
+import com.aac.optics.perms.server.entity.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.ConfigAttribute;

@@ -1,4 +1,4 @@
-package com.aac.optics.common.web.redis;
+package com.aac.optics.common.web.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

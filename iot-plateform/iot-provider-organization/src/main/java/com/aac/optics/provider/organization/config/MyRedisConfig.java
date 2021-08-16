@@ -1,6 +1,6 @@
 package com.aac.optics.provider.organization.config;
 
-import com.aac.optics.common.web.redis.RedisConfig;
+import com.aac.optics.common.web.config.RedisConfig;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;

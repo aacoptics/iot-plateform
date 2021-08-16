@@ -1,6 +1,6 @@
 package com.aac.optics.perms.server.service;
 
-import com.aac.optics.provider.organization.Resource;
+import com.aac.optics.perms.server.entity.Resource;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.stereotype.Service;
 

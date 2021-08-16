@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.provider;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.provider.organization.Resource;
+import com.aac.optics.perms.server.entity.Resource;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -534,6 +534,9 @@ export default {
       } else if (machineType === 'coating') {
         this.$router.push('/coating' + floor.substring(0, 1) + '?position=' + floor.substring(0, 1))
       }
+    },
+    onCountClick(type, status){
+
     }
   }
 }

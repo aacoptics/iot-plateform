@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.service.impl;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.provider.organization.Resource;
+import com.aac.optics.perms.server.entity.Resource;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.aac.optics.perms.server.provider.ResourceProvider;

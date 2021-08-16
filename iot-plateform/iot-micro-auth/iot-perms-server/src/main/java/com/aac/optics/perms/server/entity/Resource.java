@@ -1,4 +1,4 @@
-package com.aac.optics.provider.organization;
+package com.aac.optics.perms.server.entity;
 
 import com.aac.optics.common.web.entity.po.BasePo;
 import lombok.Data;
