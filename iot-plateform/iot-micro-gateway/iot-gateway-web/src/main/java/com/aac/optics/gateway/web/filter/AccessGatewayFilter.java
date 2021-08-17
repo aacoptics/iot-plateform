@@ -77,7 +77,10 @@ public class AccessGatewayFilter implements GlobalFilter {
                 return unauthorized(exchange, res, HttpStatus.FORBIDDEN);
             }
         } else {
-            return unauthorized(exchange, res, HttpStatus.UNAUTHORIZED);
+            if (res.getCode().equals("030600"))
+                return unauthorized(exchange, res, HttpStatus.BAD_GATEWAY);
+            else
+                return unauthorized(exchange, res, HttpStatus.UNAUTHORIZED);
         }
     }
 

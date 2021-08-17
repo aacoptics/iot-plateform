@@ -32,7 +32,7 @@ public interface AuthProvider {
     @Component
     class AuthProviderFallback implements AuthProvider {
         /**
-         * 降级统一返回无权限
+         * 降级返回内部错误
          *
          * @param authentication
          * @param url
@@ -47,7 +47,7 @@ public interface AuthProvider {
          */
         @Override
         public Result auth(String authentication, String url, String method) {
-            return Result.fail(PermissionErrorType.TOKEN_INVALID);
+            return Result.fail(PermissionErrorType.PERMS_SERVER_ERROR);
         }
     }
 }

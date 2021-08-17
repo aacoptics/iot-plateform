@@ -17,6 +17,7 @@ spring:
     sentinel:
       transport:
         dashboard: iottest.aacoptics.com:8844
+        client-ip: localhost
     gateway:
       globalcors:
         cors-configurations:
