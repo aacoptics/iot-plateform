@@ -30,6 +30,4 @@ public class GeneralDashboardController {
     public Result getGeneralCurrentAlarm() {
         return Result.success(generalDashboardService.getGeneralCurrentAlarm());
     }
-
-
 }

@@ -36,4 +36,15 @@ public class FanucOneHourShotCountDataServiceImpl extends ServiceImpl<FanucOneHo
         String startTime = df.format(currentTime);
         return fanucOneHourShotCountDataMapper.getUPH(startTime);
     }
+
+    @Override
+    public List<FanucOneHourShotCountData> getTotalUph() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd 08:00:00");
+        if (currentTime.getHour() < 8) {
+            currentTime = currentTime.plusDays(-1);
+        }
+        String startTime = df.format(currentTime);
+        return fanucOneHourShotCountDataMapper.getTotalUph(startTime);
+    }
 }

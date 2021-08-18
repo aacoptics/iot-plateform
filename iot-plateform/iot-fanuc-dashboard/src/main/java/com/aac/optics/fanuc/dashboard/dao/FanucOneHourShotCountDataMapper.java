@@ -13,4 +13,6 @@ import java.util.List;
 public interface FanucOneHourShotCountDataMapper extends BaseMapper<FanucOneHourShotCountData> {
 
     List<FanucOneHourShotCountData> getUPH(@Param("startTime")  String startTime);
+
+    List<FanucOneHourShotCountData> getTotalUph(@Param("startTime")  String startTime);
 }

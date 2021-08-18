@@ -1,10 +1,7 @@
 package com.aac.optics.fanuc.dashboard.controller;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.fanuc.dashboard.service.FanucAlarmDataService;
-import com.aac.optics.fanuc.dashboard.service.FanucCondDataService;
-import com.aac.optics.fanuc.dashboard.service.FanucDashboardService;
-import com.aac.optics.fanuc.dashboard.service.FanucMonitDataService;
+import com.aac.optics.fanuc.dashboard.service.*;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,6 +29,9 @@ public class FanucDashboardController {
 
     @Autowired
     FanucAlarmDataService fanucAlarmDataService;
+
+    @Autowired
+    FanucOneHourShotCountDataService fanucOneHourShotCountDataService;
 
     @ApiOperation(value = "查询机台详细数据", notes = "查询机台详细数据")
     @ApiImplicitParam(name = "machineName", value = "机台号", required = true, dataType = "String")
@@ -78,5 +78,11 @@ public class FanucDashboardController {
     @GetMapping("/getStatusCount")
     public Result getStatusCount() {
         return Result.success(fanucDashboardService.getStatusCount());
+    }
+
+    @ApiOperation(value = "查询机台总共UPH", notes = "查询机台总共UPH")
+    @GetMapping("/getTotalUph")
+    public Result getTotalUph() {
+        return Result.success(fanucOneHourShotCountDataService.getTotalUph());
     }
 }

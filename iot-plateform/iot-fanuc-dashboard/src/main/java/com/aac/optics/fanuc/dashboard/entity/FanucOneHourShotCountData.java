@@ -33,5 +33,5 @@ public class FanucOneHourShotCountData implements Serializable {
 
     private LocalDateTime endTime;
 
-    private String shotCount;
+    private Integer shotCount;
 }

@@ -2,6 +2,7 @@ package com.aac.optics.lenspacker.dashboard.controller;
 
 import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.lenspacker.dashboard.service.LensPackerDashboardService;
+import com.aac.optics.lenspacker.dashboard.service.LensPackerOneHourCapacityService;
 import com.aac.optics.lenspacker.dashboard.service.ValueStreamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,6 +24,9 @@ public class LensPackerDashboardController {
 
     @Autowired
     LensPackerDashboardService lensPackerDashboardService;
+
+    @Autowired
+    LensPackerOneHourCapacityService lensPackerOneHourCapacityService;
 
     @ApiOperation(value = "查询机台报警详细数据", notes = "查询机台报警详细数据")
     @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
@@ -61,5 +65,11 @@ public class LensPackerDashboardController {
     @GetMapping("/getStatusCount")
     public Result getStatusCount() {
         return Result.success(lensPackerDashboardService.getStatusCount());
+    }
+
+    @ApiOperation(value = "查询机台总共UPH", notes = "查询机台总共UPH")
+    @GetMapping("/getTotalUph")
+    public Result getTotalUph() {
+        return Result.success(lensPackerOneHourCapacityService.getTotalUph());
     }
 }
