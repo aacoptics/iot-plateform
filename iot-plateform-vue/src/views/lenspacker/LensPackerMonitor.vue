@@ -87,6 +87,10 @@ export default {
       const pages = []
       this.setDefaultCount()
       const position = this.$route.query.position;
+      if (this.$route.params.status) {
+        this.setStatusRadioValue(this.$route.params.status);
+        this.refreshPage()
+      }
       this.LensPackerInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status)
         if (item.machineNo.indexOf(position) === 0) {
@@ -100,6 +104,16 @@ export default {
     }
   },
   methods: {
+    refreshPage(){
+      this.$router.push(this.$route.fullPath)
+    },
+    setStatusRadioValue(status) {
+      this.statusRadioValue = []
+      this.statusRadioValue.push(status)
+    },
+    setAllStatusRadioValue() {
+      this.statusRadioValue = ['正常运行', '报警', '设备离线']
+    },
     getMachineStatus(statusCode) {
       if (statusCode === 0) {
         return '设备离线'

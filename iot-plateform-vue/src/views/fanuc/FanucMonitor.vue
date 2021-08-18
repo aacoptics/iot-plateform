@@ -11,7 +11,8 @@
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
-             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'"
+             @click="onStatusRadioClick(item)">
           {{ this.status[item] + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
@@ -577,8 +578,20 @@ export default {
     fanucMachineInfo() {
       const pages = []
       const position = this.$route.query.position;
+      if (this.$route.params.status) {
+        this.setStatusRadioValue(this.$route.params.status);
+        if (this.$route.params.status === 'default') {
+          this.pushStatusRadioValue('01')
+          this.pushStatusRadioValue('16')
+          this.pushStatusRadioValue('11')
+          this.pushStatusRadioValue('50')
+          this.pushStatusRadioValue('00')
+        }
+        this.refreshPage()
+      }
       this.setDefaultCount()
       const floor = position.substring(2, position.length)
+
       this.fanucMonitorInfo.forEach((item) => {
         if (item.monitMcName.indexOf(floor) === 0) {
           if (this.status[item.monitStatus]) {
@@ -598,6 +611,19 @@ export default {
     }
   },
   methods: {
+    refreshPage(){
+      this.$router.push(this.$route.fullPath)
+    },
+    setStatusRadioValue(status) {
+      this.statusRadioValue = []
+      this.statusRadioValue.push(status)
+    },
+    pushStatusRadioValue(status) {
+      this.statusRadioValue.push(status)
+    },
+    setAllStatusRadioValue() {
+      this.statusRadioValue = ['02', '00', '01', '17', '03', '16', '11', '50', '-1', 'default']
+    },
     getStatusColor(statusCode) {
       return this.statusColor[statusCode] ? this.statusColor[statusCode] : this.statusColor.default
     },

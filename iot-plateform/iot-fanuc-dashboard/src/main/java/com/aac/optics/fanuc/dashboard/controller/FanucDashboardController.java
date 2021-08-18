@@ -91,4 +91,11 @@ public class FanucDashboardController {
     public Result getCurrentOee() {
         return Result.success(fanucDashboardService.getCurrentOeeData());
     }
+
+    @ApiOperation(value = "实时状态数据", notes = "查询实时状态数据")
+    @GetMapping("/getDigitalData")
+    public Result getDigitalData() {
+        return Result.success(fanucDashboardService.getDigitalData());
+    }
+
 }

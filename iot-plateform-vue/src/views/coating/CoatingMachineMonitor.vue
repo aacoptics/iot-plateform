@@ -87,6 +87,10 @@ export default {
     coatingStatusInfo() {
       const pages = []
       this.setDefaultCount()
+      if (this.$route.params.status) {
+        this.setStatusRadioValue(this.$route.params.status);
+        this.refreshPage()
+      }
       this.coatingMachineInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status, item.isOnline)
         if (this.checkCoatingPhase(item.name)) {
@@ -100,6 +104,16 @@ export default {
     }
   },
   methods: {
+    refreshPage(){
+      this.$router.push(this.$route.fullPath)
+    },
+    setStatusRadioValue(status) {
+      this.statusRadioValue = []
+      this.statusRadioValue.push(status)
+    },
+    setAllStatusRadioValue() {
+      this.statusRadioValue = ['正常运行', '上料预警', '设备离线']
+    },
     checkCoatingPhase(machineName) {
       if (this.$route.query.position === '1') {
         if (machineName.indexOf("A") === 0 ||
@@ -174,6 +188,7 @@ export default {
   },
   data() {
     return {
+      pathStatusInfo:"",
       coatingMachineInfoList: [],
       // statusType: {
       //   '设备离线': 'item_coating_offline',
