@@ -18,15 +18,15 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.aac.optics.lenspacker.dashboard"))
+                .apis(RequestHandlerSelectors.basePackage("com.aac.optics.general.dashboard"))
                 .paths(PathSelectors.any())
                 .build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("包料机展示API")
-                .description("实时数据展示")
+                .title("总体看板展示API")
+                .description("总体看板实时数据展示")
                 .version("2.0")
                 .build();
     }

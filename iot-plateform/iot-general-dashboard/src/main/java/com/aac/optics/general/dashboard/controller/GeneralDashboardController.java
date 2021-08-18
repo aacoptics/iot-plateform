@@ -18,9 +18,9 @@ public class GeneralDashboardController {
     @Autowired
     GeneralDashboardService generalDashboardService;
 
-    @ApiOperation(value = "查询机台报警详细数据", notes = "查询机台报警详细数据")
-    @GetMapping("/getLensPackerStatusCount")
-    public Result getMachineAlarmDetail() {
+    @ApiOperation(value = "查询机台状态数量", notes = "查询机台状态数量")
+    @GetMapping("/getGeneralStatusCount")
+    public Result getGeneralStatusCount() {
         return Result.success(generalDashboardService.getGeneralStatusCount());
     }
 
