@@ -7,25 +7,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Component
-@FeignClient(name = "iot-lenspacker-dashboard", fallback = LensPackerProvider.LensPackerProviderFallback.class)
-public interface LensPackerProvider {
+@FeignClient(name = "iot-fanuc-dashboard", fallback = FanucProvider.FanucProviderFallback.class)
+public interface FanucProvider {
 
-    @GetMapping(value = "/lenspackerDashboard/getStatusCount")
+    @GetMapping(value = "/fanucDashboard/getStatusCount")
     Result getStatusCount();
 
-    @GetMapping(value = "/lenspackerDashboard/getCurrentAlarm")
-    Result getCurrentAlarm();
-
     @Component
-    class LensPackerProviderFallback implements LensPackerProvider {
+    class FanucProviderFallback implements FanucProvider {
 
         @Override
         public Result getStatusCount() {
-            return Result.fail(DashboardErrorType.INNER_ERROR);
-        }
-
-        @Override
-        public Result getCurrentAlarm() {
             return Result.fail(DashboardErrorType.INNER_ERROR);
         }
     }
