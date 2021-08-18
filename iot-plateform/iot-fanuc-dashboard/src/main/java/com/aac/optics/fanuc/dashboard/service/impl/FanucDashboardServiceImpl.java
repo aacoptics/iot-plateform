@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,5 +120,31 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             fanucStatusInfos.add(fanucStatusInfo);
         }
         return fanucStatusInfos;
+    }
+
+    @Override
+    public Map<String, String> getCurrentOeeData() {
+        Map<String, String> currentOee = new HashMap<>();
+        Map<String, FanucDataEntity> realMonitData = FanucConsumer.FanucMachineDataMap;
+        Double totalPerCent = 0D;
+        Integer machineNums = 0;
+        for (String machineName : realMonitData.keySet()) {
+            if(!machineName.startsWith("3F"))
+                continue;
+            FanucDigitalData fanucStatusInfo = new FanucDigitalData();
+            JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
+            JSONObject moldData = (JSONObject) realMonitData.get(machineName).getMoldData();
+            if (!monitData.getString("Status").equals("-1")) {
+                totalPerCent += Double.valueOf(moldData.getString("mold_automate").replace("%", "").trim());
+                machineNums++;
+            }
+            DecimalFormat df=new DecimalFormat(".##");
+            Double Oee = totalPerCent / machineNums;
+            String OeeStr = df.format(Oee);
+            currentOee.put("type", "OEE");
+            currentOee.put("currentValue", OeeStr);
+            currentOee.put("expectedValue", "100");
+        }
+        return currentOee;
     }
 }

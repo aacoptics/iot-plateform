@@ -17,4 +17,6 @@ public interface FanucDashboardService {
 
     Map<String, Map<String, Integer>> getStatusCount();
 
+    Map<String, String> getCurrentOeeData();
+
 }

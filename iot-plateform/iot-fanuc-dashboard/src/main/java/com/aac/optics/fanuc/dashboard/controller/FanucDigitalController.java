@@ -28,4 +28,11 @@ public class FanucDigitalController {
     }
 
 
+    @ApiOperation(value = "实时OEE数据", notes = "查询实时OEE数据")
+    @GetMapping("/getCurrentOee")
+    public Result getCurrentOee() {
+        return Result.success(fanucDashboardService.getCurrentOeeData());
+    }
+
+
 }
