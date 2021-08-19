@@ -13,11 +13,19 @@ public interface FanucProvider {
     @GetMapping(value = "/fanucDashboard/getStatusCount")
     Result getStatusCount();
 
+    @GetMapping(value = "/fanucDashboard/getByFloor")
+    Result getAllStatus();
+
     @Component
     class FanucProviderFallback implements FanucProvider {
 
         @Override
         public Result getStatusCount() {
+            return Result.fail(DashboardErrorType.INNER_ERROR);
+        }
+
+        @Override
+        public Result getAllStatus() {
             return Result.fail(DashboardErrorType.INNER_ERROR);
         }
     }

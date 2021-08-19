@@ -15,5 +15,6 @@ public class LensPackerAlarmInfo implements Serializable {
     private Integer cavityNums;
     private String alarmDesc;
     private Long duration;
+    private String machineType;
 
 }

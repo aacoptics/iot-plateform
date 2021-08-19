@@ -89,10 +89,22 @@ public class GeneralDashboardServiceImpl implements GeneralDashboardService {
     @Override
     public List<LensPackerAlarmInfo> getGeneralCurrentAlarm() {
         JSONArray alarmInfo = (JSONArray) JSONArray.toJSON(lensPackerProvider.getCurrentAlarm().getData());
+        JSONArray FanucInfo = (JSONArray) JSONArray.toJSON(fanucProvider.getAllStatus().getData());
         List<LensPackerAlarmInfo> allAlarms = alarmInfo.toJavaList(LensPackerAlarmInfo.class);
         for (LensPackerAlarmInfo alarm : allAlarms) {
             Duration duration = Duration.between(alarm.getStartTime(), LocalDateTime.now());
             alarm.setDuration(duration.getSeconds());
+            alarm.setMachineType("包料机");
+        }
+        for (int i = 0; i < FanucInfo.size(); i++) {
+            if (FanucInfo.getJSONObject(i).get("monitStatus").equals("03")) {
+                LensPackerAlarmInfo alarm = new LensPackerAlarmInfo();
+                alarm.setMachineNo("3B" + FanucInfo.getJSONObject(i).get("monitMcName").toString());
+                alarm.setAlarmCode("Alarm");
+                alarm.setAlarmDesc("报警");
+                alarm.setMachineType("注塑机");
+                allAlarms.add(alarm);
+            }
         }
         return allAlarms;
     }
