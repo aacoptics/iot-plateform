@@ -27,27 +27,34 @@
           </div>
           <el-card v-for="(item, index) of getFanucCount" :key="index" style="margin-top: 10px">
             <div class="card-header" style="margin-bottom: 10px;">
-              <span style="cursor: pointer"  @click="onCardClick(item.floor, 'fanuc')">{{ item.floor.replace('F', '楼') }}</span>
+              <span style="cursor: pointer" @click="onCardClick(item.floor, 'fanuc')">{{
+                  item.floor.replace('F', '楼')
+                }}</span>
             </div>
             <el-row align="middle" style="text-align: center">
               <el-col :span="5">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(59,162,114,1);cursor: pointer" @click="onCountClick(item.floor, 'fanuc', '02')" >{{ item['02'] ? item['02'] : 0 }}</span>
+                      style="background-color: rgba(59,162,114,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'fanuc', '02')">{{ item['02'] ? item['02'] : 0 }}</span>
               </el-col>
               <el-col :span="5">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(250,200,88,1);cursor: pointer" @click="onCountClick(item.floor, 'fanuc', '17')">{{ item['17'] ? item['17'] : 0 }}</span>
+                      style="background-color: rgba(250,200,88,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'fanuc', '17')">{{ item['17'] ? item['17'] : 0 }}</span>
               </el-col>
               <el-col :span="4">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(238,102,102,1);cursor: pointer" @click="onCountClick(item.floor, 'fanuc', '03')">{{ item['03'] ? item['03'] : 0 }}</span>
+                      style="background-color: rgba(238,102,102,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'fanuc', '03')">{{ item['03'] ? item['03'] : 0 }}</span>
               </el-col>
               <el-col :span="5">
-                <span class="typeItem_orderNum" style="background-color: gray;cursor: pointer" @click="onCountClick(item.floor, 'fanuc', '-1')">{{ item['-1'] ? item['-1'] : 0 }}</span>
+                <span class="typeItem_orderNum" style="background-color: gray;cursor: pointer"
+                      @click="onCountClick(item.floor, 'fanuc', '-1')">{{ item['-1'] ? item['-1'] : 0 }}</span>
               </el-col>
               <el-col :span="5">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(252,132,82,1);cursor: pointer" @click="onCountClick(item.floor, 'fanuc', 'default')">{{
+                      style="background-color: rgba(252,132,82,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'fanuc', 'default')">{{
                     getFanucTotalCount(item.floor)
                     - (item['02'] ? item['02'] : 0)
                     - (item['17'] ? item['17'] : 0)
@@ -84,20 +91,24 @@
           </div>
           <el-card v-for="(item, index) of getLensPackerCount" :key="index" style="margin-top: 10px">
             <div class="card-header" style="margin-bottom: 10px">
-              <span style="cursor: pointer"  @click="onCardClick(item.floor, 'lensPacker')">{{ item.floor.replace('F', '楼') }}</span>
+              <span style="cursor: pointer"
+                    @click="onCardClick(item.floor, 'lensPacker')">{{ item.floor.replace('F', '楼') }}</span>
             </div>
             <el-row align="middle" style="text-align: center">
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(59,162,114,1);cursor: pointer" @click="onCountClick(item.floor, 'lensPacker', '正常运行')">{{ item['1'] ? item['1'] : 0 }}</span>
+                      style="background-color: rgba(59,162,114,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'lensPacker', '正常运行')">{{ item['1'] ? item['1'] : 0 }}</span>
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(238,102,102,1);cursor: pointer" @click="onCountClick(item.floor, 'lensPacker', '报警')">{{ item['2'] ? item['2'] : 0 }}</span>
+                      style="background-color: rgba(238,102,102,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'lensPacker', '报警')">{{ item['2'] ? item['2'] : 0 }}</span>
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: gray;cursor: pointer" @click="onCountClick(item.floor, 'lensPacker', '设备离线')">{{ item['0'] ? item['0'] : 0 }}</span>
+                      style="background-color: gray;cursor: pointer"
+                      @click="onCountClick(item.floor, 'lensPacker', '设备离线')">{{ item['0'] ? item['0'] : 0 }}</span>
               </el-col>
             </el-row>
             <el-row align="middle"
@@ -122,20 +133,23 @@
           </div>
           <el-card v-for="(item, index) of getCoatingCount" :key="index" style="margin-top: 10px">
             <div class="card-header" style="margin-bottom: 10px">
-              <span style="cursor: pointer"  @click="onCardClick(item.floor, 'coating')">{{ item.floor }}</span>
+              <span style="cursor: pointer" @click="onCardClick(item.floor, 'coating')">{{ item.floor }}</span>
             </div>
             <el-row align="middle" style="text-align: center">
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(59,162,114,1);cursor: pointer" @click="onCountClick(item.floor, 'coating', '正常运行')">{{ item['0'] ? item['0'] : 0 }}</span>
+                      style="background-color: rgba(59,162,114,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'coating', '正常运行')">{{ item['0'] ? item['0'] : 0 }}</span>
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: rgba(154,96,180,1);cursor: pointer" @click="onCountClick(item.floor, 'coating', '上料预警')">{{ item['1'] ? item['1'] : 0 }}</span>
+                      style="background-color: rgba(154,96,180,1);cursor: pointer"
+                      @click="onCountClick(item.floor, 'coating', '上料预警')">{{ item['1'] ? item['1'] : 0 }}</span>
               </el-col>
               <el-col :span="8">
                 <span class="typeItem_orderNum"
-                      style="background-color: gray;cursor: pointer" @click="onCountClick(item.floor, 'coating', '设备离线')">{{ item['-1'] ? item['-1'] : 0 }}</span>
+                      style="background-color: gray;cursor: pointer"
+                      @click="onCountClick(item.floor, 'coating', '设备离线')">{{ item['-1'] ? item['-1'] : 0 }}</span>
               </el-col>
             </el-row>
             <el-row align="middle"
@@ -533,7 +547,11 @@ export default {
           this.$router.push({name: 'lensPacker3B' + floor, query: {position: '3B' + floor}, params: {status: status}})
           break;
         case "coating":
-          this.$router.push({name: 'coatingMonitor' + floor.substring(0, 1), query: {position: floor.substring(0, 1)}, params: {status: status}})
+          this.$router.push({
+            name: 'coatingMonitor' + floor.substring(0, 1),
+            query: {position: floor.substring(0, 1)},
+            params: {status: status}
+          })
           break;
       }
 

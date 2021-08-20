@@ -1,7 +1,6 @@
 package com.aac.optics.gateway.web.config;
 
 import feign.codec.Decoder;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -23,12 +22,7 @@ public class FeignConfig {
 
     public ObjectFactory<HttpMessageConverters> feignHttpMessageConverter() {
         final HttpMessageConverters httpMessageConverters = new HttpMessageConverters(new GateWayMappingJackson2HttpMessageConverter());
-        return new ObjectFactory<HttpMessageConverters>() {
-            @Override
-            public HttpMessageConverters getObject() throws BeansException {
-                return httpMessageConverters;
-            }
-        };
+        return () -> httpMessageConverters;
     }
 
     public class GateWayMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
