@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>iot-general-dashboard</artifactId>
-
+    <artifactId>iot-ims-analysisfile</artifactId>
 
     <dependencies>
         <dependency>
@@ -19,13 +18,8 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-okhttp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.aac.optics</groupId>
-            <artifactId>iot-common-feign</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -43,4 +37,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

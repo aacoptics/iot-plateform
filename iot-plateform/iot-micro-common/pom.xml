@@ -14,6 +14,7 @@
     <modules>
         <module>iot-common-core</module>
         <module>iot-common-web</module>
+        <module>iot-common-feign</module>
     </modules>
 
     <dependencies>

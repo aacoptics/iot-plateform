@@ -18,6 +18,8 @@
         <module>iot-coating-dashboard</module>
         <module>iot-lenspacker-dashboard</module>
         <module>iot-general-dashboard</module>
+        <module>iot-ims-analysisfile</module>
+        <module>iot-mold-toollife</module>
     </modules>
 
     <packaging>pom</packaging>
