@@ -560,7 +560,7 @@
 
 <script>
 import * as echarts from 'echarts';
-import {getByFloor, getDetailInfo, getCondData, getMonitData, getAlarmData} from "@/api/fanuc";
+import {getByFloor, getDetailInfo, getCondData, getMonitData, getAlarmData} from "@/api/iot/fanuc";
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
 

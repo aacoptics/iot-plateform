@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import {getStatus} from "@/api/coating";
+import {getStatus} from "@/api/iot/coating";
 
 export default {
   name: "CoatingMachineMonitor",

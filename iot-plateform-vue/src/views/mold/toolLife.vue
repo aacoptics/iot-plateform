@@ -11,7 +11,18 @@
     <div class="container">
 
       <el-row>
-        <el-col :span="6">
+        <el-col :span="8">
+          <el-row style="padding: 10px">
+            <el-input style="width: 200px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
+          </el-row>
+          <el-row style="padding: 10px">
+            <el-button type="primary" icon="el-icon-search" @click="getByMonitorNo()">查询</el-button>
+          </el-row>
+          <el-row style="padding: 10px">
+            <el-button type="success" :loading="saveBtnLoading" icon="el-icon-check" @click="saveEditInfo()">保存</el-button>
+          </el-row>
+        </el-col>
+        <el-col :span="16">
           <el-upload
               class="upload-demo"
               :before-upload="beforeUpload"
@@ -19,37 +30,28 @@
               :http-request="uploadExcel"
               :multiple="false"
               :show-file-list="false"
+              drag
           >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
         </el-col>
-        <el-col :span="6">
-          <el-row style="padding: 10px">
-            <el-input v-model="monitorNo" placeholder="请输入监控号"></el-input>
-          </el-row>
-          <el-row style="padding: 10px">
-            <el-button type="primary" icon="el-icon-search" @click="getByMonitorNo()">查询</el-button>
-          </el-row>
-          <el-row style="padding: 10px">
-            <el-button type="success" icon="el-icon-check" @click="saveEditInfo()">保存</el-button>
-          </el-row>
-        </el-col>
       </el-row>
 
       <el-table
-          id="condDataTable"
+          id="ToolLifeTable"
           :data="moldToolLifeSheet"
           border
           :height="tableMaxHeight"
           :key="1"
           header-row-class-name="tableHead"
-          style="width: 100%;margin-top: 10px">
-        <el-table-column :width=200 prop="workpiece" label="工件名称"></el-table-column>
+          style="width: 100%;margin-top: 10px"
+          v-loading="toolLifeLoading">
         <el-table-column :width=100 prop="monitorNo" label="监控号"></el-table-column>
+        <el-table-column prop="programName" label="程序名"></el-table-column>
+        <el-table-column :width=200 prop="workpiece" label="工件名称"></el-table-column>
         <el-table-column prop="material" label="材质"></el-table-column>
         <el-table-column prop="route" label="工序"></el-table-column>
-        <el-table-column prop="programName" label="程序名"></el-table-column>
         <el-table-column :width=130 prop="toolName" label="刀具名称"></el-table-column>
         <el-table-column prop="toolDiameter" label="刀具直径"></el-table-column>
         <el-table-column prop="toolNo" label="刀号"></el-table-column>
@@ -79,20 +81,21 @@
         </el-table-column>
         <el-table-column :width=200 prop="createDateTime" label="创建时间"></el-table-column>
       </el-table>
-
     </div>
   </div>
 </template>
 
 <script>
-import {uploadExcel, getByMonitorNo, updateToolInfo} from "@/api/mold";
+import {uploadExcel, getByMonitorNo, updateToolInfo} from "@/api/iot/mold";
 
 export default {
   name: "toolLife",
   data() {
     return {
       monitorNo: "",
-      moldToolLifeSheet: []
+      moldToolLifeSheet: [],
+      toolLifeLoading: false,
+      saveBtnLoading: false
     }
   },
   computed: {
@@ -101,12 +104,6 @@ export default {
     }
   },
   methods: {
-    handleEdit(row) {
-      row.edit = true;
-    },
-    lostFocus(row) {
-      row.edit = false;
-    },
     beforeUpload(file) {
       const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel'
       if (!isExcel) {
@@ -115,6 +112,7 @@ export default {
       }
     },
     saveEditInfo(){
+      this.saveBtnLoading = true
       updateToolInfo(this.moldToolLifeSheet).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -122,8 +120,10 @@ export default {
         } else {
           this.$message.error('保存失败！' + responseData.msg)
         }
+        this.saveBtnLoading = false
       }).catch((err) => {
         this.$message.error(err.message)
+        this.saveBtnLoading = false
       })
     },
     uploadExcel(params) {
@@ -139,6 +139,7 @@ export default {
       })
     },
     getByMonitorNo() {
+      this.toolLifeLoading = true
       getByMonitorNo(this.monitorNo).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -146,8 +147,10 @@ export default {
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
+        this.toolLifeLoading = false
       }).catch((err) => {
         this.$message.error(err)
+        this.toolLifeLoading = false
       })
     }
   },

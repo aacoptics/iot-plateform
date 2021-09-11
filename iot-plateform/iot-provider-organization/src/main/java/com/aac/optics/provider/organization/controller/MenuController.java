@@ -110,6 +110,16 @@ public class MenuController {
         return Result.success(menuService.getByUsername(username));
     }
 
+    @ApiOperation(value = "根据角色查询菜单", notes = "根据角色查询菜单信息")
+    @ApiImplicitParam(paramType = "queryByRole", name = "roleId", value = "角色Id", required = true, dataType = "Long")
+    @ApiResponses(
+            @ApiResponse(code = 200, message = "处理成功", response = Result.class)
+    )
+    @GetMapping(value = "/byRole")
+    public Result queryByRole(@RequestParam Long roleId) {
+        return Result.success(menuService.getByRoleId(roleId));
+    }
+
 //        @GetMapping
 //    public Result query(@RequestParam String name) {
 //        log.debug("query with name:{}", name);

@@ -5,7 +5,7 @@ import {
     setRefreshToken, getRefreshToken, removeLoginInfo
 } from "@/utils/auth";
 import router from "@/router";
-import {refreshToken} from "@/api/user";
+import {refreshToken} from "@/api/system/user";
 import {ElMessage} from "element-plus";
 import {saveRefreshTime} from "@/api";
 

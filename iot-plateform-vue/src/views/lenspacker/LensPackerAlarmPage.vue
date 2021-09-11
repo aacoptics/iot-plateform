@@ -114,7 +114,7 @@
 <script>
 import XLSX from "xlsx";
 import FileSaver from 'file-saver'
-import {getAlarmDetail, getAlarmCount} from "@/api/lenspacker";
+import {getAlarmDetail, getAlarmCount} from "@/api/iot/lenspacker";
 
 export default {
   name: "LensPackerAlarmPage",

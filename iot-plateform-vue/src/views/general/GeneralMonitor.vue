@@ -173,9 +173,9 @@
 
 <script>
 import {getUserDetail, getUsername} from "@/utils/auth";
-import {getFanucStatusCount} from "@/api/fanuc"
-import {getLensPackerStatusCount} from "@/api/lenspacker"
-import {getCoatingStatusCount} from "@/api/coating"
+import {getFanucStatusCount} from "@/api/iot/fanuc"
+import {getLensPackerStatusCount} from "@/api/iot/lenspacker"
+import {getCoatingStatusCount} from "@/api/iot/coating"
 import * as echarts from 'echarts';
 
 export default {

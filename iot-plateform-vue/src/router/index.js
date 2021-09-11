@@ -2,7 +2,7 @@ import {createRouter, createWebHistory} from "vue-router";
 import Login from "../views/login/Login.vue";
 import routeMap from "./components"
 import {setMenuInfo, setMenuItems, getUsername, getAccessToken, getMenuItems} from '@/utils/auth'
-import {getMenuByUsername} from "@/api/user";
+import {getMenuByUsername} from "@/api/system/user";
 import {saveRefreshTime} from "@/api";
 
 const routes = [

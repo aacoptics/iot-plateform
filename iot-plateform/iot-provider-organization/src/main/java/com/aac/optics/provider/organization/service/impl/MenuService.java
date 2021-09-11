@@ -75,6 +75,12 @@ public class MenuService extends ServiceImpl<MenuMapper, Menu> implements IMenuS
         return getMenuTrees(allMenus);
     }
 
+    @Override
+    public List<Tree<String>> getByRoleId(Long roleId){
+        List<Menu> allMenus = menuMapper.getMenuByRoleId(roleId);
+        return getMenuTrees(allMenus);
+    }
+
     private List<Tree<String>> getMenuTrees(List<Menu> allMenus) {
         TreeNodeConfig treeNodeConfig = new TreeNodeConfig();
         // 自定义属性名 都有默认值的哈

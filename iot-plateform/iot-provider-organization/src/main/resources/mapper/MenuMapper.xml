@@ -16,11 +16,6 @@
              , updated_time
              , created_by
              , updated_by
-             , stuff((
-                         select ',' + convert(varchar, role_id)
-                         from role_menu_relation b
-                         where b.menu_id = a.id
-                         for xml path('')), 1, 1, '') roles
         from iot_sys_menu a
         group by id
                , parent_id
@@ -75,4 +70,39 @@
                , updated_by
         order by order_num
     </select>
+
+    <select id="getMenuByRoleId" resultType="com.aac.optics.provider.organization.entity.po.Menu">
+        select id
+             , parent_id
+             , path
+             , component
+             , icon
+             , name
+             , title
+             , description
+             , order_num
+             , created_time
+             , updated_time
+             , created_by
+             , updated_by
+        from iot_sys_menu a
+        where id in (select menu_id
+                     from role_menu_relation
+                     where role_id = #{roleId})
+        group by id
+               , parent_id
+               , path
+               , component
+               , icon
+               , name
+               , title
+               , description
+               , order_num
+               , created_time
+               , updated_time
+               , created_by
+               , updated_by
+        order by order_num
+    </select>
+
 </mapper>

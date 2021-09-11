@@ -1,8 +1,7 @@
 package com.aac.optics.mold.toollife.service;
 
-import com.aac.optics.mold.toollife.model.ToolInfo;
+import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.apache.ibatis.annotations.Param;
 
 import java.io.InputStream;
 import java.util.List;

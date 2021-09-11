@@ -1,4 +1,4 @@
-package com.aac.optics.mold.toollife.model;
+package com.aac.optics.mold.toollife.entity;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;

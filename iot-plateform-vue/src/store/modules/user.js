@@ -1,4 +1,4 @@
-import {login, getUserInfo} from '@/api/user'
+import {login, getUserInfo} from '@/api/system/user'
 import {
     getAccessToken, getRefreshToken,
     setAccessToken, setRefreshToken,

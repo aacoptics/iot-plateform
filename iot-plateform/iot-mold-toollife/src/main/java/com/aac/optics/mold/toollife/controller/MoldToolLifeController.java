@@ -2,29 +2,17 @@ package com.aac.optics.mold.toollife.controller;
 
 import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.mold.toollife.model.ToolInfo;
+import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.aac.optics.mold.toollife.service.ToolInfoService;
-import com.aac.optics.mold.toollife.util.ExcelUtil;
-import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.ExcelReader;
-import com.alibaba.excel.support.ExcelTypeEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/toolLife")

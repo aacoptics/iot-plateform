@@ -4,6 +4,7 @@ import cn.hutool.core.lang.tree.Tree;
 import com.aac.optics.provider.organization.entity.param.MenuQueryParam;
 import com.aac.optics.provider.organization.entity.po.Menu;
 import com.aac.optics.provider.organization.entity.po.Resource;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +61,6 @@ public interface IMenuService {
     List<Tree<String>> getAll();
 
     List<Tree<String>> getByUsername(String username);
+
+    List<Tree<String>> getByRoleId(Long roleId);
 }

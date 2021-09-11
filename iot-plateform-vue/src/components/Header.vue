@@ -46,7 +46,7 @@
 </template>
 <script>
 import {getUserDetail, getUsername, removeLoginInfo} from "@/utils/auth";
-import {logout} from "@/api/user";
+import {logout} from "@/api/system/user";
 export default {
   data() {
     return {

@@ -54,7 +54,7 @@
 <script>
 import XLSX from "xlsx";
 import FileSaver from 'file-saver'
-import {getMachineCapacity} from "@/api/lenspacker";
+import {getMachineCapacity} from "@/api/iot/lenspacker";
 
 export default {
   name: "LensPackerAlarmPage",
