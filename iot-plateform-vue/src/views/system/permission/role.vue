@@ -31,7 +31,7 @@
                 @handleCurrentChange="handleRoleSelectChange"
                 @findPage="findPage" @handleEdit="handleEdit" @handleDelete="handleDelete">
       </SysTable>
-      <el-dialog :title="operation?'新增':'编辑'" width="40%" v-model="dialogVisible"
+      <el-dialog :title="operation?'新增':'编辑'" width="80%" v-model="dialogVisible"
                  :close-on-click-modal="false">
         <el-form :model="dataForm" label-width="80px" :rules="dataFormRules" ref="dataForm" :size="size">
           <el-form-item label="Id" prop="id" v-if="false">
@@ -47,54 +47,96 @@
             <el-input v-model="dataForm.description" auto-complete="off"></el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button :size="size" @click="dialogVisible = false">取消</el-button>
-          <el-button :size="size" type="primary" @click="submitForm" :loading="editLoading">提交</el-button>
-        </div>
-      </el-dialog>
-      <div class="menu-container" :v-if="true" style="padding-top: 10px">
-        <div class="menu-header">
-          <span><B>角色菜单授权</B></span>
-        </div>
-        <el-tree :data="menuData"
-                 node-key="id"
-                 size="mini"
-                 show-checkbox
-                 :props="defaultProps"
-                 style="width: 100%;padding-top:20px;" ref="menuTree"
-                 v-loading="menuLoading"
-                 element-loading-text="拼命加载中"
-                 highlight-current>
-          <template #default="{ node, data }">
-            <div style="width: 70%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
-              <el-row>
-                <el-col :span="4">
-                  <span style="text-align:center"><i :class="data.icon" style="margin-right: 10px"></i>{{ data.title }}</span>
-                </el-col>
-                <el-col :span="3">
+        <el-row>
+          <el-col :span="12">
+            <div class="menu-container" :v-if="true" style="padding-top: 10px">
+              <div class="menu-header">
+                <span><B>角色菜单授权</B></span>
+              </div>
+              <el-tree :data="menuData"
+                       node-key="id"
+                       size="mini"
+                       show-checkbox
+                       :props="defaultProps"
+                       style="width: 100%;padding-top:20px;" ref="menuTree"
+                       v-loading="menuLoading"
+                       element-loading-text="拼命加载中"
+                       highlight-current>
+                <template #default="{ data }">
+                  <div style="width: 100%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
+                    <el-row>
+                      <el-col :span="8">
+                        <span style="text-align:center"><i :class="data.icon" style="margin-right: 10px"></i>{{ data.title }}</span>
+                      </el-col>
+                      <el-col :span="5">
                <span style="text-align:center">
                  <el-tag :type="data.parentId === '-1' ? 'success' : 'info'" size="small">
                    {{ data.parentId === '-1' ? '顶级菜单' : '菜单' }}
                  </el-tag>
                </span>
-                </el-col>
-                <el-col :span="6">
-                  <span style="text-align:center;color: #20a0ff">{{ data.path ? data.path : '\t' }}</span>
-                </el-col>
-              </el-row>
+                      </el-col>
+                      <el-col :span="8">
+                        <span style="text-align:center;color: #20a0ff">{{ data.path ? data.path : '\t' }}</span>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </template>
+              </el-tree>
+              <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
+                <el-checkbox v-model="menuCheckAll" @change="handleMenuCheckAll" :disabled="hasCheckRole"><b>全选</b>
+                </el-checkbox>
+              </div>
             </div>
-          </template>
-        </el-tree>
-        <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
-          <el-checkbox v-model="checkAll" @change="handleCheckAll" :disabled="hasCheckRole"><b>全选</b>
-          </el-checkbox>
+          </el-col>
+          <el-col :span="12">
+            <div class="menu-container" :v-if="true" style="padding-top: 10px">
+              <div class="menu-header">
+                <span><B>角色接口授权</B></span>
+              </div>
+              <el-tree :data="resourceData"
+                       node-key="id"
+                       size="mini"
+                       show-checkbox
+                       :props="resourceProps"
+                       style="width: 100%;padding-top:20px;" ref="resourceTree"
+                       v-loading="resourceLoading"
+                       element-loading-text="拼命加载中"
+                       highlight-current>
+                <template #default="{ data }">
+                  <div style="width: 100%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
+                    <el-row>
+                      <el-col :span="20">
+                        <span style="text-align:center">{{ data.name }}</span>
+                      </el-col>
+                      <el-col :span="4">
+               <span style="text-align:center">
+                 <el-tag type="success" size="small">
+                   {{ data.method }}
+                 </el-tag>
+               </span>
+                      </el-col>
+<!--                      <el-col :span="7">-->
+<!--                        <span style="text-align:center;color: #20a0ff">{{ data.url ? data.url : '\t' }}</span>-->
+<!--                      </el-col>-->
+                    </el-row>
+                  </div>
+                </template>
+              </el-tree>
+              <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
+                <el-checkbox v-model="resourceCheckAll" @change="handleResourceCheckAll" :disabled="hasCheckRole"><b>全选</b>
+                </el-checkbox>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+
+        <div class="dialog-footer" style="padding-top: 20px;text-align: end">
+          <slot name="footer">
+            <el-button :size="size" @click="dialogVisible = false">取消</el-button>
+            <el-button :size="size" type="primary" @click="submitForm" :loading="editLoading">提交</el-button>
+          </slot>
         </div>
-        <div style="float:right;padding-right:15px;padding-top:4px;padding-bottom:4px;">
-          <el-button type="primary" @click="resetSelection" :disabled="hasCheckRole">重置</el-button>
-          <el-button type="primary" @click="submitAuthForm" :loading="authLoading" :disabled="hasCheckRole">提交
-          </el-button>
-        </div>
-      </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -104,6 +146,7 @@ import SysTable from "@/components/SysTable";
 import {findPage, handleAdd, deleteRole, handleUpdate} from "@/api/system/role";
 import {format} from "@/utils/datetime"
 import {findMenuTree, findRoleMenus} from "@/api/system/menu";
+import {findResourceTree, findRoleResource} from "@/api/system/resource";
 
 export default {
   name: "role",
@@ -150,14 +193,22 @@ export default {
       },
       selectRole: {},
       menuData: [],
+      resourceData: [],
       menuSelections: [],
       menuLoading: false,
+      resourceLoading: false,
       authLoading: false,
-      checkAll: false,
+      menuCheckAll: false,
+      resourceCheckAll: false,
       currentRoleMenus: [],
+      currentRoleResource: [],
       defaultProps: {
         children: 'children',
         label: 'title'
+      },
+      resourceProps: {
+        children: 'children',
+        label: 'name'
       }
     }
   },
@@ -172,9 +223,9 @@ export default {
         const responseData = res.data
         if (responseData.code === '000000') {
           this.pageResult = responseData.data
-          this.findTreeData()
+          this.findMenuTreeData()
+          this.findResourceTreeData()
         }
-
       }).then(data != null ? data.callback : '')
     },
     // 批量删除
@@ -237,7 +288,7 @@ export default {
       })
     },
     // 获取数据
-    findTreeData: function () {
+    findMenuTreeData: function () {
       this.menuLoading = true
       findMenuTree().then((res) => {
         const responseData = res.data
@@ -245,6 +296,17 @@ export default {
           this.menuData = responseData.data
         }
         this.menuLoading = false
+      })
+    },
+    // 获取数据
+    findResourceTreeData: function () {
+      this.resourceLoading = true
+      findResourceTree().then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.resourceData = responseData.data
+        }
+        this.resourceLoading = false
       })
     },
     // 角色选择改变监听
@@ -260,35 +322,54 @@ export default {
           this.$refs.menuTree.setCheckedNodes(responseData.data)
         }
       })
+      findRoleResource(val.val.id).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.currentRoleResource = responseData.data
+          this.$refs.resourceTree.setCheckedNodes(responseData.data)
+        }
+      })
     },
     // 重置选择
     resetSelection() {
-      this.checkAll = false
+      this.menuCheckAll = false
+      this.resourceCheckAll = false
       this.$refs.menuTree.setCheckedNodes(this.currentRoleMenus)
+      this.$refs.resourceTree.setCheckedNodes(this.currentRoleResource)
     },
     // 全选操作
-    handleCheckAll() {
-      if (this.checkAll) {
+    handleMenuCheckAll() {
+      if (this.menuCheckAll) {
         let allMenus = []
-        this.checkAllMenu(this.menuData, allMenus)
+        this.checkAll(this.menuData, allMenus)
         this.$refs.menuTree.setCheckedNodes(allMenus)
       } else {
         this.$refs.menuTree.setCheckedNodes([])
       }
     },
+    handleResourceCheckAll() {
+      if (this.resourceCheckAll) {
+        let allResource = []
+        this.checkAll(this.resourceData, allResource)
+        this.$refs.resourceTree.setCheckedNodes(allResource)
+      } else {
+        this.$refs.resourceTree.setCheckedNodes([])
+      }
+    },
     // 递归全选
-    checkAllMenu(menuData, allMenus) {
+    checkAll(menuData, allMenus) {
       menuData.forEach(menu => {
         allMenus.push(menu)
         if (menu.children) {
-          this.checkAllMenu(menu.children, allMenus)
+          this.checkAll(menu.children, allMenus)
         }
       });
     },
     // 角色菜单授权提交
     submitAuthForm() {
+      let _selectRole = Object.assign({}, this.selectRole);
       let roleId = this.selectRole.id
-      if ('Admin' === this.selectRole.name) {
+      if ('Admin' === this.selectRole.code) {
         this.$message({message: '超级管理员拥有所有菜单权限，不允许修改！', type: 'error'})
         return
       }
