@@ -46,6 +46,13 @@ public interface IResourceService {
     List<Resource> query(String username);
 
     /**
+     * 根据roleId查询角色拥有的资源
+     *
+     * @return
+     */
+    List<Resource> query(Long roleId);
+
+    /**
      * 更新资源信息
      *
      * @param resource

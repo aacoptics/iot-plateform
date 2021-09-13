@@ -68,6 +68,17 @@ public class ResourceController {
         return Result.success(resourceService.query(username));
     }
 
+    @ApiOperation(value = "查询资源", notes = "根据roleId查询用户所拥有的资源信息")
+    @ApiImplicitParam(paramType = "path", name = "roleId", value = "角色id", required = true, dataType = "Long")
+    @ApiResponses(
+            @ApiResponse(code = 200, message = "处理成功", response = Result.class)
+    )
+    @GetMapping(value = "/role/{roleId}")
+    public Result queryByRoleId(@PathVariable  Long roleId) {
+        log.debug("query with roleId:{}", roleId);
+        return Result.success(resourceService.query(roleId));
+    }
+
     @ApiOperation(value = "查询所有资源", notes = "查询所有资源信息")
     @ApiResponses(
             @ApiResponse(code = 200, message = "处理成功", response = Result.class)

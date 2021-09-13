@@ -1,5 +1,6 @@
 package com.aac.optics.provider.organization.service.impl;
 
+import com.aac.optics.provider.organization.service.IRoleMenuService;
 import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -33,6 +34,9 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
     @Autowired
     private IRoleResourceService roleResourceService;
 
+    @Autowired
+    private IRoleMenuService roleMenuService;
+
     @Override
     public boolean add(Role role) {
         boolean isSuccess = this.save(role);
@@ -52,7 +56,7 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
     public boolean update(Role role) {
         boolean isSuccess = this.updateById(role);
         roleResourceService.saveBatch(role.getId(), role.getResourceIds());
-
+        roleMenuService.saveBatch(role.getId(), role.getMenuIds());
         return isSuccess;
     }
 

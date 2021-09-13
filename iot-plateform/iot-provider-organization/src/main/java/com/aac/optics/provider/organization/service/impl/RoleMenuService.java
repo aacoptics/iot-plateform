@@ -38,7 +38,7 @@ public class RoleMenuService extends ServiceImpl<RoleMenuMapper, RoleMenu> imple
     }
 
     @Override
-    @Cached(area = "shortTime", name = "resource4role::", key = "#roleId", cacheType = CacheType.BOTH)
+    @Cached(area = "shortTime", name = "menu4role::", key = "#roleId", cacheType = CacheType.BOTH)
     public Set<Long> queryByRoleId(Long roleId) {
         QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("role_id", roleId);

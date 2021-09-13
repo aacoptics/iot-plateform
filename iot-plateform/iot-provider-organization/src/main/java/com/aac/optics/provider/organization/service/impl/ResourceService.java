@@ -97,4 +97,12 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
         //根据resourceId列表查询出resource对象
         return (List<Resource>) this.listByIds(resourceIds);
     }
+
+    @Override
+    public List<Resource> query(Long roleId) {
+        //根据资源列表查询出所有资源对象
+        Set<Long> resourceIds = roleResourceService.queryByRoleId(roleId);
+        //根据resourceId列表查询出resource对象
+        return (List<Resource>) this.listByIds(resourceIds);
+    }
 }
