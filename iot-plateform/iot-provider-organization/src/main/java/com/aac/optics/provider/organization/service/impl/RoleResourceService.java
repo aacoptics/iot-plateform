@@ -39,7 +39,6 @@ public class RoleResourceService extends ServiceImpl<RoleResourceMapper, RoleRes
     }
 
     @Override
-    @Cached(area = "shortTime", name = "resource4role::", key = "#roleId", cacheType = CacheType.BOTH)
     public Set<Long> queryByRoleId(Long roleId) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("role_id", roleId);

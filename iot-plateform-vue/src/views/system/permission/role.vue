@@ -29,6 +29,7 @@
       <SysTable :height="220" :highlightCurrentRow="true" :stripe="false"
                 :data="pageResult" :columns="columns" :showBatchDelete="false"
                 @handleCurrentChange="handleRoleSelectChange"
+                ref="sysTable"
                 @findPage="findPage" @handleEdit="handleEdit" @handleDelete="handleDelete">
       </SysTable>
       <el-dialog :title="operation?'新增':'编辑'" width="80%" v-model="dialogVisible"
@@ -66,11 +67,12 @@
                   <div style="width: 100%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
                     <el-row>
                       <el-col :span="8">
-                        <span style="text-align:center"><i :class="data.icon" style="margin-right: 10px"></i>{{ data.title }}</span>
+                        <span style="text-align:center"><i :class="data.icon"
+                                                           style="margin-right: 10px"></i>{{ data.title }}</span>
                       </el-col>
                       <el-col :span="5">
                <span style="text-align:center">
-                 <el-tag :type="data.parentId === '-1' ? 'success' : 'info'" size="small">
+                 <el-tag :type="data.parentId === '-1' ? 'primary' : 'success'" size="small">
                    {{ data.parentId === '-1' ? '顶级菜单' : '菜单' }}
                  </el-tag>
                </span>
@@ -83,7 +85,7 @@
                 </template>
               </el-tree>
               <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
-                <el-checkbox v-model="menuCheckAll" @change="handleMenuCheckAll" :disabled="hasCheckRole"><b>全选</b>
+                <el-checkbox v-model="menuCheckAll" @change="handleMenuCheckAll"><b>全选</b>
                 </el-checkbox>
               </div>
             </div>
@@ -109,21 +111,19 @@
                         <span style="text-align:center">{{ data.name }}</span>
                       </el-col>
                       <el-col :span="4">
-               <span style="text-align:center">
-                 <el-tag type="success" size="small">
-                   {{ data.method }}
-                 </el-tag>
-               </span>
+                        <span style="text-align:center">
+                          <el-tag :type="data.children ? 'primary' : 'success'" size="small">
+                            {{ data.children ? '模块' : data.method }}
+                          </el-tag>
+                        </span>
                       </el-col>
-<!--                      <el-col :span="7">-->
-<!--                        <span style="text-align:center;color: #20a0ff">{{ data.url ? data.url : '\t' }}</span>-->
-<!--                      </el-col>-->
                     </el-row>
                   </div>
                 </template>
               </el-tree>
               <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
-                <el-checkbox v-model="resourceCheckAll" @change="handleResourceCheckAll" :disabled="hasCheckRole"><b>全选</b>
+                <el-checkbox v-model="resourceCheckAll" @change="handleResourceCheckAll">
+                  <b>全选</b>
                 </el-checkbox>
               </div>
             </div>
@@ -132,7 +132,7 @@
 
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
-            <el-button :size="size" @click="dialogVisible = false">取消</el-button>
+            <el-button :size="size" @click="resetSelection">取消</el-button>
             <el-button :size="size" type="primary" @click="submitForm" :loading="editLoading">提交</el-button>
           </slot>
         </div>
@@ -144,18 +144,12 @@
 <script>
 import SysTable from "@/components/SysTable";
 import {findPage, handleAdd, deleteRole, handleUpdate} from "@/api/system/role";
-import {format} from "@/utils/datetime"
 import {findMenuTree, findRoleMenus} from "@/api/system/menu";
 import {findResourceTree, findRoleResource} from "@/api/system/resource";
 
 export default {
   name: "role",
   components: {SysTable},
-  computed: {
-    hasCheckRole() {
-      return this.selectRole.id == null
-    }
-  },
   data() {
     return {
       roleName: '',
@@ -237,10 +231,12 @@ export default {
     handleAdd: function () {
       this.dialogVisible = true
       this.operation = true
+      this.$refs.sysTable.handleClearSelection();
       this.dataForm = {
         id: 0,
+        code: '',
         name: '',
-        remark: ''
+        description: ''
       }
     },
     // 显示编辑界面
@@ -256,6 +252,18 @@ export default {
           this.$confirm('确认提交吗？', '提示', {}).then(() => {
             this.editLoading = true
             let params = Object.assign({}, this.dataForm)
+            let checkedMenuNodes = this.$refs.menuTree.getCheckedNodes(false, true)
+            let checkedResourceNodes = this.$refs.resourceTree.getCheckedNodes(true, false)
+            let roleMenus = []
+            let roleResources = []
+            for (let i = 0, len = checkedMenuNodes.length; i < len; i++) {
+              roleMenus.push(checkedMenuNodes[i].id)
+            }
+            for (let i = 0, len = checkedResourceNodes.length; i < len; i++) {
+              roleResources.push(checkedResourceNodes[i].id)
+            }
+            params.resourceIds = roleResources
+            params.menuIds = roleMenus
             if (this.operation) {
               handleAdd(params).then((res) => {
                 const responseData = res.data
@@ -304,7 +312,19 @@ export default {
       findResourceTree().then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.resourceData = responseData.data
+          const tempData = {}
+          responseData.data.forEach(resource => {
+            if (!Object.prototype.hasOwnProperty.call(tempData, resource.type)) {
+              tempData[resource.type] = {children: []}
+            }
+            tempData[resource.type].children.push(resource)
+          })
+          const resourcesData = []
+          for (const key in tempData) {
+            const resource = {name: key, children: tempData[key].children}
+            resourcesData.push(resource)
+          }
+          this.resourceData = resourcesData
         }
         this.resourceLoading = false
       })
@@ -312,6 +332,9 @@ export default {
     // 角色选择改变监听
     handleRoleSelectChange(val) {
       if (val == null || val.val == null) {
+        this.selectRole = null
+        this.$refs.menuTree.setCheckedNodes([])
+        this.$refs.resourceTree.setCheckedNodes([])
         return
       }
       this.selectRole = val.val
@@ -336,6 +359,7 @@ export default {
       this.resourceCheckAll = false
       this.$refs.menuTree.setCheckedNodes(this.currentRoleMenus)
       this.$refs.resourceTree.setCheckedNodes(this.currentRoleResource)
+      this.dialogVisible = false
     },
     // 全选操作
     handleMenuCheckAll() {
@@ -365,33 +389,9 @@ export default {
         }
       });
     },
-    // 角色菜单授权提交
-    submitAuthForm() {
-      let _selectRole = Object.assign({}, this.selectRole);
-      let roleId = this.selectRole.id
-      if ('Admin' === this.selectRole.code) {
-        this.$message({message: '超级管理员拥有所有菜单权限，不允许修改！', type: 'error'})
-        return
-      }
-      this.authLoading = true
-      let checkedNodes = this.$refs.menuTree.getCheckedNodes(false, true)
-      let roleMenus = []
-      for (let i = 0, len = checkedNodes.length; i < len; i++) {
-        let roleMenu = {roleId: roleId, menuId: checkedNodes[i].id}
-        roleMenus.push(roleMenu)
-      }
-      this.$api.role.saveRoleMenus(roleMenus).then((res) => {
-        if (res.code == 200) {
-          this.$message({message: '操作成功', type: 'success'})
-        } else {
-          this.$message({message: '操作失败, ' + res.msg, type: 'error'})
-        }
-        this.authLoading = false
-      })
-    },
     // 时间格式化
-    dateFormat: function (row, column, cellValue, index) {
-      return format(row[column.property])
+    dateFormat: function (row, column) {
+      return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm:ss')
     }
   }
 }

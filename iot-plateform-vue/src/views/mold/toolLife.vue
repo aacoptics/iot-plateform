@@ -28,10 +28,10 @@
               :before-upload="beforeUpload"
               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               :http-request="uploadExcel"
+              action=""
               :multiple="false"
               :show-file-list="false"
-              drag
-          >
+              drag>
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
           </el-upload>

@@ -24,4 +24,7 @@ public class RoleUpdateForm extends BaseForm<Role> {
     @ApiModelProperty(value = "角色拥有的资源id列表")
     private Set<Long> resourceIds;
 
+    @ApiModelProperty(value = "角色拥有的菜单id列表")
+    private Set<Long> menuIds;
+
 }

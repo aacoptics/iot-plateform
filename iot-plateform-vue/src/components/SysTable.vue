@@ -1,7 +1,8 @@
 <template>
   <div>
     <!--表格栏-->
-    <el-table :data="data.records" :highlight-current-row="highlightCurrentRow" @selection-change="selectionChange"
+    <el-table ref="sysTable" :data="data.records" :highlight-current-row="highlightCurrentRow"
+              @selection-change="selectionChange"
               @current-change="handleCurrentChange" v-loading="loading" :element-loading-text="action.loading"
               :border="border" :stripe="stripe"
               :show-overflow-tooltip="showOverflowTooltip" :max-height="maxHeight" :height="height" :size="size"
@@ -147,6 +148,9 @@ export default {
     handleBatchDelete: function () {
       let ids = this.selections.map(item => item.id).toString()
       this.delete(ids)
+    },
+    handleClearSelection: function () {
+      this.$refs.sysTable.setCurrentRow(null);
     },
     // 删除操作
     delete: function (ids) {

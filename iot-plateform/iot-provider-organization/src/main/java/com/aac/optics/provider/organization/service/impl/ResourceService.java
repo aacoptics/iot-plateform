@@ -20,9 +20,11 @@ import com.aac.optics.provider.organization.service.IRoleService;
 import com.aac.optics.provider.organization.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,6 +96,8 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
         List<RoleResource> roleResources = roleResourceService.queryByRoleIds(roleIds);
         //根据资源列表查询出所有资源对象
         Set<Long> resourceIds = roleResources.stream().map(roleResource -> roleResource.getResourceId()).collect(Collectors.toSet());
+        if(resourceIds.size() == 0)
+            return new ArrayList<>();
         //根据resourceId列表查询出resource对象
         return (List<Resource>) this.listByIds(resourceIds);
     }
@@ -102,6 +106,8 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
     public List<Resource> query(Long roleId) {
         //根据资源列表查询出所有资源对象
         Set<Long> resourceIds = roleResourceService.queryByRoleId(roleId);
+        if(resourceIds.size() == 0)
+            return new ArrayList<>();
         //根据resourceId列表查询出resource对象
         return (List<Resource>) this.listByIds(resourceIds);
     }
