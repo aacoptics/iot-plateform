@@ -23,8 +23,6 @@ public class RoleResourceService extends ServiceImpl<RoleResourceMapper, RoleRes
 
     @Override
     @Transactional
-    @CacheInvalidate(name = "resource4role::", key = "#roleId")
-    @CacheInvalidate(name = "resource4user::", key = "#username")
     public boolean saveBatch(Long roleId, Set<Long> resourceIds) {
         if (CollectionUtils.isEmpty(resourceIds))
             return false;

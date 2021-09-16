@@ -22,8 +22,6 @@ public class RoleMenuService extends ServiceImpl<RoleMenuMapper, RoleMenu> imple
 
     @Override
     @Transactional
-    @CacheInvalidate(name = "menu4role::", key = "#roleId")
-    @CacheInvalidate(name = "menu4user::", key = "#username")
     public boolean saveBatch(Long roleId, Set<Long> menuIds) {
         if (CollectionUtils.isEmpty(menuIds))
             return false;

@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.stream.Stream;
 
 import static com.aac.optics.gateway.web.exception.PermissionErrorType.*;
@@ -89,11 +90,11 @@ public class AuthService implements IAuthService {
             return Result.success();
         } catch (SignatureException | ExpiredJwtException | MalformedJwtException ex) {
             log.error("user token error :{}", ex.getMessage());
-            if(ex instanceof SignatureException){
+            if (ex instanceof SignatureException) {
                 return Result.fail(TOKEN_INVALID);
-            }else if(ex instanceof ExpiredJwtException){
+            } else if (ex instanceof ExpiredJwtException) {
                 return Result.fail(TOKEN_EXPIRE);
-            }else{
+            } else {
                 return Result.fail(ex.getMessage());
             }
         }
