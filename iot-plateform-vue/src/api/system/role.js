@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function findPage(conditions) {
+export function findRoleInfoPage(conditions) {
     return request({
         url: '/organization/role/conditions',
         method: 'post',
@@ -19,6 +19,16 @@ export function handleUpdate(updateForm) {
             'Content-Type': 'application/json'
         },
         data: updateForm
+    })
+}
+
+export function handleRoleData(updateForm) {
+    return request({
+        url: '/organization/role/all',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
 }
 

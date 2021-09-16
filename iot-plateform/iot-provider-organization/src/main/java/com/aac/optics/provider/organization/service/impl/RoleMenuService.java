@@ -3,6 +3,7 @@ package com.aac.optics.provider.organization.service.impl;
 import com.aac.optics.provider.organization.dao.RoleMenuMapper;
 import com.aac.optics.provider.organization.entity.po.RoleMenu;
 import com.aac.optics.provider.organization.service.IRoleMenuService;
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,6 +22,8 @@ public class RoleMenuService extends ServiceImpl<RoleMenuMapper, RoleMenu> imple
 
     @Override
     @Transactional
+    @CacheInvalidate(name = "menu4role::", key = "#roleId")
+    @CacheInvalidate(name = "menu4user::", key = "#username")
     public boolean saveBatch(Long roleId, Set<Long> menuIds) {
         if (CollectionUtils.isEmpty(menuIds))
             return false;
@@ -38,6 +41,7 @@ public class RoleMenuService extends ServiceImpl<RoleMenuMapper, RoleMenu> imple
     }
 
     @Override
+    @Cached(area = "shortTime", name = "menu4role::", key = "#roleId", cacheType = CacheType.BOTH)
     public Set<Long> queryByRoleId(Long roleId) {
         QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("role_id", roleId);

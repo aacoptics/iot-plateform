@@ -1,6 +1,7 @@
 package com.aac.optics.lenspacker.dashboard.controller;
 
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.lenspacker.dashboard.service.LensPackerAlarmInfoService;
 import com.aac.optics.lenspacker.dashboard.service.LensPackerDashboardService;
 import com.aac.optics.lenspacker.dashboard.service.LensPackerOneHourCapacityService;
 import com.aac.optics.lenspacker.dashboard.service.ValueStreamService;
@@ -23,23 +24,46 @@ public class LensPackerDashboardController {
     ValueStreamService valueStreamService;
 
     @Autowired
+    LensPackerAlarmInfoService lensPackerAlarmInfoService;
+
+    @Autowired
     LensPackerDashboardService lensPackerDashboardService;
 
     @Autowired
     LensPackerOneHourCapacityService lensPackerOneHourCapacityService;
 
+//    @ApiOperation(value = "查询机台报警详细数据", notes = "查询机台报警详细数据")
+//    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+//    @GetMapping("/getAlarmDetail")
+//    public Result getMachineAlarmDetail(@RequestParam Map<String, String> params) {
+//        return Result.success(valueStreamService.getMachineAlarmDetail(params.get("startTime"), params.get("endTime")));
+//    }
+//
+//    @ApiOperation(value = "查询机台报警次数详细数据", notes = "查询机台报警次数详细数据")
+//    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+//    @GetMapping("/getAlarmCount")
+//    public Result getMachineAlarmCount(@RequestParam Map<String, String> params) {
+//        return Result.success(valueStreamService.getMachineAlarmCount(params.get("startTime"), params.get("endTime")));
+//    }
+
     @ApiOperation(value = "查询机台报警详细数据", notes = "查询机台报警详细数据")
     @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
     @GetMapping("/getAlarmDetail")
     public Result getMachineAlarmDetail(@RequestParam Map<String, String> params) {
-        return Result.success(valueStreamService.getMachineAlarmDetail(params.get("startTime"), params.get("endTime")));
+        return Result.success(lensPackerAlarmInfoService.getMachineAlarmDetail(params.get("startTime"), params.get("endTime")));
     }
 
     @ApiOperation(value = "查询机台报警次数详细数据", notes = "查询机台报警次数详细数据")
     @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
     @GetMapping("/getAlarmCount")
     public Result getMachineAlarmCount(@RequestParam Map<String, String> params) {
-        return Result.success(valueStreamService.getMachineAlarmCount(params.get("startTime"), params.get("endTime")));
+        return Result.success(lensPackerAlarmInfoService.getMachineAlarmCount(params.get("startTime"), params.get("endTime")));
+    }
+
+    @ApiOperation(value = "查询机台列表数据", notes = "查询机台列表数据")
+    @GetMapping("/getMachineList")
+    public Result getMachineList() {
+        return Result.success(lensPackerAlarmInfoService.getMachineNameList());
     }
 
     @ApiOperation(value = "查询机台产能数据", notes = "查询机台产能数据")

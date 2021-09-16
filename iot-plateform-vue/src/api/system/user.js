@@ -63,3 +63,24 @@ export function getMenuByUsername(username) {
         }
     })
 }
+
+export function findUserInfoPage(conditions) {
+    return request({
+        url: '/organization/user/conditions',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: conditions
+    })
+}
+
+export function findUserRolesById(userId) {
+    return request({
+        url: '/organization/role/user/' + userId,
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

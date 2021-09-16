@@ -61,7 +61,7 @@ export default {
     },
     height: {  // 表格最大高度
       type: Number,
-      default: 250
+      default: 400
     },
     showOperation: {  // 是否显示操作组件
       type: Boolean,

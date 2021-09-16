@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getAlarmDetail(startTime, endTime) {
+export function getAlarmDetail(startTime, endTime, machineName) {
     return request({
         url: '/lenspacker/lenspackerDashboard/getAlarmDetail',
         method: 'get',
@@ -9,12 +9,13 @@ export function getAlarmDetail(startTime, endTime) {
         },
         params: {
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            machineName: machineName
         }
     })
 }
 
-export function getAlarmCount(startTime, endTime) {
+export function getAlarmCount(startTime, endTime, machineName) {
     return request({
         url: '/lenspacker/lenspackerDashboard/getAlarmCount',
         method: 'get',
@@ -23,9 +24,20 @@ export function getAlarmCount(startTime, endTime) {
         },
         params: {
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            machineName: machineName
         }
 
+    })
+}
+
+export function getMachineList() {
+    return request({
+        url: '/lenspacker/lenspackerDashboard/getMachineList',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
 }
 

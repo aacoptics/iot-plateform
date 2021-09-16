@@ -1,5 +1,6 @@
 package com.aac.optics.provider.organization.service.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,6 +23,8 @@ public class RoleResourceService extends ServiceImpl<RoleResourceMapper, RoleRes
 
     @Override
     @Transactional
+    @CacheInvalidate(name = "resource4role::", key = "#roleId")
+    @CacheInvalidate(name = "resource4user::", key = "#username")
     public boolean saveBatch(Long roleId, Set<Long> resourceIds) {
         if (CollectionUtils.isEmpty(resourceIds))
             return false;
@@ -39,6 +42,7 @@ public class RoleResourceService extends ServiceImpl<RoleResourceMapper, RoleRes
     }
 
     @Override
+    @Cached(area = "shortTime", name = "resource4role::", key = "#roleId", cacheType = CacheType.BOTH)
     public Set<Long> queryByRoleId(Long roleId) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("role_id", roleId);

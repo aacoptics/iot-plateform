@@ -70,6 +70,7 @@ public class MenuService extends ServiceImpl<MenuMapper, Menu> implements IMenuS
     }
 
     @Override
+    @Cached(name = "menu4user::", key = "#username", cacheType = CacheType.BOTH)
     public List<Tree<String>> getByUsername(String username) {
         List<Menu> allMenus = menuMapper.getMenuByUsername(username);
         return getMenuTrees(allMenus);

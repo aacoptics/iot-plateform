@@ -39,27 +39,29 @@
               height="600"
               v-loading="alarmDetailLoading">
             <el-table-column
-                prop="machineName"
+                prop="monitMcName"
                 label="机台名"
                 width="85">
             </el-table-column>
             <el-table-column
-                prop="alarmType"
+                prop="alarmCode"
                 label="报警种类"
                 width="80">
             </el-table-column>
             <el-table-column
                 prop="startTime"
                 label="开始时间"
-                width="160">
+                width="160"
+                :formatter="dateFormat">
             </el-table-column>
             <el-table-column
                 prop="endTime"
                 label="结束时间"
-                width="160">
+                width="160"
+                :formatter="dateFormat">
             </el-table-column>
             <el-table-column
-                prop="alarmDesc"
+                prop="description"
                 label="报警描述">
             </el-table-column>
             <el-table-column
@@ -83,17 +85,17 @@
               height="600"
               v-loading="alarmCountLoading">
             <el-table-column
-                prop="machineName"
+                prop="monitMcName"
                 label="机台名"
                 width="85">
             </el-table-column>
             <el-table-column
-                prop="alarmType"
+                prop="alarmCode"
                 label="报警种类"
                 width="80">
             </el-table-column>
             <el-table-column
-                prop="alarmDesc"
+                prop="description"
                 label="报警描述">
             </el-table-column>
             <el-table-column
@@ -137,6 +139,9 @@ export default {
     }
   },
   methods: {
+    dateFormat: function (row, column) {
+      return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm:ss')
+    },
     exportExcel(tableId, excelFileName) {
       const wb = XLSX.utils.table_to_book(document.querySelector(tableId));
       const wbOut = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'});

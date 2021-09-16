@@ -5,15 +5,16 @@
         <el-breadcrumb-item>
           <i class="el-icon-lx-calendar"></i> 系统管理
         </el-breadcrumb-item>
-        <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+        <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="container">
       <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
         <el-form :inline="true" :size="size">
           <el-form-item>
-            <el-input v-model="filters.code" placeholder="角色名"></el-input>
+            <el-input v-model="filters.username" placeholder="用户名"></el-input>
           </el-form-item>
+
           <el-form-item>
             <el-button icon="fa fa-search" type="primary"
                        @click="findPage(null)">查询
@@ -28,7 +29,7 @@
       </div>
       <SysTable :height="220" :highlightCurrentRow="true" :stripe="false"
                 :data="pageResult" :columns="columns" :showBatchDelete="false"
-                @handleCurrentChange="handleRoleSelectChange"
+                @handleCurrentChange="handleUserSelectChange"
                 ref="sysTable"
                 @findPage="findPage" @handleEdit="handleEdit" @handleDelete="handleDelete">
       </SysTable>
@@ -38,98 +39,19 @@
           <el-form-item label="Id" prop="id" v-if="false">
             <el-input v-model="dataForm.id" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="角色代码" prop="code">
-            <el-input v-model="dataForm.code" auto-complete="off"></el-input>
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="dataForm.username" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="角色名称" prop="name">
+          <el-form-item label="姓名" prop="name">
             <el-input v-model="dataForm.name" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="角色描述" prop="description">
+          <el-form-item label="描述" prop="description">
             <el-input v-model="dataForm.description" auto-complete="off"></el-input>
           </el-form-item>
+          <el-form-item label="手机号" prop="mobile">
+            <el-input v-model="dataForm.mobile" auto-complete="off"></el-input>
+          </el-form-item>
         </el-form>
-        <el-row>
-          <el-col :span="12">
-            <div class="menu-container" :v-if="true" style="padding-top: 10px">
-              <div class="menu-header">
-                <span><B>角色菜单授权</B></span>
-              </div>
-              <el-tree :data="menuData"
-                       node-key="id"
-                       size="mini"
-                       show-checkbox
-                       :props="defaultProps"
-                       style="width: 100%;padding-top:20px;" ref="menuTree"
-                       v-loading="menuLoading"
-                       element-loading-text="拼命加载中"
-                       highlight-current>
-                <template #default="{ data }">
-                  <div style="width: 100%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
-                    <el-row>
-                      <el-col :span="8">
-                        <span style="text-align:center"><i :class="data.icon"
-                                                           style="margin-right: 10px"></i>{{ data.title }}</span>
-                      </el-col>
-                      <el-col :span="5">
-               <span style="text-align:center">
-                 <el-tag :type="data.parentId === '-1' ? 'primary' : 'success'" size="small">
-                   {{ data.parentId === '-1' ? '顶级菜单' : '菜单' }}
-                 </el-tag>
-               </span>
-                      </el-col>
-                      <el-col :span="8">
-                        <span style="text-align:center;color: #20a0ff">{{ data.path ? data.path : '\t' }}</span>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </template>
-              </el-tree>
-              <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
-                <el-checkbox v-model="menuCheckAll" @change="handleMenuCheckAll"><b>全选</b>
-                </el-checkbox>
-              </div>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="menu-container" :v-if="true" style="padding-top: 10px">
-              <div class="menu-header">
-                <span><B>角色接口授权</B></span>
-              </div>
-              <el-tree :data="resourceData"
-                       node-key="id"
-                       size="mini"
-                       show-checkbox
-                       :props="resourceProps"
-                       style="width: 100%;padding-top:20px;" ref="resourceTree"
-                       v-loading="resourceLoading"
-                       element-loading-text="拼命加载中"
-                       highlight-current>
-                <template #default="{ data }">
-                  <div style="width: 100%;font-weight: bold;font-family: 'Microsoft YaHei',serif">
-                    <el-row>
-                      <el-col :span="20">
-                        <span style="text-align:center">{{ data.name }}</span>
-                      </el-col>
-                      <el-col :span="4">
-                        <span style="text-align:center">
-                          <el-tag :type="data.children ? 'primary' : 'success'" size="small">
-                            {{ data.children ? '模块' : data.method }}
-                          </el-tag>
-                        </span>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </template>
-              </el-tree>
-              <div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
-                <el-checkbox v-model="resourceCheckAll" @change="handleResourceCheckAll">
-                  <b>全选</b>
-                </el-checkbox>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
-
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
             <el-button :size="size" @click="resetSelection">取消</el-button>
@@ -143,24 +65,26 @@
 
 <script>
 import SysTable from "@/components/SysTable";
-import {findRoleInfoPage, handleAdd, deleteRole, handleUpdate} from "@/api/system/role";
+import {handleAdd, deleteRole, handleUpdate} from "@/api/system/role";
 import {findMenuTree, findRoleMenus} from "@/api/system/menu";
 import {findResourceTree, findRoleResource} from "@/api/system/resource";
+import {findUserInfoPage, findUserRolesById} from "@/api/system/user";
 
 export default {
-  name: "role",
+  name: "user",
   components: {SysTable},
   data() {
     return {
       roleName: '',
       size: 'small',
       filters: {
-        code: ''
+        name: ''
       },
       columns: [
-        {prop: "code", label: "角色代码", minWidth: 80},
-        {prop: "name", label: "角色名称", minWidth: 100},
-        {prop: "description", label: "角色描述", minWidth: 120},
+        {prop: "username", label: "用户名", minWidth: 80},
+        {prop: "name", label: "姓名", minWidth: 100},
+        {prop: "mobile", label: "电话", minWidth: 120},
+        {prop: "description", label: "描述", minWidth: 120},
         {prop: "updatedBy", label: "更新人", minWidth: 100},
         {prop: "updatedTime", label: "更新时间", minWidth: 120, formatter: this.dateFormat},
         {prop: "createdBy", label: "创建人", minWidth: 120},
@@ -172,20 +96,20 @@ export default {
       dialogVisible: false, // 新增编辑界面是否显示
       editLoading: false,
       dataFormRules: {
-        code: [
-          {required: true, message: '请输入角色代码', trigger: 'blur'}
-        ],
-        name: [
-          {required: true, message: '请输入角色名称', trigger: 'blur'}
-        ]
+        username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
+        name: [{required: true, message: '请输入姓名', trigger: 'blur'}],
       },
       // 新增编辑界面数据
       dataForm: {
-        code: '',
+        username: '',
         name: '',
-        description: ''
+        description: '',
+        mobile: '',
+        isLdap: true,
+        password: '',
+        checkPass: ''
       },
-      selectRole: {},
+      selectUser: {},
       menuData: [],
       resourceData: [],
       menuSelections: [],
@@ -194,7 +118,7 @@ export default {
       authLoading: false,
       menuCheckAll: false,
       resourceCheckAll: false,
-      currentRoleMenus: [],
+      currentUserRoles: [],
       currentRoleResource: [],
       defaultProps: {
         children: 'children',
@@ -212,16 +136,18 @@ export default {
       if (data !== null) {
         this.pageRequest = data.pageRequest
       }
-      this.pageRequest.code = this.filters.code
-      findRoleInfoPage(this.pageRequest).then((res) => {
+
+      this.pageRequest.name = this.filters.name
+      findUserInfoPage(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
           this.pageResult = responseData.data
-          this.findMenuTreeData()
-          this.findResourceTreeData()
+          this.findRoleData()
+          // this.findResourceTreeData()
         }
       }).then(data != null ? data.callback : '')
     },
+
     // 批量删除
     handleDelete: function (data) {
       if (data.params.length > 0)
@@ -296,7 +222,7 @@ export default {
       })
     },
     // 获取数据
-    findMenuTreeData: function () {
+    findRoleData: function () {
       this.menuLoading = true
       findMenuTree().then((res) => {
         const responseData = res.data
@@ -330,26 +256,19 @@ export default {
       })
     },
     // 角色选择改变监听
-    handleRoleSelectChange(val) {
+    handleUserSelectChange(val) {
       if (val == null || val.val == null) {
-        this.selectRole = null
+        this.selectUser = null
         this.$refs.menuTree.setCheckedNodes([])
         this.$refs.resourceTree.setCheckedNodes([])
         return
       }
-      this.selectRole = val.val
-      findRoleMenus(val.val.id).then((res) => {
+      this.selectUser = val.val
+      findUserRolesById(val.val.id).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.currentRoleMenus = responseData.data
+          this.currentUserRoles = responseData.data
           this.$refs.menuTree.setCheckedNodes(responseData.data)
-        }
-      })
-      findRoleResource(val.val.id).then((res) => {
-        const responseData = res.data
-        if (responseData.code === '000000') {
-          this.currentRoleResource = responseData.data
-          this.$refs.resourceTree.setCheckedNodes(responseData.data)
         }
       })
     },
@@ -357,7 +276,7 @@ export default {
     resetSelection() {
       this.menuCheckAll = false
       this.resourceCheckAll = false
-      this.$refs.menuTree.setCheckedNodes(this.currentRoleMenus)
+      this.$refs.menuTree.setCheckedNodes(this.currentUserRoles)
       this.$refs.resourceTree.setCheckedNodes(this.currentRoleResource)
       this.dialogVisible = false
     },
