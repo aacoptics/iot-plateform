@@ -84,3 +84,35 @@ export function findUserRolesById(userId) {
         }
     })
 }
+
+export function deleteUser(deleteForm) {
+    return request({
+        url: '/organization/user/' + deleteForm.id,
+        method: 'delete',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+export function handleAdd(addForm) {
+    return request({
+        url: '/organization/user',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: addForm
+    })
+}
+
+export function handleUpdate(updateForm) {
+    return request({
+        url: '/organization/user/' + updateForm.id,
+        method: 'put',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: updateForm
+    })
+}

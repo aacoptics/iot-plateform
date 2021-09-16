@@ -26,7 +26,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <SysTable :height="220" :highlightCurrentRow="true" :stripe="false"
+      <SysTable :height="550" :highlightCurrentRow="true" :stripe="false"
                 :data="pageResult" :columns="columns" :showBatchDelete="false"
                 @handleCurrentChange="handleRoleSelectChange"
                 ref="sysTable"
@@ -152,13 +152,12 @@ export default {
   components: {SysTable},
   data() {
     return {
-      roleName: '',
       size: 'small',
       filters: {
         code: ''
       },
       columns: [
-        {prop: "code", label: "角色代码", minWidth: 80},
+        {prop: "code", label: "角色代码", minWidth: 100},
         {prop: "name", label: "角色名称", minWidth: 100},
         {prop: "description", label: "角色描述", minWidth: 120},
         {prop: "updatedBy", label: "更新人", minWidth: 100},
@@ -391,7 +390,7 @@ export default {
     },
     // 时间格式化
     dateFormat: function (row, column) {
-      return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm:ss')
+      return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm')
     }
   }
 }

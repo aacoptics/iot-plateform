@@ -22,7 +22,7 @@ export function handleUpdate(updateForm) {
     })
 }
 
-export function handleRoleData(updateForm) {
+export function handleRoleData() {
     return request({
         url: '/organization/role/all',
         method: 'get',
