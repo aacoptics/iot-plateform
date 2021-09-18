@@ -1,5 +1,6 @@
 package com.aac.optics.mold.toollife.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -203,14 +204,18 @@ public class ExcelUtil {
                     continue;
                 if(colIdx > 21)
                     break;
-                c.setCellType(Cell.CELL_TYPE_STRING);
                 String data = "";
-                boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
-                //判断是否具有合并单元格
-                if(isMerge) {
-                    data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
-                }else {
-                    data = c.getRichStringCellValue().toString();
+                try {
+                    c.setCellType(Cell.CELL_TYPE_STRING);
+                    boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
+                    //判断是否具有合并单元格
+                    if (isMerge) {
+                        data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
+                    } else {
+                        data = c.getRichStringCellValue().toString();
+                    }
+                }catch(Exception err){
+                    //logger.error(err.getMessage());
                 }
                 objs[colIdx]=data;
                 colIdx++;

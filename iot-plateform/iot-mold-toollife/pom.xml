@@ -21,6 +21,15 @@
             <artifactId>easyexcel</artifactId>
             <version>2.2.7</version>
         </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

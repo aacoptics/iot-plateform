@@ -92,7 +92,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
     public List<ToolInfo> getToolInfo(String monitorNo) {
         QueryWrapper<ToolInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("monitor_no", monitorNo);
-        return this.list(wrapper);
+        List<ToolInfo> toolInfos = list(wrapper);
+        for (ToolInfo toolInfo : toolInfos) {
+            toolInfo.SetMoldMatInfo();
+        }
+        return toolInfos;
     }
 
 
@@ -100,11 +104,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
     public boolean updateToolLifeInfo(List<ToolInfo> toolInfos) {
         try {
             for (ToolInfo toolInfo : toolInfos) {
-                if (StringUtils.isBlank(toolInfo.getMachineNo()) &&
-                        StringUtils.isBlank(toolInfo.getToolPos()) &&
-                        StringUtils.isBlank(toolInfo.getToolCode()))
-                    continue;
-                updateInfo(toolInfo);
+                if (!StringUtils.isBlank(toolInfo.getMachineNo()) ||
+                        (toolInfo.getMatInfo() != null &&
+                                !StringUtils.isBlank(toolInfo.getMatInfo().getHandleCode()))) {
+                    updateInfo(toolInfo);
+                }
             }
             return true;
         } catch (Exception err) {
@@ -115,9 +119,13 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
 
     private void updateInfo(ToolInfo toolInfo) {
         UpdateWrapper<ToolInfo> updateWrapper = new UpdateWrapper<>();
+        if (toolInfo.getMatInfo() != null) {
+            updateWrapper.set("mat_handle_code", toolInfo.getMatInfo().getHandleCode())
+                    .set("mat_tool_code", toolInfo.getMatInfo().getToolCode())
+                    .set("mat_code", toolInfo.getMatInfo().getMatCode())
+                    .set("mat_name", toolInfo.getMatInfo().getMatName());
+        }
         updateWrapper.set("machine_no", toolInfo.getMachineNo())
-                .set("tool_pos", toolInfo.getToolPos())
-                .set("tool_code", toolInfo.getToolCode())
                 .eq("monitor_no", toolInfo.getMonitorNo())
                 .eq("program_name", toolInfo.getProgramName());
         update(updateWrapper);

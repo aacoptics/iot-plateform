@@ -3,6 +3,8 @@ package com.aac.optics.mold.toollife.controller;
 import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.service.EquipInfoService;
+import com.aac.optics.mold.toollife.service.MatInfoService;
 import com.aac.optics.mold.toollife.service.ToolInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -21,6 +23,12 @@ import java.util.List;
 public class MoldToolLifeController {
     @Autowired
     ToolInfoService toolInfoService;
+
+    @Autowired
+    EquipInfoService equipInfoService;
+
+    @Autowired
+    MatInfoService matInfoService;
 
 
     @ApiOperation(value = "刀具寿命Excel上传", notes = "刀具寿命Excel上传")
@@ -46,12 +54,24 @@ public class MoldToolLifeController {
     @ApiOperation(value = "更新机台号，刀位，刀具编号", notes = "更新机台号，刀位，刀具编号")
     @ApiImplicitParam(name = "toolInfo", value = "信息", required = true, dataType = "ToolInfo")
     @PostMapping("/updateToolInfo")
-    public Result getByMonitorNo(@RequestBody List<ToolInfo> toolInfos) {
+    public Result updateToolInfo(@RequestBody List<ToolInfo> toolInfos) {
         boolean res = toolInfoService.updateToolLifeInfo(toolInfos);
-        if(res){
+        if (res) {
             return Result.success();
-        }else{
+        } else {
             return Result.fail();
         }
+    }
+
+    @ApiOperation(value = "获取机台号列表", notes = "获取机台号列表")
+    @GetMapping("/allMachine")
+    public Result getAllMachine() {
+        return Result.success(equipInfoService.getMachineNames());
+    }
+
+    @ApiOperation(value = "获取刀具刀柄信息", notes = "获取刀具刀柄信息")
+    @GetMapping("/allMatInfo")
+    public Result getAllMatInfo() {
+        return Result.success(matInfoService.getMatInfo());
     }
 }

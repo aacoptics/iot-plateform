@@ -1,7 +1,5 @@
 package com.aac.optics.mold.toollife.entity;
 
-import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.metadata.BaseRowModel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -60,9 +58,26 @@ public class ToolInfo implements Serializable {
 
     private String machineNo;
 
-    private String toolPos;
-
-    private String toolCode;
-
     private LocalDateTime createDateTime;
+
+    private String matHandleCode;
+
+    private String matToolCode;
+
+    private String matCode;
+
+    private String matName;
+
+    @TableField(exist = false)
+    private MatInfo matInfo;
+
+    public void SetMoldMatInfo(){
+        this.matInfo = new MatInfo();
+        this.matInfo.setHandleCode(this.matHandleCode)
+                .setToolCode(this.matToolCode)
+                .setMatCode(this.matCode)
+                .setMatName(this.matName);
+    }
+
+
 }

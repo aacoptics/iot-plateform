@@ -33,3 +33,23 @@ export function updateToolInfo(param) {
         data: param
     })
 }
+
+export function getMachineList() {
+    return request({
+        url: '/moldToolLife/toolLife/allMachine',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+export function getMatInfoList() {
+    return request({
+        url: '/moldToolLife/toolLife/allMatInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

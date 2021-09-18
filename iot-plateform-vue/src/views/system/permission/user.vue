@@ -130,7 +130,6 @@ export default {
       if (data !== null) {
         this.pageRequest = data.pageRequest
       }
-
       this.pageRequest.username = this.filters.username
       findUserInfoPage(this.pageRequest).then((res) => {
         const responseData = res.data
@@ -211,18 +210,19 @@ export default {
       })
     },
     uuid(size) {
-        const seed = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            '2', '3', '4', '5', '6', '7', '8', '9'];//数组
-        const seedLength = seed.length;//数组长度
-        let createPassword = '';
-        for (let i=0; i<size; i++) {
-          const j = Math.floor(Math.random() * seedLength);
-          createPassword += seed[j];
-        }
-        return createPassword;
+      const seed = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '2', '3', '4', '5', '6', '7', '8', '9'];//数组
+      const seedLength = seed.length;//数组长度
+      let createPassword = '';
+      for (let i = 0; i < size; i++) {
+        const j = Math.floor(Math.random() * seedLength);
+        createPassword += seed[j];
+      }
+      return createPassword;
     },
     // 获取数据
+
     findRoleData: function () {
       handleRoleData().then((res) => {
         const responseData = res.data

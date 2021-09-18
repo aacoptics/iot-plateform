@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.mold.toollife.dao.MatInfoMapper">
+
+    <select id="getMatInfo" resultType="com.aac.optics.mold.toollife.entity.MatInfo">
+        SELECT ITSD.CODE_NO  AS handle_code,
+               ITSD2.CODE_NO AS tool_code,
+               BM.MAT_CODE   AS mat_code,
+               BM.MAT_NAME   AS mat_name
+        FROM INV_TOOL_SPLIT_DETAIL ITSD
+                 JOIN TOOL_COMBINED TC ON TC.MAIN_TOOL_ID = ITSD.ID AND TC.IS_SPLIT = 0
+                 JOIN TOOL_COMBINED_DETAILED TCD ON TCD.PID = TC.ID AND TCD.IS_SPLIT = 0
+                 JOIN INV_TOOL_SPLIT_DETAIL ITSD2 ON ITSD2.ID = TCD.AUX_TOOL_ID
+                 JOIN BASE_MATERIAL BM ON BM.ID = ITSD2.MAT_ID
+        order by ITSD.CODE_NO
+    </select>
+</mapper>

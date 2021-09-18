@@ -155,6 +155,8 @@ export default {
     // 删除操作
     delete: function (ids) {
       this.$confirm('确认删除选中记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         let params = []
