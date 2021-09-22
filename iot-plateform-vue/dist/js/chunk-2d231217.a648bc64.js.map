@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/assets/font/UnidreamLED.ttf"],"names":["module","exports"],"mappings":"mGAAAA,EAAOC,QAAU,IAA0B","file":"js/chunk-2d231217.a648bc64.js","sourcesContent":["module.exports = __webpack_public_path__ + \"fonts/UnidreamLED.12fc1608.ttf\";"],"sourceRoot":""}
