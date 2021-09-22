@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d20902a"],{a6dc:function(n,e,t){"use strict";t.r(e),t.d(e,"findMenuTree",(function(){return a})),t.d(e,"findRoleMenus",(function(){return r}));var o=t("b775");function a(){return Object(o["default"])({url:"/organization/menu/all",method:"get",headers:{"Content-Type":"application/json"}})}function r(n){return Object(o["default"])({url:"/organization/menu/byRole",method:"get",headers:{"Content-Type":"application/json"},params:{roleId:n}})}}}]);
+//# sourceMappingURL=chunk-2d20902a.238eb595.js.map

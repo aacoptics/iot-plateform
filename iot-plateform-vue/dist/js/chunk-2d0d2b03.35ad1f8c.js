@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0d2b03"],{"5a23":function(e,n,o){"use strict";o.r(n),o.d(n,"findResourceTree",(function(){return r})),o.d(n,"findRoleResource",(function(){return u}));var t=o("b775");function r(){return Object(t["default"])({url:"/organization/resource/all",method:"get",headers:{"Content-Type":"application/json"}})}function u(e){return Object(t["default"])({url:"/organization/resource/role/"+e,method:"get",headers:{"Content-Type":"application/json"}})}}}]);
+//# sourceMappingURL=chunk-2d0d2b03.35ad1f8c.js.map

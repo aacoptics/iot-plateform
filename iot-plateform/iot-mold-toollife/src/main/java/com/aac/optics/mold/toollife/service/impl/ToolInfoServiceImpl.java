@@ -25,13 +25,14 @@ import java.util.regex.Pattern;
 public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> implements ToolInfoService {
 
     @Override
-    public List<ToolInfo> phaseExcelData(InputStream in) {
+    public String phaseExcelData(InputStream in) {
         List<String[]> excelDataList;
         List<ToolInfo> toolInfos = new ArrayList<>();
+        String monitorNo = "";
         try {
             excelDataList = ExcelUtil.read(in).get(0);
             String workpiece = excelDataList.get(3)[2];
-            String monitorNo = excelDataList.get(3)[12];
+            monitorNo = excelDataList.get(3)[12];
             String material = excelDataList.get(14)[17];
             Pattern isNum = Pattern.compile("^[\\d]*$");
             Pattern isSwo = Pattern.compile("^O[\\d]*$");
@@ -77,7 +78,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        return toolInfos;
+        return monitorNo;
     }
 
     @Override

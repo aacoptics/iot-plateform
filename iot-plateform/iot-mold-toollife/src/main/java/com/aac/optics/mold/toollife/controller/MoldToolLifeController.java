@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/toolLife")
@@ -35,10 +37,10 @@ public class MoldToolLifeController {
     @ApiImplicitParam(name = "file", value = "Excel文件", required = true, dataType = "MultipartFile")
     @PostMapping("/uploadExcel")
     public Result uploadExcel(@RequestPart("file") MultipartFile file) {
-        List<ToolInfo> toolInfos = null;
+        String monitorNo = "";
         try {
-            toolInfos = toolInfoService.phaseExcelData(file.getInputStream());
-            return Result.success(toolInfos);
+            monitorNo = toolInfoService.phaseExcelData(file.getInputStream());
+            return Result.success(monitorNo);
         } catch (Exception e) {
             return Result.fail(SystemErrorType.SYSTEM_ERROR);
         }

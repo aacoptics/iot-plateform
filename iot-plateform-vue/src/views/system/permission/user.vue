@@ -26,7 +26,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <SysTable :height="550" :highlightCurrentRow="true" :stripe="false"
+      <SysTable :height="460" :highlightCurrentRow="true" :stripe="false"
                 :data="pageResult" :columns="columns" :showBatchDelete="false"
                 @handleCurrentChange="handleUserSelectChange"
                 ref="sysTable"

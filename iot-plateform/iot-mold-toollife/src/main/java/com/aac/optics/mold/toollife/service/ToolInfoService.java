@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public interface ToolInfoService extends IService<ToolInfo> {
-    List<ToolInfo> phaseExcelData(InputStream in);
+    String phaseExcelData(InputStream in);
 
     List<ToolInfo> getToolInfo(String monitorNo);
 

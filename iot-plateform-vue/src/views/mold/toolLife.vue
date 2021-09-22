@@ -11,10 +11,10 @@
     <div class="container">
 
       <el-row>
-        <el-col :span="8">
+        <el-col :span="10">
           <el-row style="padding: 10px">
             <el-input style="width: 200px;margin-right: 10px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
-            <el-button style="margin-right: 10px" type="primary" icon="el-icon-search" @click="getByMonitorNo()">查询
+            <el-button style="margin-right: 10px" type="primary" icon="el-icon-search" @click="getByMonitorNo(null)">查询
             </el-button>
             <el-button style="margin-right: 10px" type="success" :loading="saveBtnLoading" icon="el-icon-check"
                        @click="saveEditInfo()">保存
@@ -35,7 +35,7 @@
 
           </el-row>
         </el-col>
-        <el-col :span="16">
+        <el-col :span="14">
           <el-upload
               class="upload-demo"
               :before-upload="beforeUpload"
@@ -206,17 +206,22 @@ export default {
       uploadExcel(params).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
+          const monitorNo = responseData.data;
+          this.getByMonitorNo(monitorNo)
           this.$message.success('上传成功！')
         } else {
           this.$message.error('上传失败！' + responseData.msg)
         }
       }).catch((err) => {
-        this.$message.error(err.message)
+        this.$message.error(err)
       })
     },
-    getByMonitorNo() {
+    getByMonitorNo(monitorNo) {
       this.toolLifeLoading = true
-      getByMonitorNo(this.monitorNo).then((response) => {
+      if(monitorNo == null){
+        monitorNo = this.monitorNo;
+      }
+      getByMonitorNo(monitorNo).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.moldToolLifeSheet = responseData.data;
