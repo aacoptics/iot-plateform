@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 开发相关
+          开发相关
         </el-breadcrumb-item>
         <el-breadcrumb-item>注册中心</el-breadcrumb-item>
       </el-breadcrumb>
@@ -15,7 +15,7 @@
               src="http://iottest.aacoptics.com:8848/nacos/index.html#/serviceManagement?dataId=&group=&appName=&namespace=iot-plateform&namespaceShowName=iot-plateform"
               frameborder='0'
               scrolling='auto'
-     ></iframe>
+      ></iframe>
     </div>
   </div>
 </template>

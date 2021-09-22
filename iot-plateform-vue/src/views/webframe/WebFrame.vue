@@ -2,7 +2,7 @@
   <div class="crumbs">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>
-        <i class="el-icon-lx-calendar"></i> 注塑机监控
+        注塑机监控
       </el-breadcrumb-item>
       <el-breadcrumb-item>新能源</el-breadcrumb-item>
     </el-breadcrumb>

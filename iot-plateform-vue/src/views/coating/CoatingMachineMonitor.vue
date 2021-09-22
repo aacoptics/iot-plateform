@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 镀膜机监控
+          镀膜机监控
         </el-breadcrumb-item>
         <el-breadcrumb-item>镀膜机{{ this.$route.query.position }}期</el-breadcrumb-item>
       </el-breadcrumb>
@@ -11,7 +11,8 @@
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
-             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'"
+             @click="onStatusRadioClick(item)">
           {{ item + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
@@ -94,7 +95,7 @@ export default {
       this.coatingMachineInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status, item.isOnline)
         if (this.checkCoatingPhase(item.name)) {
-          if(this.statusRadioValue.indexOf(statusName) > -1){
+          if (this.statusRadioValue.indexOf(statusName) > -1) {
             pages.push(item)
           }
           this.statusCount[statusName]++
@@ -104,7 +105,7 @@ export default {
     }
   },
   methods: {
-    refreshPage(){
+    refreshPage() {
       this.$router.push(this.$route.fullPath)
     },
     setStatusRadioValue(status) {
@@ -188,7 +189,7 @@ export default {
   },
   data() {
     return {
-      pathStatusInfo:"",
+      pathStatusInfo: "",
       coatingMachineInfoList: [],
       // statusType: {
       //   '设备离线': 'item_coating_offline',

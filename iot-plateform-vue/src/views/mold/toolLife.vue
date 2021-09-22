@@ -3,13 +3,12 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 模具IoT
+          模具IoT
         </el-breadcrumb-item>
         <el-breadcrumb-item>刀具寿命管控</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="container">
-
       <el-row>
         <el-col :span="10">
           <el-row style="padding: 10px">
@@ -50,7 +49,6 @@
           </el-upload>
         </el-col>
       </el-row>
-
       <el-table
           id="ToolLifeTable"
           :data="moldToolLifeSheet"
@@ -80,8 +78,8 @@
         <el-table-column prop="remark" label="备注"></el-table-column>
         <el-table-column :width=100 fixed="left" prop="machineNo" label="机台号">
           <template v-slot="scope">
-            <span v-if="machineName.length === 0">{{scope.row.machineNo}}</span>
-            <span v-else>{{machineName}}</span>
+            <span v-if="machineName.length === 0">{{ scope.row.machineNo }}</span>
+            <span v-else>{{ machineName }}</span>
           </template>
         </el-table-column>
         <el-table-column :width=120 fixed="left" prop="handleCode" label="刀柄编码">
@@ -96,7 +94,7 @@
                 @change="checkDiameter(scope.row, scope.row.toolDiameter)"
                 @blur="cellEvent(scope.row)"
                 placeholder="请选择"/>
-            <span  v-else :style="getFontColor(scope.row.isCheck)">{{scope.row.matInfo.handleCode}}</span>
+            <span v-else :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.handleCode }}</span>
           </template>
         </el-table-column>
         <el-table-column :width=120 fixed="left" prop="toolCode" label="刀具编码">
@@ -149,7 +147,7 @@ export default {
     tableMaxHeight() {
       return window.innerHeight - 370 + 'px';
     },
-    options(){
+    options() {
       const list = [];
       for (let i = 0; i < this.matInfoList.length; i++) {
         list.push({label: this.matInfoList[i].handleCode, value: this.matInfoList[i]})
@@ -158,7 +156,7 @@ export default {
     }
   },
   methods: {
-    cellEvent (row) {
+    cellEvent(row) {
       row.isSelected = !row.isSelected
     },
     tabClick(row, column) {
@@ -166,7 +164,8 @@ export default {
         case '刀柄编码':
           this.cellEvent(row)
           break
-        default: return
+        default:
+          return
       }
     },
     beforeUpload(file) {
@@ -218,7 +217,7 @@ export default {
     },
     getByMonitorNo(monitorNo) {
       this.toolLifeLoading = true
-      if(monitorNo == null){
+      if (monitorNo == null) {
         monitorNo = this.monitorNo;
       }
       getByMonitorNo(monitorNo).then((response) => {

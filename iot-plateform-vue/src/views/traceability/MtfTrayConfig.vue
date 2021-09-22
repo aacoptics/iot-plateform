@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> B客户
+          B客户
         </el-breadcrumb-item>
         <el-breadcrumb-item>MTF托盘维护</el-breadcrumb-item>
       </el-breadcrumb>
@@ -22,7 +22,8 @@
               v-model="mtfTrayNoDialog"
               width="30%">
             <label style="font-weight: bold">MTF托盘二维码</label>
-            <el-input style="margin-top: 10px" v-model="mtfTrayNoDialogForm.mtfTrayNo" placeholder="请输入MTF托盘二维码"></el-input>
+            <el-input style="margin-top: 10px" v-model="mtfTrayNoDialogForm.mtfTrayNo"
+                      placeholder="请输入MTF托盘二维码"></el-input>
             <template #footer>
     <span class="dialog-footer">
       <el-button @click="mtfTrayNoDialog = false">取消</el-button>
@@ -152,9 +153,7 @@ export default {
       }]
     }
   },
-  methods: {
-
-  }
+  methods: {}
 }
 </script>
 

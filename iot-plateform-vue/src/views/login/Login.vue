@@ -54,8 +54,8 @@ export default {
     this.ssoLogin()
   },
   methods: {
-    ssoLogin(){
-      if(this.$route.query.token){
+    ssoLogin() {
+      if (this.$route.query.token) {
         const token = this.$route.query.token;
 
         this.param.username = 'ssoToken'

@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 包料机监控
+          包料机监控
         </el-breadcrumb-item>
         <el-breadcrumb-item>包料机报警数据</el-breadcrumb-item>
       </el-breadcrumb>

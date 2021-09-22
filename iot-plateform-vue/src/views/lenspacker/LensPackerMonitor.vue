@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 包料机监控
+          包料机监控
         </el-breadcrumb-item>
         <el-breadcrumb-item>新能源{{ this.$route.query.position }}</el-breadcrumb-item>
       </el-breadcrumb>
@@ -11,11 +11,13 @@
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
-             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'" @click="onStatusRadioClick(item)">
+             :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'"
+             @click="onStatusRadioClick(item)">
           {{ item + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
-      <el-card v-for="(singleMachineInfo, index) of LensPackerMachineInfo" :key="index" :body-style="{ padding: '0px', height:'120px'}"
+      <el-card v-for="(singleMachineInfo, index) of LensPackerMachineInfo" :key="index"
+               :body-style="{ padding: '0px', height:'120px'}"
                shadow="hover"
                class="lenspacker_card_type"
                style="cursor: pointer">
@@ -23,33 +25,37 @@
         <el-row>
           <el-col>
             <div style="font-weight: bold">
-              <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;border-bottom: 1px solid cornflowerblue">
+              <el-row
+                  style="text-align: center;height:30px; font-weight: bold;font-size: 16px;border-bottom: 1px solid cornflowerblue">
                 <el-col :span="24">
-                  <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ singleMachineInfo.machineNo.substr(4) }}</p>
+                  <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">
+                    {{ singleMachineInfo.machineNo.substr(4) }}</p>
                 </el-col>
-<!--                <el-col :span="16">-->
-<!--                    {{ getMachineStatus(singleMachineInfo.status) }}-->
-<!--                  <div :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
+                <!--                <el-col :span="16">-->
+                <!--                    {{ getMachineStatus(singleMachineInfo.status) }}-->
+                <!--                  <div :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
                 <!--                  </div>-->
-<!--                </el-col>-->
+                <!--                </el-col>-->
               </el-row>
               <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
                 <el-col :span="24">
-<!--                  <div v-if="singleMachineInfo.status === 2" :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
-<!--                    {{ getMachineStatus(singleMachineInfo.status) + ':' + singleMachineInfo.alarmInfo }}-->
-<!--                  </div>-->
-                  <div v-if="singleMachineInfo.status === 2" :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">
-<!--                    <el-row>-->
-<!--                      <el-col :span="6">-->
-<!--                        {{ getMachineStatus(singleMachineInfo.status) + ':' }}-->
-<!--                      </el-col>-->
-<!--                      <el-col :span="18">-->
-<!--                        <marquee behavior="scroll" scrolldelay="200"> {{ singleMachineInfo.alarmInfo }}</marquee>-->
-<!--                      </el-col>-->
-<!--                    </el-row>-->
+                  <!--                  <div v-if="singleMachineInfo.status === 2" :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">-->
+                  <!--                    {{ getMachineStatus(singleMachineInfo.status) + ':' + singleMachineInfo.alarmInfo }}-->
+                  <!--                  </div>-->
+                  <div v-if="singleMachineInfo.status === 2"
+                       :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">
+                    <!--                    <el-row>-->
+                    <!--                      <el-col :span="6">-->
+                    <!--                        {{ getMachineStatus(singleMachineInfo.status) + ':' }}-->
+                    <!--                      </el-col>-->
+                    <!--                      <el-col :span="18">-->
+                    <!--                        <marquee behavior="scroll" scrolldelay="200"> {{ singleMachineInfo.alarmInfo }}</marquee>-->
+                    <!--                      </el-col>-->
+                    <!--                    </el-row>-->
                     {{ singleMachineInfo.alarmInfo }}
                   </div>
-                  <div v-else :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">
+                  <div v-else
+                       :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">
                     {{ getMachineStatus(singleMachineInfo.status) }}
                   </div>
                 </el-col>
@@ -59,7 +65,9 @@
                 <el-col :span="12">节拍：{{ singleMachineInfo.machineCT.toFixed(2) }}</el-col>
               </el-row>
               <el-row style="height: 30px;line-height: 30px">
-                <el-col :span="12" v-if="singleMachineInfo.status !== 0">类型：{{ singleMachineInfo.cavityNums === 24 ? 24 : 16 }}穴</el-col>
+                <el-col :span="12" v-if="singleMachineInfo.status !== 0">
+                  类型：{{ singleMachineInfo.cavityNums === 24 ? 24 : 16 }}穴
+                </el-col>
                 <el-col :span="12" v-else>类型：</el-col>
                 <el-col :span="12">握手信号：{{ singleMachineInfo.isComplete }}</el-col>
               </el-row>
@@ -94,7 +102,7 @@ export default {
       this.LensPackerInfoList.forEach((item) => {
         const statusName = this.getMachineStatus(item.status)
         if (item.machineNo.indexOf(position) === 0) {
-          if(this.statusRadioValue.indexOf(statusName) > -1) {
+          if (this.statusRadioValue.indexOf(statusName) > -1) {
             pages.push(item)
           }
           this.statusCount[statusName]++
@@ -104,7 +112,7 @@ export default {
     }
   },
   methods: {
-    refreshPage(){
+    refreshPage() {
       this.$router.push(this.$route.fullPath)
     },
     setStatusRadioValue(status) {

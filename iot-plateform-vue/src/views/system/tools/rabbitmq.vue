@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 开发相关
+          开发相关
         </el-breadcrumb-item>
         <el-breadcrumb-item>消息队列</el-breadcrumb-item>
       </el-breadcrumb>
@@ -15,7 +15,7 @@
               src="http://iottest.aacoptics.com:15672/"
               frameborder='0'
               scrolling='auto'
-     ></iframe>
+      ></iframe>
     </div>
   </div>
 </template>

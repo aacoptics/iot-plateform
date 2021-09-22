@@ -16,9 +16,9 @@
       <el-table-column :label="action.operation" width="185" fixed="right" v-if="showOperation" header-align="center"
                        align="center">
         <template v-slot="scope">
-          <el-button icon="fa fa-edit" :size="size" @click="handleEdit(scope.$index, scope.row)">{{ action.edit }}
+          <el-button icon="el-icon-edit" :size="size" @click="handleEdit(scope.$index, scope.row)">{{ action.edit }}
           </el-button>
-          <el-button icon="fa fa-trash" :size="size" type="danger" @click="handleDelete(scope.$index, scope.row)">
+          <el-button icon="el-icon-delete" :size="size" type="danger" @click="handleDelete(scope.$index, scope.row)">
             {{ action.delete }}
           </el-button>
         </template>

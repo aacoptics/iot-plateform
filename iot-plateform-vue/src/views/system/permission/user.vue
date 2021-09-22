@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-calendar"></i> 系统管理
+          系统管理
         </el-breadcrumb-item>
         <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       </el-breadcrumb>
@@ -15,12 +15,12 @@
             <el-input v-model="filters.username" placeholder="用户名"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button icon="fa fa-search" type="primary"
+            <el-button icon="el-icon-search" type="primary"
                        @click="findPage(null)">查询
             </el-button>
           </el-form-item>
           <el-form-item>
-            <el-button icon="fa fa-plus" type="primary"
+            <el-button icon="el-icon-plus" type="success"
                        @click="handleAdd">新增
             </el-button>
           </el-form-item>

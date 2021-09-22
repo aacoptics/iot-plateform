@@ -17,13 +17,13 @@ export default {
       loading: true
     }
   },
-  mounted: function() {
+  mounted: function () {
     setTimeout(() => {
       this.loading = false
     }, 230)
     const that = this
     window.onresize = function temp() {
-      that.height = document.documentElement.clientHeight - 100  + 'px;'
+      that.height = document.documentElement.clientHeight - 100 + 'px;'
     }
   }
 }
