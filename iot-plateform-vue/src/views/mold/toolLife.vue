@@ -58,7 +58,7 @@
           header-row-class-name="tableHead"
           style="width: 100%;margin-top: 10px"
           v-loading="toolLifeLoading"
-          @cell-click="tabClick">
+          @cell-click="cellClick">
         <el-table-column :width=100 prop="monitorNo" label="监控号"></el-table-column>
         <el-table-column prop="programName" label="程序名"></el-table-column>
         <el-table-column :width=200 prop="workpiece" label="工件名称"></el-table-column>
@@ -89,11 +89,11 @@
                 v-if="scope.row.isSelected"
                 v-model="scope.row.matInfo"
                 filterable
+                placeholder="请选择"
                 :options="options"
                 value-key="handleCode"
                 @change="checkDiameter(scope.row, scope.row.toolDiameter)"
-                @blur="cellEvent(scope.row)"
-                placeholder="请选择"/>
+                @blur="cellEvent(scope.row)"/>
             <span v-else :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.handleCode }}</span>
           </template>
         </el-table-column>
@@ -159,7 +159,7 @@ export default {
     cellEvent(row) {
       row.isSelected = !row.isSelected
     },
-    tabClick(row, column) {
+    cellClick(row, column) {
       switch (column.label) {
         case '刀柄编码':
           this.cellEvent(row)

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.dingtalk.filelog.dao.DingTalkUserMapper">
+
+    <select id="getDingtalkUserInfo" resultType="com.aac.optics.dingtalk.filelog.entity.DingTalkUser">
+        SELECT b.FD_NAME, c.NAME, c.JOBNUMBER, b.FD_ID,c.USERID
+        FROM EKPUSER.DINGTALK_USER c
+                 LEFT JOIN SYS_ORG_ELEMENT a
+                           ON c.JOBNUMBER = a.FD_NO
+                 LEFT JOIN SYS_ORG_ELEMENT b
+                           ON SUBSTR(a.FD_HIERARCHY_ID, INSTR(a.FD_HIERARCHY_ID, 'x', 1, 2) + 1,
+                                     INSTR(a.FD_HIERARCHY_ID, 'x', 1, 3) - INSTR(a.FD_HIERARCHY_ID, 'x', 1, 2) - 1) =
+                              b.FD_ID
+                               AND b.FD_ID != a.FD_ID
+    </select>
+</mapper>

@@ -19,6 +19,8 @@
         <module>iot-lenspacker-dashboard</module>
         <module>iot-general-dashboard</module>
         <module>iot-mold-toollife</module>
+        <module>fanc-dingtalk-filelog</module>
+        <module>fanc-provider-jira</module>
     </modules>
 
     <packaging>pom</packaging>
