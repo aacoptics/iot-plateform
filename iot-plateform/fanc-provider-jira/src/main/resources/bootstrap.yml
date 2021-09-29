@@ -7,8 +7,8 @@ spring:
     nacos:
       discovery:
         server-addr: iottest.aacoptics.com:8848
-        namespace: fanc-plateform
-        group: fanc-plateform
+        namespace: iot-plateform
+        group: iot-plateform
       config:
         server-addr: iottest.aacoptics.com:8848
         namespace: fanc-plateform

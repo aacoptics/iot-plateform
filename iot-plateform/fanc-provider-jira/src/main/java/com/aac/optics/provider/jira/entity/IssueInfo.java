@@ -9,6 +9,8 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class IssueInfo implements Serializable {
 
+    private Integer id;
+
     private String username;
 
     private String jobNumber;
@@ -18,6 +20,8 @@ public class IssueInfo implements Serializable {
     private String issueSummary;
 
     private String issueKey;
+
+    private String status;
 
     private String ekpIssueNo;
 

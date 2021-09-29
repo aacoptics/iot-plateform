@@ -55,9 +55,21 @@ public class JiraServiceImpl implements JiraService {
         for (Object issue : issues) {
             JSONObject issueJson = (JSONObject) issue;
             IssueInfo issueInfo = new IssueInfo();
-            String username = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
-            String jobNumber = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("name");
-            String issueType = issueJson.getJSONObject("fields").getJSONObject("customfield_14900").getString("value");
+            String username = "";
+            String jobNumber = "";
+            try {
+                username = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
+                jobNumber = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("name");
+            }catch(Exception err){
+
+            }
+            String issueType = "";
+            try {
+                issueType = issueJson.getJSONObject("fields").getJSONObject("customfield_14900").getString("value");
+            }catch(Exception err){
+
+            }
+            String status = issueJson.getJSONObject("fields").getJSONObject("status").getString("name");
             String issueSummary = issueJson.getJSONObject("fields").getString("summary");
             String issueKey = issueJson.getString("key");
             String ekpIssueNo = issueJson.getJSONObject("fields").getString("customfield_14901");
@@ -70,7 +82,7 @@ public class JiraServiceImpl implements JiraService {
             }
             if (issueJson.getJSONObject("fields").containsKey("parent")) {
                 issueInfo.setParentTaskKey(issueJson.getJSONObject("fields").getJSONObject("parent").getString("key"));
-            }else{
+            } else {
                 issueInfo.setParentTaskKey("-1");
             }
             issueInfo.setUsername(username)
@@ -80,7 +92,8 @@ public class JiraServiceImpl implements JiraService {
                     .setIssueKey(issueKey)
                     .setEkpIssueNo(ekpIssueNo)
                     .setEstimateTime(estimateTime)
-                    .setRemainingTime(remainingTime);
+                    .setRemainingTime(remainingTime)
+                    .setStatus(status);
             sprintIssues.add(issueInfo);
         }
         List<Tree<String>> finalRes = getIssueTrees(sprintIssues);
@@ -107,8 +120,20 @@ public class JiraServiceImpl implements JiraService {
                     tree.putExtra("ekpIssueNo", treeNode.getEkpIssueNo());
                     tree.putExtra("estimateTime", treeNode.getEstimateTime());
                     tree.putExtra("remainingTime", treeNode.getRemainingTime());
+                    tree.putExtra("hasChildren", treeNode.isHasSubTask());
+                    tree.putExtra("status", treeNode.getStatus());
                 });
         return issues;
+    }
+
+    @Override
+    public JSONArray getAllBoards() {
+        List<NameValuePair> list = new LinkedList<>();
+        BasicNameValuePair param1 = new BasicNameValuePair("maxResults", "500");
+        list.add(param1);
+        JSONObject res = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/board", list, username, password);
+
+        return res.getJSONArray("values");
     }
 
 }
