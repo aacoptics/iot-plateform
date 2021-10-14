@@ -202,7 +202,7 @@ public class ExcelUtil {
             for (Cell c : row) {
                 if(c == null)
                     continue;
-                if(colIdx > 21)
+                if(colIdx > 22)
                     break;
                 String data = "";
                 try {

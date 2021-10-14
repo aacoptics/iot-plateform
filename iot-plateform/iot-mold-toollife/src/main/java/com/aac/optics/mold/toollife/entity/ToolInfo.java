@@ -68,6 +68,8 @@ public class ToolInfo implements Serializable {
 
     private String matName;
 
+    private String speed;
+
     @TableField(exist = false)
     private MatInfo matInfo;
 

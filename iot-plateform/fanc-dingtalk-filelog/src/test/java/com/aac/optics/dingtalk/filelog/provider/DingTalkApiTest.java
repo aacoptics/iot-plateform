@@ -66,10 +66,8 @@ class DingTalkApiTest {
                     if(userInfo.size() > 0)
                         i++;
                 }
-
             }
             log.info(i.toString());
-
         }
         catch (Exception e) {
             e.printStackTrace();

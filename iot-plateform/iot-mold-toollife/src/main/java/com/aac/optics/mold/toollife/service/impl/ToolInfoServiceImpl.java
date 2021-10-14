@@ -9,20 +9,24 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> implements ToolInfoService {
+
+    @Autowired
+    ToolInfoMapper toolInfoMapper;
 
     @Override
     public String phaseExcelData(InputStream in) {
@@ -33,12 +37,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             excelDataList = ExcelUtil.read(in).get(0);
             String workpiece = excelDataList.get(3)[2];
             monitorNo = excelDataList.get(3)[12];
-            String material = excelDataList.get(14)[17];
-            Pattern isNum = Pattern.compile("^[\\d]*$");
-            Pattern isSwo = Pattern.compile("^O[\\d]*$");
+            String material = excelDataList.get(16)[17];
+            Pattern isSwo = Pattern.compile("^O?([\\d]{3,5})+([\\S]*)?$");
             String tempRoute = "";
             for (String[] strings : excelDataList) {
-                if (!StringUtils.isBlank(strings[1]) & (isNum.matcher(strings[1]).matches() || isSwo.matcher(strings[1]).matches())) {
+                if (!StringUtils.isBlank(strings[1]) & isSwo.matcher(strings[1]).matches()) {
                     ToolInfo toolInfo = new ToolInfo();
                     toolInfo.setWorkpiece(workpiece)
                             .setMonitorNo(monitorNo)
@@ -60,7 +63,8 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                             .setWorkTime(strings[18])
                             .setCutDepth(strings[19])
                             .setFeed(strings[20])
-                            .setRemark(strings[21])
+                            .setSpeed(strings[21])
+                            .setRemark(strings[22])
                             .setCreateDateTime(LocalDateTime.now());
                     if (!strings[14].equals("#N/A"))
                         toolInfo.setBrand(strings[14]);
@@ -130,5 +134,24 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 .eq("monitor_no", toolInfo.getMonitorNo())
                 .eq("program_name", toolInfo.getProgramName());
         update(updateWrapper);
+    }
+
+    public Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos){
+        Map<String, Boolean> res = new HashMap<>();
+        if(monitorNos.size() == 0){
+            return res;
+        }
+        Set<String> monitorNoSet = new HashSet<>(monitorNos);
+        List<ToolInfo> toolInfos = toolInfoMapper.getToolMaintainStatus(monitorNoSet);
+        for (String monitorNo : monitorNoSet) {
+            List<ToolInfo> temp = toolInfos.stream().filter(toolInfo -> toolInfo.getMonitorNo().equals(monitorNo)).collect(Collectors.toList());
+            if(temp.size() > 0 && temp.get(0).getMachineNo() != null){
+                res.put(monitorNo, true);
+            }
+            else{
+                res.put(monitorNo, false);
+            }
+        }
+        return res;
     }
 }

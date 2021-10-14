@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.mold.toollife.dao.ProgramDetailMapper">
+    <select id="getLastDayOee" resultType="com.aac.optics.mold.toollife.entity.ProgramDetail">
+        SELECT area
+             , sum(datediff(second, start_time, end_time)) as total_time
+             , count(distinct machine_no)                  as run_count
+        FROM [MDIoT].[dbo].[tb_mold_program_detail] a
+                 left join tb_mold_machine_area_config b
+                           on a.machine_no = b.machine_name
+        where start_time between #{startTime} and DATEADD(dd, 1, #{startTime})
+          and end_time is not null
+          and area is not null
+        group by area
+    </select>
+</mapper>

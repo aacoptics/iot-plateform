@@ -169,6 +169,16 @@
     float: left;
 }
 
+.mold_card_type{
+    width: 80px;
+    height: 50px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    float: left;
+}
+
 .coating_div_type{
     width: 230px;
     border:1px solid cornflowerblue;

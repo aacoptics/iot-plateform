@@ -53,3 +53,40 @@ export function getMatInfoList() {
         }
     })
 }
+
+export function getToolMaintainStatus(param) {
+    return request({
+        url: '/moldToolLife/toolLife/getToolMaintainStatus',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: param
+    })
+}
+
+export function getLastDayTotalTime(startTime) {
+    return request({
+        url: '/moldToolLife/toolLife/getLastDayOee',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            startTime: startTime
+        }
+    })
+}
+
+export function getLastDayScrapCount(startTime) {
+    return request({
+        url: '/moldToolLife/toolLife/getLastDayScrapCount',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            startTime: startTime
+        }
+    })
+}

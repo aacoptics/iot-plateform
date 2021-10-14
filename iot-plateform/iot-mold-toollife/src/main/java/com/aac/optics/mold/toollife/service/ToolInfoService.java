@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 
 public interface ToolInfoService extends IService<ToolInfo> {
@@ -15,4 +16,6 @@ public interface ToolInfoService extends IService<ToolInfo> {
     List<ToolInfo> getToolInfo(String monitorNo, String programName);
 
     boolean updateToolLifeInfo(List<ToolInfo> toolInfos);
+
+    Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos);
 }

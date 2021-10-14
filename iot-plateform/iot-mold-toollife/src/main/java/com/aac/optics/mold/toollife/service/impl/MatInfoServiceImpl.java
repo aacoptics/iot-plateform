@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 
 
@@ -25,5 +27,23 @@ public class MatInfoServiceImpl extends ServiceImpl<MatInfoMapper, MatInfo> impl
     @Override
     public List<MatInfo> getMatInfo() {
         return matInfoMapper.getMatInfo();
+    }
+
+    @Override
+    public Integer getScrapCount(String startTime) {
+        return matInfoMapper.getScrapCount(startTime);
+    }
+
+    @Override
+    public Integer getOutCount(String startTime) {
+        return matInfoMapper.getOutCount(startTime);
+    }
+
+    @Override
+    public Double getScrapRate(String startTime) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        Integer scrapCount = getScrapCount(startTime);
+        Integer outCount = getOutCount(startTime);
+        return Double.valueOf(df.format((float)scrapCount/outCount));
     }
 }
