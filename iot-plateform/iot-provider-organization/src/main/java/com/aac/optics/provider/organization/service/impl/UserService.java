@@ -63,7 +63,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
     }
 
     @Override
-    @Cached(name = "user::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "user::", key = "#id", cacheType = CacheType.REMOTE)
     public UserVo get(Long id) {
         User user = this.getById(id);
         if (Objects.isNull(user)) {
@@ -74,7 +74,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
     }
 
     @Override
-    @Cached(name = "user::", key = "#uniqueId", cacheType = CacheType.BOTH)
+    @Cached(name = "user::", key = "#uniqueId", cacheType = CacheType.REMOTE)
     public User getByUniqueId(String uniqueId) {
         User user = this.getOne(new QueryWrapper<User>()
                 .eq("username", uniqueId)
@@ -88,7 +88,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
     }
 
     @Override
-    @Cached(name = "userInfo::", key = "#username", cacheType = CacheType.BOTH)
+    @Cached(name = "userInfo::", key = "#username", cacheType = CacheType.REMOTE)
     public User getByUsername(String username) {
         User user = this.getOne(new QueryWrapper<User>()
                 .select("id", "username", "name", "mobile", "description")

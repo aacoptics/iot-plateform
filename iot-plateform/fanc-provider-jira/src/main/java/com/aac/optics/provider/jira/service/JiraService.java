@@ -14,4 +14,6 @@ public interface JiraService {
     List<Tree<String>> getSpringIssues(String sprintId);
 
     JSONArray getAllBoards();
+
+    List<Tree<String>> getIssuesByTime(String boardId, String startTime, String endTime);
 }

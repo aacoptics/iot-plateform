@@ -37,7 +37,7 @@ public class PositionService extends ServiceImpl<PositionMapper, Position> imple
     }
 
     @Override
-    @Cached(name = "position::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "position::", key = "#id", cacheType = CacheType.REMOTE)
     public Position get(Long id) {
         return this.getById(id);
     }

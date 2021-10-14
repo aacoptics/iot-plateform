@@ -90,3 +90,13 @@ export function getLastDayScrapCount(startTime) {
         }
     })
 }
+
+export function getAreaInfo() {
+    return request({
+        url: '/moldToolLife/toolLife/getAreaInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}

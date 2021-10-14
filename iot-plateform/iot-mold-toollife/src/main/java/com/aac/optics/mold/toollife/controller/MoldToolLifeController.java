@@ -4,10 +4,7 @@ import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.mold.toollife.entity.ProgramDetail;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
-import com.aac.optics.mold.toollife.service.EquipInfoService;
-import com.aac.optics.mold.toollife.service.MatInfoService;
-import com.aac.optics.mold.toollife.service.ProgramDetailService;
-import com.aac.optics.mold.toollife.service.ToolInfoService;
+import com.aac.optics.mold.toollife.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +35,9 @@ public class MoldToolLifeController {
 
     @Autowired
     ProgramDetailService programDetailService;
+
+    @Autowired
+    MachineAreaInfoService machineAreaInfoService;
 
 
     @ApiOperation(value = "刀具寿命Excel上传", notes = "刀具寿命Excel上传")
@@ -72,6 +72,12 @@ public class MoldToolLifeController {
     @GetMapping("/getLastDayOee")
     public Result getLastDayOee(@RequestParam String startTime) {
         return Result.success(programDetailService.getLastDayOee(startTime));
+    }
+
+    @ApiOperation(value = "查询机台区域信息", notes = "查询机台区域信息")
+    @GetMapping("/getAreaInfo")
+    public Result getAreaInfo() {
+        return Result.success(machineAreaInfoService.getAreaConfig());
     }
 
     @ApiOperation(value = "查询前一天报废退库数量", notes = "查询前一天报废退库数量")

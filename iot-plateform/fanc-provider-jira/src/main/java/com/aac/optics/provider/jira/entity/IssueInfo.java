@@ -32,4 +32,8 @@ public class IssueInfo implements Serializable {
     private boolean hasSubTask;
 
     private String parentTaskKey;
+
+    private String createTime;
+
+    private String updateTime;
 }

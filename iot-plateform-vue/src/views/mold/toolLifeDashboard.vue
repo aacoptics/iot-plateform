@@ -39,14 +39,19 @@
         </el-card>
       </el-card>
       <el-card style="margin-top: 20px">
+        <template #header>
+          <div class="card-header">
+            <span>时间段：{{ timeArea.startTime }} 至 {{ timeArea.endTime }}</span>
+          </div>
+        </template>
         <el-row :gutter="20">
-          <el-col :span="2">
+          <el-col :span="4">
             <div
                 style="font-size: 50px;font-weight: bold;height: 180px;line-height: 180px;text-align: center;background-color: #409EFF;color: white">
               OEE
             </div>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="6">
             <el-row v-for="(area, index) of areaCode" :key="index">
               <div style="height: 60px;line-height: 60px">
                 <div
@@ -65,10 +70,25 @@
               符合寿命占比
             </div>
           </el-col>
-          <el-col :span="8">
-            <div style="line-height: 180px;float:left;font-family: 'led regular';font-size: 100px;color: green">
-              {{ this.lastDayScrapRate }}%
-            </div>
+          <el-col :span="10" style="line-height: 60px;">
+            <el-row>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">报废数量：</div>
+              <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
+                {{ this.lastDayScrapRate.scrapCount }}
+              </div>
+            </el-row>
+            <el-row>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">退库数量：</div>
+              <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
+                {{ this.lastDayScrapRate.outCount }}
+              </div>
+            </el-row>
+            <el-row>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">占比：</div>
+              <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
+                {{ this.lastDayScrapRate.rate }}%
+              </div>
+            </el-row>
           </el-col>
         </el-row>
       </el-card>
@@ -79,7 +99,7 @@
 <script>
 import Stomp from 'stompjs';
 import {MQTT_PASSWORD, MQTT_SERVICE, MQTT_TOPIC_TOOL_LIFE, MQTT_USERNAME} from '@/utils/msgConfig'
-import {getLastDayScrapCount, getLastDayTotalTime, getToolMaintainStatus} from "@/api/iot/mold";
+import {getAreaInfo, getLastDayScrapCount, getLastDayTotalTime, getToolMaintainStatus} from "@/api/iot/mold";
 
 export default {
   name: "index",
@@ -114,119 +134,25 @@ export default {
         }
       },
       statusCount: {0: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
-      areaInfo: {
-        "CF01": "CF",
-        "CF02": "CF",
-        "CF03": "CF",
-        "CF04": "CF",
-        "CF05": "CF",
-        "CF06": "CF",
-        "CF07": "CF",
-        "CF08": "CF",
-        "CF09": "CF",
-        "CF10": "CF",
-        "CF11": "CF",
-        "CF12": "CF",
-        "CF13": "CF",
-        "CF14": "CF",
-        "CF15": "CF",
-        "CF16": "CF",
-        "CF17": "CF",
-        "CF18": "CF",
-        "CF19": "CF",
-        "CF20": "CF",
-        "CF21": "CF",
-        "CF22": "CF",
-        "CF23": "CF",
-        "CF24": "CF",
-        "CF25": "CF",
-        "CF26": "CF",
-        "CF27": "CF",
-        "CF28": "CF",
-        "CLC01": "CF",
-        "JD01": "CH",
-        "JD02": "CH",
-        "JD03": "CH",
-        "JD04": "CH",
-        "JD05": "CH",
-        "JD06": "CH",
-        "JD07": "CH",
-        "JD08": "CH",
-        "JD09": "CH",
-        "JD10": "CH",
-        "JD11": "CH",
-        "JD12": "CH",
-        "JD13": "CH",
-        "JD14": "CH",
-        "JD15": "CH",
-        "JD16": "CH",
-        "GSX50": "CH",
-        "GSX51": "CH",
-        "GSX52": "CH",
-        "GSX53": "CH",
-        "GSX54": "CH",
-        "GSX55": "CH",
-        "GSX56": "CH",
-        "GSX57": "CH",
-        "GSX58": "CH",
-        "GSX59": "CH",
-        "GSX60": "CH",
-        "GSX61": "CH",
-        "GSX62": "CH",
-        "GSX63": "CH",
-        "GSX64": "CH",
-        "GSX65": "CH",
-        "GSX66": "CH",
-        "GSX67": "CH",
-        "GSX68": "CH",
-        "GSX69": "CH",
-        "GSX70": "CH",
-        "GSX71": "CH",
-        "GSX01": "CHP",
-        "GSX02": "CHP",
-        "GSX03": "CHP",
-        "GSX04": "CHP",
-        "GSX05": "CHP",
-        "GSX06": "CHP",
-        "GSX07": "CHP",
-        "GSX08": "CHP",
-        "GSX09": "CHP",
-        "GXS12": "CHP",
-        "GXS13": "CHP",
-        "GXS14": "CHP",
-        "GXS15": "CHP",
-        "GXS16": "CHP",
-        "GXS17": "CHP",
-        "GXS18": "CHP",
-        "GXS19": "CHP",
-        "GXS20": "CHP",
-        "GXS21": "CHP",
-        "GSX22": "CHP",
-        "GSX23": "CHP",
-        "GSX24": "CHP",
-        "GSX25": "CHP",
-        "GSX26": "CHP",
-        "GSX27": "CHP",
-        "GSX28": "CHP",
-        "GSX29": "CHP",
-        "GSX30": "CHP",
-        "GSX31": "CHP",
-        "GSX32": "CHP",
-        "GSX33": "CHP",
-        "GSX34": "CHP",
-        "GSX35": "CHP",
-        "GSX36": "CHP",
-        "GSX37": "CHP"
-      },
-      areaCode: ["CF", "CH", "CHP"],
+      areaInfo: {},
+      areaCode: [],
       maintainStatus: {},
       lastDayTotalTime: [],
-      lastDayScrapRate: '0.00',
+      lastDayScrapRate: {
+        scrapCount: 0,
+        outCount: 0,
+        rate: '0.00'
+      },
       statusRadio: [5, 2, 3, 6, 4, 0],
+      timeArea: {
+        startTime: '',
+        endTime: ''
+      }
     }
   },
   computed: {},
   mounted() {
+    this.getMachineAreaInfo();
     this.connect();
     this.getToolMaintainStatus();
   },
@@ -244,11 +170,14 @@ export default {
       return res
     },
     onConnected: function () {
+      const headers = {
+        'auto-delete': true
+      };
       //订阅的频道
-      this.client.subscribe(MQTT_TOPIC_TOOL_LIFE, this.responseCallback, this.onFailed);
+      this.client.subscribe(MQTT_TOPIC_TOOL_LIFE, this.responseCallback, headers);
     },
     onFailed: function (msg) {
-      console.log("MQ Failed:" + msg);
+      console.log(new Date() + "报错:" + msg);
       this.reconnect()
     },
     //成功时的回调函数
@@ -264,29 +193,33 @@ export default {
     },
     //连接
     connect: function () {
-      const headers = {
+      this.client.debug = null
+      this.client.connect({
         login: MQTT_USERNAME,
         password: MQTT_PASSWORD
-      };
-      this.client.debug = null
-      this.client.connect(headers, this.onConnected, this.onFailed);
+      }, this.onConnected, this.onFailed);
     },
     reconnect() {
-      console.info('in reconnect function')
       const reconInv = setInterval(() => {
+        console.info(new Date() + '重连中...')
         this.client = Stomp.client(MQTT_SERVICE)
-        const headers = {
+        this.client.debug = null
+        this.client.connect({
           login: MQTT_USERNAME,
           password: MQTT_PASSWORD
-        };
-        this.client.debug = null
-        this.client.connect(headers, () => {
-          console.info('reconnected success')
+        }, () => {
+          console.info(new Date() + '重连成功')
           // 连接成功，清除定时器
           clearInterval(reconInv)
           this.onConnected()
         }, this.onFailed)
       }, 2000)
+    },
+    disconnect() {
+      if (this.client !== null) {
+        this.client.disconnect();
+        console.log("断开MQ连接");
+      }
     },
     getToolMaintainStatus() {
       const monitorNos = []
@@ -301,19 +234,12 @@ export default {
           this.maintainStatus = responseData.data;
         }
       })
+      this.getTimeArea();
       this.getLastDayOee();
       this.getLastDayScrapRate();
     },
     getLastDayOee() {
-      const currentTime = new Date();
-      let tempTime = new Date(new Date(new Date().toLocaleDateString()).getTime() + 7 * 60 * 60 * 1000 + 30 * 60 * 1000)
-      if (currentTime <= tempTime) {
-        tempTime.setDate(tempTime.getDate() - 2)
-      } else {
-        tempTime.setDate(tempTime.getDate() - 1)
-      }
-      tempTime = this.$moment(tempTime).format('YYYY-MM-DD HH:mm:ss');
-      getLastDayTotalTime(tempTime).then((response) => {
+      getLastDayTotalTime(this.timeArea.startTime).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           responseData.data.forEach(item => {
@@ -323,28 +249,48 @@ export default {
         }
       })
     },
-    getLastDayScrapRate() {
+    getTimeArea() {
       const currentTime = new Date();
+      let startTime = '';
+      let endTime = '';
       let tempTime = new Date(new Date(new Date().toLocaleDateString()).getTime() + 7 * 60 * 60 * 1000 + 30 * 60 * 1000)
       if (currentTime <= tempTime) {
         tempTime.setDate(tempTime.getDate() - 2)
       } else {
         tempTime.setDate(tempTime.getDate() - 1)
       }
-      tempTime = this.$moment(tempTime).format('YYYY-MM-DD HH:mm:ss');
-      getLastDayScrapCount(tempTime).then((response) => {
+      startTime = this.$moment(tempTime).format('YYYY-MM-DD HH:mm:ss');
+      tempTime.setDate(tempTime.getDate() + 1)
+      endTime = this.$moment(tempTime).format('YYYY-MM-DD HH:mm:ss');
+      this.timeArea.startTime = startTime
+      this.timeArea.endTime = endTime
+    },
+    getLastDayScrapRate() {
+      getLastDayScrapCount(this.timeArea.startTime).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           const {scrap, out} = responseData.data
+          this.lastDayScrapRate.scrapCount = scrap
+          this.lastDayScrapRate.outCount = out
           if (out > 0) {
-            this.lastDayScrapRate = (scrap * 1.0 / out * 100).toFixed(2)
+            this.lastDayScrapRate.rate = (scrap * 1.0 / out * 100).toFixed(2)
           } else {
-            this.lastDayScrapRate = '0.00'
+            this.lastDayScrapRate.rate = '0.00'
           }
 
         }
       })
     },
+    getMachineAreaInfo() {
+      getAreaInfo().then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          const {areaInfo, areaCode} = responseData.data
+          this.areaInfo = areaInfo
+          this.areaCode = areaCode
+        }
+      })
+    }
   },
   watch: {},
   created() {
@@ -354,6 +300,7 @@ export default {
   },
   beforeUnmount() {
     clearInterval(this.timer);
+    this.disconnect();
   }
 }
 </script>

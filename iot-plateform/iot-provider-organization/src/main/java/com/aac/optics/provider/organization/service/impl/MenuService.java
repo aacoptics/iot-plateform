@@ -46,7 +46,7 @@ public class MenuService extends ServiceImpl<MenuMapper, Menu> implements IMenuS
 //    }
 //
 //    @Override
-//    @Cached(name = "menu::", key = "#id", cacheType = CacheType.BOTH)
+//    @Cached(name = "menu::", key = "#id", cacheType = CacheType.REMOTE)
 //    public Menu get(Long id) {
 //        return this.getById(id);
 //    }
@@ -70,7 +70,7 @@ public class MenuService extends ServiceImpl<MenuMapper, Menu> implements IMenuS
     }
 
     @Override
-    @Cached(name = "menu4user::", key = "#username", cacheType = CacheType.BOTH)
+    @Cached(name = "menu4user::", key = "#username", cacheType = CacheType.REMOTE)
     public List<Tree<String>> getByUsername(String username) {
         List<Menu> allMenus = menuMapper.getMenuByUsername(username);
         return getMenuTrees(allMenus);

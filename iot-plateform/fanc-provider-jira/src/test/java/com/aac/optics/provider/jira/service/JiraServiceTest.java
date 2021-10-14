@@ -33,6 +33,7 @@ class JiraServiceTest {
 //
 //        JSONObject test1 = test;
 
+        List<Tree<String>> test = jiraService.getIssuesByTime("3285", "2021-10-11", "2021-10-14");
         JSONObject currentSprint = jiraService.getSprintInfo("3423");
         JSONArray SprintValues = currentSprint.getJSONArray("values");
         List<Tree<String>> issueTrees = new ArrayList<>();

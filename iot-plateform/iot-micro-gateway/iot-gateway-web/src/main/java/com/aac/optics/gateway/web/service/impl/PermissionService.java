@@ -21,7 +21,7 @@ public class PermissionService implements IPermissionService {
 
     @Override
     @Cached(name = "gateway_auth::", key = "#authentication+#method+#url",
-            cacheType = CacheType.LOCAL, expire = 10, localLimit = 10000)
+            cacheType = CacheType.REMOTE, expire = 10, localLimit = 10000)
     public Result permission(String authentication, String url, String method) {
         return authService.hasPermission(authentication, url, method);
     }

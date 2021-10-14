@@ -63,7 +63,7 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
     }
 
     @Override
-    @Cached(name = "role::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "role::", key = "#id", cacheType = CacheType.REMOTE)
     public Role get(Long id) {
         Role role = this.getById(id);
         if (Objects.isNull(role)) {
@@ -79,7 +79,7 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
     }
 
     @Override
-    @Cached(name = "role4user::", key = "#userId", cacheType = CacheType.BOTH)
+    @Cached(name = "role4user::", key = "#userId", cacheType = CacheType.REMOTE)
     public List<Role> query(Long userId) {
         Set<Long> roleIds = userRoleService.queryByUserId(userId);
         return (List<Role>) this.listByIds(roleIds);

@@ -36,7 +36,7 @@ public class GroupService extends ServiceImpl<GroupMapper, Group> implements IGr
     }
 
     @Override
-    @Cached(name = "group::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "group::", key = "#id", cacheType = CacheType.REMOTE)
     public Group get(Long id) {
         return this.getById(id);
     }

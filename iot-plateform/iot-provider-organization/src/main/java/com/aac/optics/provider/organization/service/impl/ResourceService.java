@@ -52,19 +52,19 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
     }
 
     @Override
-    @Cached(name = "resource::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "resource::", key = "#id", cacheType = CacheType.REMOTE)
     public boolean delete(Long id) {
         return this.removeById(id);
     }
 
     @Override
-    @Cached(name = "resource::", key = "#resource.id", cacheType = CacheType.BOTH)
+    @Cached(name = "resource::", key = "#resource.id", cacheType = CacheType.REMOTE)
     public boolean update(Resource resource) {
         return this.updateById(resource);
     }
 
     @Override
-    @Cached(name = "resource::", key = "#id", cacheType = CacheType.BOTH)
+    @Cached(name = "resource::", key = "#id", cacheType = CacheType.REMOTE)
     public Resource get(Long id) {
         return this.getById(id);
     }
@@ -85,7 +85,7 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
     }
 
     @Override
-    @Cached(name = "resource4user::", key = "#username", cacheType = CacheType.BOTH)
+    @Cached(name = "resource4user::", key = "#username", cacheType = CacheType.REMOTE)
     public List<Resource> query(String username) {
         //根据用户名查询到用户所拥有的角色
         User user = userService.getByUniqueId(username);
