@@ -10,6 +10,7 @@ import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import moment from 'moment'
 
+
 const app = createApp(App)
 
 app.config.globalProperties.$moment = moment

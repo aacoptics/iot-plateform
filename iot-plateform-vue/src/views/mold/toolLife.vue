@@ -261,7 +261,7 @@ export default {
       const reg = new RegExp('(D|E)(([1-9]\\d*\\.?\\d*)|(0\\.\\d*[1-9]))');
       const value = row.matInfo.matName.match(reg)[0]
       const matDiameter = value.substring(1, value.length)
-      if (matDiameter !== diameter) {
+      if (Math.abs(matDiameter - diameter) > 0.05) {
         row.isCheck = false
         this.$message.error('直径不匹配，请重新选择！')
       } else {

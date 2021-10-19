@@ -4,7 +4,9 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import com.aac.optics.provider.jira.entity.IssueInfo;
+import com.aac.optics.provider.jira.entity.ProcessInfo;
 import com.aac.optics.provider.jira.service.JiraService;
+import com.aac.optics.provider.jira.service.ProcessInfoService;
 import com.aac.optics.provider.jira.utils.HttpClientUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,6 +34,9 @@ public class JiraServiceImpl implements JiraService {
 
     @Value("${jira.baseUrl}")
     String baseUrl;
+
+    @Autowired
+    ProcessInfoService processInfoService;
 
 
     @Override
@@ -72,19 +74,29 @@ public class JiraServiceImpl implements JiraService {
             res = getIssuesByTime(boardId, startTime, endTime, startAt);
             issues.addAll(res.getJSONArray("issues"));
         }
-        return getFinalTrees(issues);
+        return getFinalTrees(issues, startTime, endTime);
     }
 
-    private List<Tree<String>> getFinalTrees(JSONArray issues) {
+    private List<Tree<String>> getFinalTrees(JSONArray issues, String startTime, String endTime) {
         List<IssueInfo> sprintIssues = new ArrayList<>();
+        Map<String, String> userMap = new HashMap<>();
+        String SprintStartTime = "";
         for (Object issue : issues) {
             JSONObject issueJson = (JSONObject) issue;
             IssueInfo issueInfo = new IssueInfo();
             String username = "";
             String jobNumber = "";
             try {
+                SprintStartTime = issueJson.getJSONObject("fields").getJSONObject("sprint").getString("startDate");
+                SprintStartTime = SprintStartTime.substring(0, 10);
+            }
+            catch(Exception err){
+
+            }
+            try {
                 username = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
                 jobNumber = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("name");
+                userMap.put(jobNumber, username);
             } catch (Exception err) {
 
             }
@@ -131,6 +143,12 @@ public class JiraServiceImpl implements JiraService {
                     .setUpdateTime(updateTimeStr);
             sprintIssues.add(issueInfo);
         }
+        if(startTime != null){
+            List<ProcessInfo> res = processInfoService.getProcessInfo(userMap.keySet(), startTime, endTime);
+            log.info("111");
+
+
+        }
         List<Tree<String>> finalRes = getIssueTrees(sprintIssues);
         return finalRes;
     }
@@ -143,7 +161,7 @@ public class JiraServiceImpl implements JiraService {
         JSONObject res = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/sprint/" + sprintId + "/issue", list, username, password);
 
         JSONArray issues = res.getJSONArray("issues");
-        return getFinalTrees(issues);
+        return getFinalTrees(issues, null, null);
     }
 
     private List<Tree<String>> getIssueTrees(List<IssueInfo> sprintIssues) {

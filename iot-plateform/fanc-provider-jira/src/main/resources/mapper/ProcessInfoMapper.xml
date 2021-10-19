@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.provider.jira.dao.ProcessInfoMapper">
+    <select id="getProcessInfo" resultType="com.aac.optics.provider.jira.entity.ProcessInfo">
+        SELECT BUSINESSID, HARDL_EMP , QUESTDES , STATUS ,HARDL_CREATETIME , HARDL_FINISHTIME FROM
+        AAC_DINGTALK_PROCESS_INSTANCE WHERE HARDL_CREATETIME
+            BETWEEN TO_DATE(#{startTime}, 'yyyy-mm-dd')
+            AND TO_DATE(#{endTime}, 'yyyy-mm-dd')
+        And HARDL_EMP IN
+        <foreach item="item" index="index" collection="users" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

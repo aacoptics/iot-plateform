@@ -8,7 +8,7 @@
         <el-breadcrumb-item>刀具寿命管控</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="container">
+    <div class="container" style="overflow: hidden;">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
              :style="'background-color:' + statusInfo[item].color + ';text-align:center'">
@@ -27,15 +27,23 @@
                  class="mold_card_type"
                  :style="'background-color:' +
                  statusInfo[singleMachineInfo.CncNode.State].color + ';cursor: pointer'">
-          <div v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State)"
-               style="height:30px;line-height:40px;text-align: center;font-weight: bold">
-            <el-badge is-dot class="item" style="height: 30px;line-height:40px">
+          <el-tooltip placement="top">
+            <template #content>
+              <p>监控号：{{ singleMachineInfo.CncBaseInfo.monitorNo }}</p>
+              <p>程序名：{{ singleMachineInfo.CncBaseInfo.progName }}</p>
+            </template>
+
+
+            <div v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State)"
+                 style="height:30px;line-height:40px;text-align: center;font-weight: bold">
+              <el-badge is-dot class="item" style="height: 30px;line-height:40px">
+                {{ singleMachineInfo.MachineNo }}
+              </el-badge>
+            </div>
+            <div v-else style="height:50px;line-height:50px;text-align: center;font-weight: bold">
               {{ singleMachineInfo.MachineNo }}
-            </el-badge>
-          </div>
-          <div v-else style="height:50px;line-height:50px;text-align: center;font-weight: bold">
-            {{ singleMachineInfo.MachineNo }}
-          </div>
+            </div>
+          </el-tooltip>
         </el-card>
       </el-card>
       <el-card style="margin-top: 20px">
@@ -47,13 +55,13 @@
         <el-row :gutter="20">
           <el-col :span="4">
             <div
-                style="font-size: 50px;font-weight: bold;height: 180px;line-height: 180px;text-align: center;background-color: #409EFF;color: white">
+                style="font-size: 50px;font-weight: bold;height: 240px;line-height: 240px;text-align: center;background-color: #409EFF;color: white">
               OEE
             </div>
           </el-col>
           <el-col :span="6">
             <el-row v-for="(area, index) of areaCode" :key="index">
-              <div style="height: 60px;line-height: 60px">
+              <div style="height: 80px;line-height: 80px">
                 <div
                     style="float:left;font-size: xx-large;color: #222222;width: 90px; margin-right: 10px;font-weight: bold">
                   {{ area }}：
@@ -66,15 +74,21 @@
           </el-col>
           <el-col :span="4">
             <div
-                style="font-size: 30px;font-weight: bold;height: 180px;line-height: 180px;text-align: center;background-color: #409EFF;color: white">
+                style="font-size: 30px;font-weight: bold;height: 240px;line-height: 240px;text-align: center;background-color: #409EFF;color: white">
               符合寿命占比
             </div>
           </el-col>
           <el-col :span="10" style="line-height: 60px;">
             <el-row>
-              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">报废数量：</div>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">异常数量：</div>
               <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
-                {{ this.lastDayScrapRate.scrapCount }}
+                {{ this.lastDayAbnormalCount }}
+              </div>
+            </el-row>
+            <el-row>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">正常数量：</div>
+              <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
+                {{ this.lastDayScrapRate.scrapCount - this.lastDayAbnormalCount }}
               </div>
             </el-row>
             <el-row>
@@ -84,28 +98,110 @@
               </div>
             </el-row>
             <el-row>
-              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">占比：</div>
+              <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">异常占比：</div>
               <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
-                {{ this.lastDayScrapRate.rate }}%
+                {{ this.lastDayScrapRate.outCount > 0 ? (this.lastDayAbnormalCount * 1.0 / this.lastDayScrapRate.outCount * 100).toFixed(2) : '0.00' }}%
               </div>
             </el-row>
           </el-col>
         </el-row>
       </el-card>
+      <div class="" style="width: 100%;height: 450px;margin-top: 20px">
+        <!-- 表头 -->
+        <div class="warp-title" style="height: 25px;background-color: #f5f7fa;">
+          <ul class="item">
+            <li>
+              <span class="id" style="width: 30px;font-weight: bold;text-align: center">序号</span>
+              <span class="toolNo" style="width: 80px;font-weight: bold;text-align: center">刀具编号</span>
+              <span class="matCode" style="width: 100px;font-weight: bold;text-align: center">刀具物料号</span>
+              <span class="matName" style="width: 280px;font-weight: bold;text-align: center">刀具名称</span>
+              <span class="lifeSalvage" style="width: 80px;font-weight: bold;text-align: center">标准寿命</span>
+              <span class="realLifeSalvage" style="width: 80px;font-weight: bold;text-align: center">实际寿命</span>
+              <span class="lifeRate" style="width: 80px;font-weight: bold;text-align: center">寿命占比</span>
+              <span class="scrapedTime" style="width: 120px;font-weight: bold;text-align: center">报废时间</span>
+              <span class="area" style="width: 60px;font-weight: bold;text-align: center">工序</span>
+              <span class="lastMachineNo" style="width: 60px;font-weight: bold;text-align: center">机床号</span>
+              <span class="reasonTxt" style="width: 300px;font-weight: bold;text-align: center">原因</span>
+              <span class="reason" style="width: 60px;font-weight: bold;text-align: center">原因填写</span>
+              <span class="confirm" style="width: 60px;font-weight: bold;text-align: center">确认</span>
+            </li>
+          </ul>
+        </div>
+        <!-- 表格滚动区 -->
+        <div>
+          <scroll style="height: 420px }" :data="abnormalList"
+                  :class-option="defaultOption" class="warp-content">
+            <ul class="item">
+              <li v-for="(item, index) of abnormalList" :key="index"
+                  :style="{backgroundColor:((index+1)%2 == 0) ? '#f0f9eb' : '#ffffff'}">
+                <span class="id" style="width: 30px;text-align: center" v-text="index + 1"></span>
+                <span class="toolNo" style="width: 80px;text-align: center" v-text="item.toolNo"></span>
+                <span class="matCode" style="width: 100px;text-align: center" v-text="item.matCode"></span>
+                <span class="matName" style="width: 280px;text-align: center" v-text="item.matName"></span>
+                <span class="lifeSalvage" style="width: 80px;text-align: center" v-text="item.lifeSalvage"></span>
+                <span class="realLifeSalvage" style="width: 80px;text-align: center"
+                      v-text="item.realLifeSalvage"></span>
+                <span class="lifeRate" style="width: 80px;text-align: center"
+                      v-text="(item.realLifeSalvage * 1.0 / item.lifeSalvage * 100).toFixed(2) + '%'"></span>
+                <span class="scrapedTime" style="width: 120px;text-align: center"
+                      v-text="this.$moment(item.scrapedTime).format('YYYY/MM/DD HH:mm')"></span>
+                <span class="area" style="width: 60px;text-align: center" v-text="item.area"></span>
+                <span class="lastMachineNo" style="width: 60px;text-align: center" v-text="item.lastMachineNo"></span>
+                <span v-if="item.reason != null" class="reasonTxt" style="width: 300px;text-align: center"
+                      v-text="item.reason"></span>
+                <span v-else class="reasonTxt" style="width: 300px;text-align: center">
+                  <el-tag type="danger">原因未填写</el-tag>
+                </span>
+                <span class="reason" style="width: 60px;text-align: center">
+                  <el-button type="primary" icon="el-icon-edit" circle @click="onAddReasonClick(item)"></el-button>
+                </span>
+                <span class="confirm" style="width: 60px;text-align: center">
+                  <el-button type="success" icon="el-icon-check" circle @click="onConfirmReasonClick(item)"></el-button>
+                </span>
+              </li>
+            </ul>
+          </scroll>
+        </div>
+      </div>
+      <el-dialog v-model="reasonDialog" title="刀具异常原因填写" :close-on-click-modal="false">
+        <el-input v-model="addReasonDialog.abnormalTool.reason" auto-complete="off" placeholder="请填写异常原因"></el-input>
+        <div class="dialog-footer" style="padding-top: 20px;text-align: end">
+          <slot name="footer">
+            <el-button @click="resetSelection">取消</el-button>
+            <el-button type="primary" @click="submitForm" :loading="editReasonLoading">提交</el-button>
+          </slot>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
 import Stomp from 'stompjs';
+import scroll from 'vue-seamless-scroll/src'
 import {MQTT_PASSWORD, MQTT_SERVICE, MQTT_TOPIC_TOOL_LIFE, MQTT_USERNAME} from '@/utils/msgConfig'
-import {getAreaInfo, getLastDayScrapCount, getLastDayTotalTime, getToolMaintainStatus} from "@/api/iot/mold";
+import {
+  addAbnormalReason, confirmAbnormalReason,
+  getAbnormalList,
+  getAreaInfo, getLastDayAbnormalCount,
+  getLastDayScrapCount,
+  getLastDayTotalTime,
+  getToolMaintainStatus
+} from "@/api/iot/mold";
+import {getUsername} from "@/utils/auth";
 
 export default {
   name: "index",
+  components: {
+    scroll
+  },
   data() {
     return {
+      addReasonDialog: {abnormalTool: {}},
+      reasonDialog: false,
+      editReasonLoading: false,
       client: Stomp.client(MQTT_SERVICE),
+      abnormalList: [],
       moldData: [],
       statusInfo: {
         0: {
@@ -138,6 +234,7 @@ export default {
       areaCode: [],
       maintainStatus: {},
       lastDayTotalTime: [],
+      lastDayAbnormalCount: 0,
       lastDayScrapRate: {
         scrapCount: 0,
         outCount: 0,
@@ -150,13 +247,90 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    defaultOption() {
+      return {
+        step: 0.3,          // 数值越大速度滚动越快
+        limitMoveNum: 10,  // 开始无缝滚动的数据量 this.dataList.length
+        hoverStop: true,  // 是否开启鼠标悬停stop
+        direction: 1,     // 0向下 1向上 2向左 3向右
+        openWatch: true,  // 开启数据实时监控刷新dom
+        singleHeight: 0,  // 单步运动停止的高度(默认值0是无缝不停止的滚动) direction => 0/1
+        singleWidth: 0,   // 单步运动停止的宽度(默认值0是无缝不停止的滚动) direction => 2/3
+        waitTime: 1000    // 单步运动停止的时间(默认值1000ms)
+      }
+    }
+  },
   mounted() {
     this.getMachineAreaInfo();
     this.connect();
     this.getToolMaintainStatus();
   },
   methods: {
+    submitForm() {
+        if (this.addReasonDialog.abnormalTool.reason != null && this.addReasonDialog.abnormalTool.reason.length > 0) {
+          this.$confirm('确认提交吗？', '提示', {}).then(() => {
+            this.addReasonDialog.abnormalTool.checkedPerson = getUsername()
+            this.editReasonLoading = true
+            addAbnormalReason(this.addReasonDialog.abnormalTool).then((response) => {
+              const responseData = response.data
+              if (responseData.code === '000000') {
+                this.$message({message: '添加原因成功！', type: 'success'})
+                this.addReasonDialog = {abnormalTool: {}}
+                this.reasonDialog = false
+              }else{
+                this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
+              }
+              this.getAbnormalInfo()
+              this.editReasonLoading = false
+            }).catch(()=>{
+              this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
+              this.editReasonLoading = false
+            })
+          })
+        }else{
+          this.$message({message: '操作失败,原因不能为空', type: 'error'})
+        }
+    },
+    resetSelection() {
+      this.addReasonDialog = {abnormalTool: {}}
+      this.reasonDialog = false
+    },
+    onAddReasonClick(item) {
+      this.addReasonDialog.abnormalTool = Object.assign({}, item)
+      this.reasonDialog = true
+    },
+    onConfirmReasonClick(item) {
+      if(item.reason == null){
+        this.$message({message: '异常原因未填写，请安排人员填写原因！', type: 'error'})
+        return
+      }
+      this.$confirm('确定认同该原因吗？', '提示', {}).then(() => {
+        item.isConfirmed = true
+        item.confirmedPerson = getUsername()
+        confirmAbnormalReason(item).then((response) => {
+          const responseData = response.data
+          if (responseData.code === '000000') {
+            this.getAbnormalInfo()
+            this.$message({message: '确认成功！', type: 'success'})
+          }else{
+            this.$message({message: '确认失败，请联系管理员', type: 'error'})
+          }
+          this.editReasonLoading = false
+        }).catch(()=>{
+          this.$message({message: '确认失败，请联系管理员', type: 'error'})
+          this.editReasonLoading = false
+        })
+      })
+    },
+    getAbnormalInfo() {
+      getAbnormalList().then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.abnormalList = responseData.data;
+        }
+      })
+    },
     getMaintainStatus(monitorNo, state) {
       return (!this.maintainStatus[monitorNo]) && state === 5;
     },
@@ -236,7 +410,9 @@ export default {
       })
       this.getTimeArea();
       this.getLastDayOee();
+      this.getLastDayAbnormalCount();
       this.getLastDayScrapRate();
+      this.getAbnormalInfo();
     },
     getLastDayOee() {
       getLastDayTotalTime(this.timeArea.startTime).then((response) => {
@@ -281,6 +457,15 @@ export default {
         }
       })
     },
+
+    getLastDayAbnormalCount() {
+      getLastDayAbnormalCount(this.timeArea.startTime, this.timeArea.endTime).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.lastDayAbnormalCount = responseData.data
+        }
+      })
+    },
     getMachineAreaInfo() {
       getAreaInfo().then((response) => {
         const responseData = response.data
@@ -305,7 +490,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .el-card ::v-deep(.el-card__header) {
   padding: 8px 20px;
   -webkit-box-sizing: border-box;
@@ -314,5 +499,40 @@ export default {
   font-size: 20px;
 }
 
+.warp-title {
+  overflow: hidden;
 
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  li {
+    height: 20px;
+    line-height: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+  }
+}
+
+.warp-content {
+  overflow: hidden;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  li {
+    height: 43px;
+    line-height: 43px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+  }
+}
 </style>

@@ -2,6 +2,7 @@ package com.aac.optics.mold.toollife.controller;
 
 import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.mold.toollife.entity.AbnormalTool;
 import com.aac.optics.mold.toollife.entity.ProgramDetail;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.aac.optics.mold.toollife.service.*;
@@ -38,6 +39,9 @@ public class MoldToolLifeController {
 
     @Autowired
     MachineAreaInfoService machineAreaInfoService;
+
+    @Autowired
+    AbnormalToolService abnormalToolService;
 
 
     @ApiOperation(value = "刀具寿命Excel上传", notes = "刀具寿命Excel上传")
@@ -92,6 +96,13 @@ public class MoldToolLifeController {
         return Result.success(res);
     }
 
+
+    @ApiOperation(value = "获取异常条目", notes = "获取异常条目")
+    @GetMapping("/getAbnormalList")
+    public Result getAbnormalList() {
+        return Result.success(abnormalToolService.getAbnormalTools());
+    }
+
     @ApiOperation(value = "更新机台号，刀位，刀具编号", notes = "更新机台号，刀位，刀具编号")
     @ApiImplicitParam(name = "toolInfo", value = "信息", required = true, dataType = "ToolInfo")
     @PostMapping("/updateToolInfo")
@@ -104,10 +115,32 @@ public class MoldToolLifeController {
         }
     }
 
+    @ApiOperation(value = "添加刀具异常原因", notes = "添加刀具异常原因")
+    @ApiImplicitParam(name = "abnormalTool", value = "异常刀具", required = true, dataType = "AbnormalTool")
+    @PostMapping("/addAbnormalReason")
+    public Result addAbnormalReason(@RequestBody AbnormalTool abnormalTool) {
+        abnormalToolService.updateAbnormalReason(abnormalTool);
+        return Result.success();
+    }
+
+    @ApiOperation(value = "确认刀具异常原因", notes = "确认刀具异常原因")
+    @ApiImplicitParam(name = "abnormalTool", value = "异常刀具", required = true, dataType = "AbnormalTool")
+    @PostMapping("/confirmAbnormalReason")
+    public Result confirmAbnormalReason(@RequestBody AbnormalTool abnormalTool) {
+        abnormalToolService.updateConfirmInfo(abnormalTool);
+        return Result.success();
+    }
+
     @ApiOperation(value = "获取机台号列表", notes = "获取机台号列表")
     @GetMapping("/allMachine")
     public Result getAllMachine() {
         return Result.success(equipInfoService.getMachineNames());
+    }
+
+    @ApiOperation(value = "获取前一天异常数量", notes = "获取前一天异常数量")
+    @GetMapping("/getLastDayAbnormalCount")
+    public Result getLastDayAbnormalCount(@RequestParam String startTime, @RequestParam String endTime) {
+        return Result.success(abnormalToolService.getAbnormalCount(startTime, endTime));
     }
 
     @ApiOperation(value = "获取刀具刀柄信息", notes = "获取刀具刀柄信息")

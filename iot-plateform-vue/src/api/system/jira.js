@@ -11,6 +11,21 @@ export function getIssuesTree(boardId) {
     })
 }
 
+export function getIssuesTreeByTime(boardId, startTime, endTime) {
+    return request({
+        url: '/jira-server/jiraProvider/getIssuesByTime',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            boardId: boardId,
+            startTime: startTime,
+            endTime: endTime
+        }
+    })
+}
+
 export function getAllBoards() {
     return request({
         url: '/jira-server/jiraProvider/getBoards',

@@ -15,4 +15,6 @@ import java.util.Set;
 public interface ProgramDetailMapper extends BaseMapper<ProgramDetail> {
 
     List<ProgramDetail> getLastDayOee(@Param("startTime") String startTime);
+
+    ProgramDetail getAbnormalTotalTime(@Param("toolCode") String toolCode);
 }

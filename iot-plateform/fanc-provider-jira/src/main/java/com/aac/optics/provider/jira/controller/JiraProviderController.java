@@ -41,6 +41,15 @@ public class JiraProviderController {
        return Result.success(issueTrees);
     }
 
+    @ApiOperation(value = "按时间查询任务", notes = "按时间查询任务")
+    @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
+    @GetMapping("/getIssuesByTime")
+    public Result getIssuesByTime(@RequestParam("boardId") String boardId,
+                                  @RequestParam("startTime") String startTime,
+                                  @RequestParam("endTime") String endTime) {
+        return Result.success(jiraService.getIssuesByTime(boardId, startTime, endTime));
+    }
+
     @ApiOperation(value = "查询所有看板", notes = "查询所有看板")
     @GetMapping("/getBoards")
     public Result getBoards() {

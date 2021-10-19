@@ -21,4 +21,9 @@ public class ProgramDetailServiceImpl extends ServiceImpl<ProgramDetailMapper, P
     public List<ProgramDetail> getLastDayOee(String startTime) {
         return programDetailMapper.getLastDayOee(startTime);
     }
+
+    @Override
+    public ProgramDetail getAbnormalTotalTime(String toolCode) {
+        return programDetailMapper.getAbnormalTotalTime(toolCode);
+    }
 }

@@ -65,6 +65,28 @@ export function getToolMaintainStatus(param) {
     })
 }
 
+export function addAbnormalReason(param) {
+    return request({
+        url: '/moldToolLife/toolLife/addAbnormalReason',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: param
+    })
+}
+
+export function confirmAbnormalReason(param) {
+    return request({
+        url: '/moldToolLife/toolLife/confirmAbnormalReason',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: param
+    })
+}
+
 export function getLastDayTotalTime(startTime) {
     return request({
         url: '/moldToolLife/toolLife/getLastDayOee',
@@ -74,6 +96,20 @@ export function getLastDayTotalTime(startTime) {
         },
         params: {
             startTime: startTime
+        }
+    })
+}
+
+export function getLastDayAbnormalCount(startTime, endTime) {
+    return request({
+        url: '/moldToolLife/toolLife/getLastDayAbnormalCount',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            startTime: startTime,
+            endTime: endTime
         }
     })
 }
@@ -94,6 +130,16 @@ export function getLastDayScrapCount(startTime) {
 export function getAreaInfo() {
     return request({
         url: '/moldToolLife/toolLife/getAreaInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+export function getAbnormalList() {
+    return request({
+        url: '/moldToolLife/toolLife/getAbnormalList',
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
