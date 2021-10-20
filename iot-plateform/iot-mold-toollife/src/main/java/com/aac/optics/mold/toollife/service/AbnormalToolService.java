@@ -18,4 +18,6 @@ public interface AbnormalToolService extends IService<AbnormalTool> {
     void updateConfirmInfo(AbnormalTool abnormalTool);
 
     Integer getAbnormalCount(String startTime, String endTime);
+
+    void sendAbnormalEmail();
 }

@@ -8,6 +8,7 @@ import com.aac.optics.mold.toollife.entity.AbnormalTool;
 import com.aac.optics.mold.toollife.entity.ProgramDetail;
 import com.aac.optics.mold.toollife.entity.ScrapedTool;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.provider.EmailProvider;
 import com.aac.optics.mold.toollife.service.AbnormalToolService;
 import com.aac.optics.mold.toollife.service.ProgramDetailService;
 import com.aac.optics.mold.toollife.service.ScrapedToolService;
@@ -24,7 +25,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -40,11 +43,13 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
     @Autowired
     ProgramDetailService programDetailService;
 
+    @Autowired
+    EmailProvider emailProvider;
+
     public void saveAbnormalTool() {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDateTime = LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIN.withHour(7).withMinute(30)).plusDays(-1);
         List<ScrapedTool> scrapedToolList = scrapedToolService.getScrapedList(startDateTime.format(df));
-
         for (ScrapedTool scrapedTool : scrapedToolList) {
             String _toolNo = scrapedTool.getCodeNo();
             AbnormalTool abnormalTool = new AbnormalTool();
@@ -93,5 +98,75 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
         wrapper.between("scraped_time", startTime, endTime);
         Integer count = abnormalToolMapper.selectCount(wrapper);
         return count;
+    }
+
+    @Override
+    public void sendAbnormalEmail() {
+        List<String> emailList = abnormalToolMapper.getAbnormalEmailList();
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter df1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIN.withHour(7).withMinute(30)).plusDays(-2);
+        LocalDateTime endDateTime = startDateTime.plusDays(1);
+        QueryWrapper<AbnormalTool> wrapper = new QueryWrapper<>();
+        wrapper.between("scraped_time", startDateTime, endDateTime)
+                .eq("is_confirmed", 1);
+        List<AbnormalTool> abnormalTools = list(wrapper);
+        Integer totalCount = getAbnormalCount(startDateTime.format(df), endDateTime.format(df));
+        List<AbnormalTool> resultList = getRandomList(5, abnormalTools);
+        String subject = "刀具寿命每日提醒";
+        StringBuilder content = new StringBuilder("<html><head></head><body><h4>刀具寿命异常确认结果:</h4>");
+        content.append("<h6>时间段：" +
+                startDateTime.format(df1) +
+                "至" +
+                endDateTime.format(df1) +
+                "</h6>");
+        content.append("<h6>异常总数：" + totalCount + "</h6>");
+        content.append("<h6>已确认数：" + abnormalTools.size() + "</h6>");
+        if (resultList.size() > 0) {
+            content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=11px;;font-size:14px;\">");
+            content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
+                    "<th>刀具编号</th>" +
+                    "<th>刀具物料号</th>" +
+                    "<th>刀具名称</th>" +
+                    "<th>标准寿命</th>" +
+                    "<th>实际寿命</th>" +
+                    "<th>报废时间</th>" +
+                    "<th>原因</th></tr>");
+            for (AbnormalTool data : resultList) {
+                content.append("<tr>");
+                content.append("<td>" + data.getToolNo() + "</td>");
+                content.append("<td>" + data.getMatCode() + "</td>");
+                content.append("<td>" + data.getMatName() + "</td>");
+                content.append("<td>" + data.getLifeSalvage() + "</td>");
+                content.append("<td>" + data.getRealLifeSalvage() + "</td>");
+                content.append("<td>" + data.getScrapedTime().format(df1) + "</td>");
+                content.append("<td>" + data.getReason() + "</td>");
+                content.append("</tr>");
+            }
+            content.append("</table>");
+        }
+        content.append("<h6>来自模具刀具寿命</h6>");
+        content.append("</body></html>");
+        Map<String, Object> test = new HashMap<>();
+        test.put("to", emailList);
+        test.put("subject", subject);
+        test.put("emailContent", content);
+        emailProvider.sendEmail(test);
+    }
+
+    private List<AbnormalTool> getRandomList(Integer listNum, List<AbnormalTool> abnormalTools) {
+        if (listNum == null) {
+            listNum = 10;
+        }
+        int returnNum = abnormalTools.size();
+        if (listNum < abnormalTools.size()) {
+            returnNum = listNum;
+        }
+        int randomIndex = (int) (Math.random() * (abnormalTools.size() - returnNum));
+        List<AbnormalTool> resultList = new ArrayList<>();
+        for (int i = randomIndex; i < randomIndex + returnNum; i++) {
+            resultList.add(abnormalTools.get(i));
+        }
+        return resultList;
     }
 }
