@@ -115,13 +115,13 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
         List<AbnormalTool> resultList = getRandomList(5, abnormalTools);
         String subject = "刀具寿命每日提醒";
         StringBuilder content = new StringBuilder("<html><head></head><body><h4>刀具寿命异常确认结果:</h4>");
-        content.append("<h6>时间段：" +
+        content.append("<h5>时间段：" +
                 startDateTime.format(df1) +
                 "至" +
                 endDateTime.format(df1) +
-                "</h6>");
-        content.append("<h6>异常总数：" + totalCount + "</h6>");
-        content.append("<h6>已确认数：" + abnormalTools.size() + "</h6>");
+                "</h5>");
+        content.append("<h5>异常总数：" + totalCount + "</h5>");
+        content.append("<h5>已确认数：" + abnormalTools.size() + "</h5>");
         if (resultList.size() > 0) {
             content.append("<table border=\"5\" style=\"border:solid 1px #E8F2F9;font-size=11px;;font-size:14px;\">");
             content.append("<tr style=\"background-color: #428BCA; color:#ffffff\">" +
