@@ -41,7 +41,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             Pattern isSwo = Pattern.compile("^O?([\\d]{3,5})+([\\S]*)?$");
             String tempRoute = "";
             for (String[] strings : excelDataList) {
-                if (!StringUtils.isBlank(strings[1]) & isSwo.matcher(strings[1]).matches()) {
+                String programName = strings[1].trim();
+                if (!StringUtils.isBlank(programName) & isSwo.matcher(programName).matches()) {
+                    if(programName.indexOf("O") != 0){
+                        programName = "O" + programName;
+                    }
                     ToolInfo toolInfo = new ToolInfo();
                     toolInfo.setWorkpiece(workpiece)
                             .setMonitorNo(monitorNo)
@@ -52,7 +56,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                     } else {
                         toolInfo.setRoute(tempRoute);
                     }
-                    toolInfo.setProgramName(strings[1])
+                    toolInfo.setProgramName(programName)
                             .setToolName(strings[5])
                             .setToolDiameter(strings[7])
                             .setToolNo(strings[8])

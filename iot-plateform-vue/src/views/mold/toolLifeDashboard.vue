@@ -147,8 +147,13 @@
                       v-text="this.$moment(item.scrapedTime).format('YYYY/MM/DD HH:mm')"></span>
                 <span class="area" style="width: 60px;text-align: center" v-text="item.area"></span>
                 <span class="lastMachineNo" style="width: 60px;text-align: center" v-text="item.lastMachineNo"></span>
-                <span v-if="item.reason != null" class="reasonTxt" style="width: 300px;text-align: center"
+                <el-tooltip v-if="item.reason != null" placement="top">
+                  <template #content>
+                    <p>原因：{{ item.reason }}</p>
+                  </template>
+                <span class="reasonTxt" style="width: 300px;text-overflow:ellipsis;overflow:hidden;text-align: center"
                       v-text="item.reason"></span>
+                </el-tooltip>
                 <span v-else class="reasonTxt" style="width: 300px;text-align: center">
                   <el-tag type="danger">原因未填写</el-tag>
                 </span>

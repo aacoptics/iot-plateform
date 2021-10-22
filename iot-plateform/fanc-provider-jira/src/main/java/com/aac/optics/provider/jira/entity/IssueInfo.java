@@ -18,6 +18,8 @@ public class IssueInfo implements Serializable {
 
     private String issueType;
 
+    private String territory;
+
     private String issueSummary;
 
     private String issueKey;

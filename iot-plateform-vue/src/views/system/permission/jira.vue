@@ -9,100 +9,108 @@
       </el-breadcrumb>
     </div>
     <div class="container">
-      <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
-        <el-switch
-            v-model="byBoard"
-            active-text="根据Sprint"
-            inactive-text="根据时间"
-            :size="size"
-            style="margin-bottom: 10px"
-        >
-        </el-switch>
+      <el-row>
+        <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
+          <el-switch
+              v-model="byBoard"
+              active-text="根据Sprint"
+              inactive-text="根据时间"
+              :size="size"
+              style="margin-bottom: 10px"
+          >
+          </el-switch>
 
-        <el-form :inline="true" :size="size">
-          <el-form-item>
-            <el-select v-model="filters.code" placeholder="请选择看板">
-              <el-option
-                  v-for="item in jiraBoards"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
+          <el-form :inline="true" :size="size">
+            <el-form-item>
+              <el-select v-model="filters.code" placeholder="请选择看板" @change="onBoardChange">
+                <el-option
+                    v-for="item in jiraBoards"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="!byBoard">
+              <el-date-picker
+                  v-model="dateRange"
+                  type="daterange"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
               >
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item v-if="!byBoard">
-            <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-            >
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item>
-            <el-select v-model="filters.status" multiple placeholder="请选择状态">
-              <el-option
-                  v-for="item in status"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-              >
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button icon="el-icon-search" type="primary"
-                       @click="findPage(null)">查询
-            </el-button>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="success" icon="el-icon-download" size="small"
-                       @click="exportExcel('#jiraIssues', 'jiraIssues.xlsx')">导出
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-      <el-table
-          id="jiraIssues"
-          :data="filterTable"
-          style="width: 100%; margin-bottom: 20px"
-          row-key="issueKey"
-          border
-          lazy
-          :load="load"
-          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-          v-loading="tableLoading"
-          height="600px"
-      >
-        <el-table-column prop="issueKey" label="JIRA代码" sortable width="180"/>
-        <el-table-column prop="username" label="姓名" sortable width="150"/>
-        <el-table-column prop="jobNumber" label="工号" sortable width="150"/>
-        <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
-        <el-table-column prop="issueSummary" label="JIRA任务" sortable width="180"/>
-        <el-table-column prop="status" label="状态" sortable width="180"/>
-        <el-table-column prop="createTime" label="创建时间" sortable width="180"/>
-        <el-table-column prop="updateTime" label="更新时间" sortable width="180"/>
-        <el-table-column prop="ekpIssueNo" label="需求清单号" sortable width="180"/>
-        <el-table-column prop="estimateTime" label="任务时长" sortable width="180" :formatter="timeFormatter"/>
-      </el-table>
-
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item>
+              <el-select v-model="filters.status" multiple placeholder="请选择状态">
+                <el-option
+                    v-for="item in status"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button icon="el-icon-search" type="primary" :loading="tableLoading"
+                         @click="findPage(null)">查询
+              </el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="success" icon="el-icon-download" size="small"
+                         @click="exportExcel('#jiraIssues', 'jiraIssues.xlsx')">导出
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-row>
       <el-row>
         <el-col :span="12">
-          <el-card shadow="hover" style="height:400px;" id="pieChart">
+          <el-card shadow="hover" style="height:810px;margin-right: 10px" id="territoryPieChart">
           </el-card>
-
         </el-col>
-
         <el-col :span="12">
-          <el-card shadow="hover" style="height:400px;" id="barChart">
-          </el-card>
-
+          <el-row>
+            <el-col :span="24">
+            <el-card shadow="hover" style="height:400px" id="pieChart">
+            </el-card>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+            <el-card shadow="hover" style="height:400px;margin-top: 10px" id="barChart">
+            </el-card>
+            </el-col>
+          </el-row>
         </el-col>
       </el-row>
-
-
+      <el-row style="margin-top: 20px">
+        <el-table
+            id="jiraIssues"
+            :data="filterTable"
+            style="width: 100%; margin-bottom: 20px"
+            row-key="issueKey"
+            border
+            lazy
+            :load="load"
+            :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+            v-loading="tableLoading"
+            height="600px"
+        >
+          <el-table-column prop="issueKey" label="JIRA代码" sortable width="180"/>
+          <el-table-column prop="username" label="姓名" sortable width="150"/>
+          <el-table-column prop="jobNumber" label="工号" sortable width="150"/>
+          <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+          <el-table-column prop="issueSummary" label="JIRA任务" sortable width="180"/>
+          <el-table-column prop="status" label="状态" sortable width="180"/>
+          <el-table-column prop="createTime" label="创建时间" sortable width="180"/>
+          <el-table-column prop="updateTime" label="更新时间" sortable width="180"/>
+          <el-table-column prop="ekpIssueNo" label="需求清单号" sortable width="180"/>
+          <el-table-column prop="estimateTime" label="任务时长" sortable width="180" :formatter="timeFormatter"/>
+        </el-table>
+      </el-row>
     </div>
   </div>
 </template>
@@ -121,16 +129,23 @@ export default {
   watch: {
     filterTable(val) {
       this.userStoryPoints = {}
+      this.territoryStoryPoints = {}
       this.getUserStoryPoints(val)
+      this.getTerritoryStoryPoints(val)
       this.pieData = []
+      this.territoryPieData = []
       this.barData = {value: [], name: []}
       for (const p in this.userStoryPoints) {
         this.pieData.push({value: this.userStoryPoints[p], name: p})
         this.barData.name.push(p)
         this.barData.value.push(this.userStoryPoints[p])
       }
+      for (const p in this.territoryStoryPoints) {
+        this.territoryPieData.push({value: this.territoryStoryPoints[p], name: p})
+      }
       this.drawPieChart()
       this.drawBarChart()
+      this.drawTerritoryPieChart()
     }
   },
   data() {
@@ -184,8 +199,10 @@ export default {
       tableLoading: false,
       status: [],
       pieData: [],
+      territoryPieData: [],
       barData: {value: [], name: []},
-      userStoryPoints: {}
+      userStoryPoints: {},
+      territoryStoryPoints: {}
 
     }
   },
@@ -194,8 +211,18 @@ export default {
       if (this.filters.status.length > 0) {
         const res = []
         this.sprintIssues.forEach(item => {
-          if (this.filters.status.indexOf(item.status) > -1) {
-            res.push(item)
+          const _item = Object.assign({}, item)
+          if (this.filters.status.indexOf(_item.status) > -1) {
+            if (_item.children) {
+              const _children = []
+              _item.children.forEach(child => {
+                if (this.filters.status.indexOf(child.status) > -1) {
+                  _children.push(child)
+                }
+              })
+              _item.children = _children;
+            }
+            res.push(_item)
           }
         })
         return res
@@ -205,6 +232,9 @@ export default {
     }
   },
   methods: {
+    onBoardChange(){
+      this.filters.status = []
+    },
     getUserStoryPoints(val) {
       val.forEach(item => {
         if (!this.userStoryPoints[item.username]) {
@@ -216,12 +246,27 @@ export default {
         }
       })
     },
+    getTerritoryStoryPoints(val) {
+      val.forEach(item => {
+        if (!this.territoryStoryPoints[item.territory]) {
+          this.territoryStoryPoints[item.territory] = 0
+        }
+        this.territoryStoryPoints[item.territory] += (item.estimateTime / 60 / 60)
+        if (item.children) {
+          this.getTerritoryStoryPoints(item.children)
+        }
+      })
+    },
     drawBarChart() {
       const chartDom = document.getElementById('barChart');
       const myChart = echarts.init(chartDom);
       let option;
 
       option = {
+        title: {
+          text: '任务时间柱状图',
+          left: 'center'
+        },
         xAxis: {
           type: 'category',
           data: this.barData.name,
@@ -262,6 +307,46 @@ export default {
 
       option && myChart.setOption(option);
     },
+    drawTerritoryPieChart() {
+      const chartDom = document.getElementById('territoryPieChart');
+      const myChart = echarts.init(chartDom);
+      let option;
+      option = {
+        title: {
+          text: '产品线时间比例',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left',
+          textStyle: {
+            fontSize: 16
+          }
+        },
+        series: [
+          {
+            name: '产品线',
+            type: 'pie',
+            radius: '50%',
+            data: this.territoryPieData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+
+      option && myChart.setOption(option);
+
+    },
     drawPieChart() {
       const chartDom = document.getElementById('pieChart');
       const myChart = echarts.init(chartDom);
@@ -276,8 +361,8 @@ export default {
           formatter: '{b}: {c}({d}%)'
         },
         legend: {
-          orient: 'vertical',
-          left: 'left'
+          orient: 'horizontal',
+          top: 'bottom'
         },
         series: [
           {

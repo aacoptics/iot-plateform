@@ -115,6 +115,12 @@ public class JiraServiceImpl implements JiraService {
             String updateTimeStr = issueJson.getJSONObject("fields").getString("updated");
             LocalDateTime createTime = LocalDateTime.parse(createTimeStr, pattern);
             LocalDateTime updateTime = LocalDateTime.parse(updateTimeStr, pattern);
+            String territory = "";
+            try {
+                territory = issueJson.getJSONObject("fields").getJSONObject("customfield_14700").getString("value");
+            }catch(Exception err){
+
+            }
             Integer estimateTime = issueJson.getJSONObject("fields").getJSONObject("timetracking").getInteger("originalEstimateSeconds");
             Integer remainingTime = issueJson.getJSONObject("fields").getJSONObject("timetracking").getInteger("remainingEstimateSeconds");
             if (issueJson.getJSONObject("fields").getJSONArray("subtasks").size() > 0) {
@@ -140,14 +146,12 @@ public class JiraServiceImpl implements JiraService {
                     .setRemainingTime(remainingTime)
                     .setStatus(status)
                     .setCreateTime(createTimeStr)
-                    .setUpdateTime(updateTimeStr);
+                    .setUpdateTime(updateTimeStr)
+                    .setTerritory(territory);
             sprintIssues.add(issueInfo);
         }
         if(startTime != null){
             List<ProcessInfo> res = processInfoService.getProcessInfo(userMap.keySet(), startTime, endTime);
-            log.info("111");
-
-
         }
         List<Tree<String>> finalRes = getIssueTrees(sprintIssues);
         return finalRes;
@@ -184,6 +188,7 @@ public class JiraServiceImpl implements JiraService {
                     tree.putExtra("ekpIssueNo", treeNode.getEkpIssueNo());
                     tree.putExtra("estimateTime", treeNode.getEstimateTime());
                     tree.putExtra("remainingTime", treeNode.getRemainingTime());
+                    tree.putExtra("territory", treeNode.getTerritory());
                     tree.putExtra("hasChildren", treeNode.isHasSubTask());
                     tree.putExtra("status", treeNode.getStatus());
                     tree.putExtra("createTime", treeNode.getCreateTime());
