@@ -34,7 +34,7 @@
             </template>
 
 
-            <div v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State)"
+            <div v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State) && !singleMachineInfo.CncBaseInfo.isMicroProg"
                  style="height:30px;line-height:40px;text-align: center;font-weight: bold">
               <el-badge is-dot class="item" style="height: 30px;line-height:40px">
                 {{ singleMachineInfo.MachineNo }}
@@ -182,7 +182,7 @@
 </template>
 
 <script>
-import Stomp from 'stompjs';
+import { Client } from '@stomp/stompjs';
 import scroll from 'vue-seamless-scroll/src'
 import {MQTT_PASSWORD, MQTT_SERVICE, MQTT_TOPIC_TOOL_LIFE, MQTT_USERNAME} from '@/utils/msgConfig'
 import {
@@ -205,7 +205,7 @@ export default {
       addReasonDialog: {abnormalTool: {}},
       reasonDialog: false,
       editReasonLoading: false,
-      client: Stomp.client(MQTT_SERVICE),
+      client: new Client(),
       abnormalList: [],
       moldData: [],
       statusInfo: {
@@ -350,14 +350,15 @@ export default {
     },
     onConnected: function () {
       const headers = {
-        'auto-delete': true
+        'auto-delete': 'true'
       };
-      //订阅的频道
       this.client.subscribe(MQTT_TOPIC_TOOL_LIFE, this.responseCallback, headers);
+      //订阅的频道
+      //this.client.subscribe(MQTT_TOPIC_TOOL_LIFE, this.responseCallback, headers);
     },
     onFailed: function (msg) {
       console.log(new Date() + "报错:" + msg);
-      this.reconnect()
+     // this.reconnect()
     },
     //成功时的回调函数
     responseCallback: function (msg) {
@@ -372,31 +373,45 @@ export default {
     },
     //连接
     connect: function () {
-      this.client.debug = null
-      this.client.connect({
-        login: MQTT_USERNAME,
-        password: MQTT_PASSWORD
-      }, this.onConnected, this.onFailed);
-    },
-    reconnect() {
-      const reconInv = setInterval(() => {
-        console.info(new Date() + '重连中...')
-        this.client = Stomp.client(MQTT_SERVICE)
-        this.client.debug = null
-        this.client.connect({
+      // this.client.debug = null
+      // this.client.connect({
+      //   login: MQTT_USERNAME,
+      //   password: MQTT_PASSWORD
+      // }, this.onConnected, this.onFailed);
+      this.client = new Client({
+        brokerURL: MQTT_SERVICE,
+        connectHeaders: {
           login: MQTT_USERNAME,
-          password: MQTT_PASSWORD
-        }, () => {
-          console.info(new Date() + '重连成功')
-          // 连接成功，清除定时器
-          clearInterval(reconInv)
-          this.onConnected()
-        }, this.onFailed)
-      }, 2000)
+          passcode: MQTT_PASSWORD,
+        },
+        reconnectDelay: 5000,
+        heartbeatIncoming: 5000,
+        heartbeatOutgoing: 5000,
+      });
+
+      this.client.onConnect = this.onConnected;
+      this.client.onStompError = this.onFailed;
+      this.client.activate();
     },
+    // reconnect() {
+    //   const reconInv = setInterval(() => {
+    //     console.info(new Date() + '重连中...')
+    //     this.client = Stomp.client(MQTT_SERVICE)
+    //     this.client.debug = null
+    //     this.client.connect({
+    //       login: MQTT_USERNAME,
+    //       password: MQTT_PASSWORD
+    //     }, () => {
+    //       console.info(new Date() + '重连成功')
+    //       // 连接成功，清除定时器
+    //       clearInterval(reconInv)
+    //       this.onConnected()
+    //     }, this.onFailed)
+    //   }, 2000)
+    // },
     disconnect() {
       if (this.client !== null) {
-        this.client.disconnect();
+        this.client.deactivate();
         console.log("断开MQ连接");
       }
     },
@@ -457,6 +472,7 @@ export default {
             this.lastDayScrapRate.rate = (scrap * 1.0 / out * 100).toFixed(2)
           } else {
             this.lastDayScrapRate.rate = '0.00'
+
           }
 
         }

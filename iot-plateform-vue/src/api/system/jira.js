@@ -1,13 +1,13 @@
 import request from '@/utils/request'
 
-export function getIssuesTree(boardId) {
+export function getIssuesTree(sprintIds) {
     return request({
         url: '/jira-server/jiraProvider/getSprintIssues',
-        method: 'get',
+        method: 'post',
         headers: {
             'Content-Type': 'application/json'
         },
-        params: {boardId: boardId}
+        data: sprintIds
     })
 }
 
@@ -32,6 +32,19 @@ export function getAllBoards() {
         method: 'get',
         headers: {
             'Content-Type': 'application/json'
+        }
+    })
+}
+
+export function getSprints(boardId) {
+    return request({
+        url: '/jira-server/jiraProvider/getSprintInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            boardId: boardId
         }
     })
 }

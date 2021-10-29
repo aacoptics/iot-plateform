@@ -43,8 +43,8 @@ public class JiraServiceImpl implements JiraService {
     public JSONObject getSprintInfo(String boardId) {
         //get请求带参数
         List<NameValuePair> list = new LinkedList<>();
-        BasicNameValuePair param1 = new BasicNameValuePair("state", "active");
-        list.add(param1);
+//        BasicNameValuePair param1 = new BasicNameValuePair("state", "active");
+//        list.add(param1);
         return HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/board/" + boardId + "/sprint", list, username, password);
     }
 
@@ -158,13 +158,16 @@ public class JiraServiceImpl implements JiraService {
     }
 
     @Override
-    public List<Tree<String>> getSpringIssues(String sprintId) {
+    public List<Tree<String>> getSpringIssues(List<String> sprintIds) {
         List<NameValuePair> list = new LinkedList<>();
         BasicNameValuePair param1 = new BasicNameValuePair("maxResults", "500");
         list.add(param1);
-        JSONObject res = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/sprint/" + sprintId + "/issue", list, username, password);
+        JSONArray issues = new JSONArray();
+        for (String sprintId : sprintIds) {
+            JSONObject res = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/sprint/" + sprintId + "/issue", list, username, password);
+            issues.addAll(res.getJSONArray("issues"));
+        }
 
-        JSONArray issues = res.getJSONArray("issues");
         return getFinalTrees(issues, null, null);
     }
 

@@ -42,6 +42,17 @@
               >
               </el-date-picker>
             </el-form-item>
+            <el-form-item v-else>
+              <el-select v-model="filters.sprint" multiple placeholder="请选择冲刺">
+                <el-option
+                    v-for="item in jiraSprints"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item>
               <el-select v-model="filters.status" multiple placeholder="请选择状态">
                 <el-option
@@ -68,20 +79,49 @@
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-card shadow="hover" style="height:810px;margin-right: 10px" id="territoryPieChart">
-          </el-card>
+          <el-row>
+            <el-col :span="24">
+              <el-card shadow="hover" style="height:400px;margin-right: 10px" id="territoryPieChart">
+              </el-card>
+            </el-col>
+          </el-row>
+          <el-row style="margin-right: 10px;margin-top: 10px">
+            <el-col :span="24">
+              <h3 style="text-align: center" v-show="topTimeTask.length > 0">时长Top10任务</h3>
+              <el-table
+                  id="topIssues"
+                  :data="topTimeTask"
+                  style="width: 100%;font-size: xx-small"
+                  row-key="issueKey"
+                  border
+                  lazy
+                  :load="load"
+                  :show-header="false"
+                  :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+                  v-loading="tableLoading"
+                  height="375px"
+              >
+                <el-table-column prop="issueKey" label="JIRA代码" sortable width="100"/>
+                <el-table-column prop="username" label="姓名" sortable width="120"/>
+                <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+                <el-table-column prop="issueSummary" label="JIRA任务" sortable width="200"/>
+                <el-table-column prop="status" label="状态" sortable width="80"/>
+                <el-table-column prop="estimateTime" label="任务时长" sortable width="80" :formatter="timeFormatter"/>
+              </el-table>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="12">
           <el-row>
             <el-col :span="24">
-            <el-card shadow="hover" style="height:400px" id="pieChart">
-            </el-card>
+              <el-card shadow="hover" style="height:400px" id="pieChart">
+              </el-card>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
-            <el-card shadow="hover" style="height:400px;margin-top: 10px" id="barChart">
-            </el-card>
+              <el-card shadow="hover" style="height:400px;margin-top: 10px" id="barChart">
+              </el-card>
             </el-col>
           </el-row>
         </el-col>
@@ -116,7 +156,7 @@
 </template>
 
 <script>
-import {getAllBoards, getIssuesTree, getIssuesTreeByTime} from "@/api/system/jira";
+import {getAllBoards, getIssuesTree, getIssuesTreeByTime, getSprints} from "@/api/system/jira";
 import XLSX from "xlsx";
 import FileSaver from 'file-saver'
 import * as echarts from 'echarts';
@@ -155,9 +195,11 @@ export default {
       size: 'small',
       filters: {
         code: '',
-        status: []
+        status: [],
+        sprint: []
       },
       sprintIssues: [],
+      jiraSprints: [],
       jiraBoards: [
         {
           "name": "IT Infra Scrum",
@@ -229,11 +271,37 @@ export default {
       } else {
         return this.sprintIssues
       }
+    },
+
+    topTimeTask() {
+      const _temp = Object.assign([], this.filterTable)
+      _temp.forEach(item => {
+        if (item.children) {
+          item.estimateTime = 0
+          item.children.forEach(child => {
+            item.estimateTime += child.estimateTime
+          })
+        }
+      })
+      _temp.sort(this.sortArray)
+      return _temp.slice(0, 10)
     }
   },
   methods: {
-    onBoardChange(){
+    sortArray(a, b) {
+      return b.estimateTime - a.estimateTime
+    },
+    getSprintInfo() {
+      getSprints(this.filters.code).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.jiraSprints = responseData.data.values
+        }
+      })
+    },
+    onBoardChange() {
       this.filters.status = []
+      this.getSprintInfo()
     },
     getUserStoryPoints(val) {
       val.forEach(item => {
@@ -405,7 +473,7 @@ export default {
       }
       this.tableLoading = true
       if (this.byBoard) {
-        getIssuesTree(this.filters.code).then((res) => {
+        getIssuesTree(this.filters.sprint).then((res) => {
           const responseData = res.data
           if (responseData.code === '000000') {
             this.sprintIssues = responseData.data

@@ -27,17 +27,17 @@ public class JiraProviderController {
 
     @ApiOperation(value = "查询Sprint任务", notes = "查询Sprint任务")
     @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
-    @GetMapping("/getSprintIssues")
-    public Result getSprintIssues(@RequestParam("boardId") String boardId) {
-        JSONObject currentSprint = jiraService.getSprintInfo(boardId);
-        JSONArray SprintValues = currentSprint.getJSONArray("values");
-        List<Tree<String>> issueTrees = new ArrayList<>();
-        if(SprintValues.size() > 0){
-            String sprintId = ((JSONObject)SprintValues.get(0)).getString("id");
-            issueTrees = jiraService.getSpringIssues(sprintId);
-        }else{
-            return Result.fail("无活动的Sprint");
-        }
+    @PostMapping("/getSprintIssues")
+    public Result getSprintIssues(@RequestBody List<String> sprintIds ) {
+//        JSONObject currentSprint = jiraService.getSprintInfo(boardId);
+//        JSONArray SprintValues = currentSprint.getJSONArray("values");
+  //      List<Tree<String>> issueTrees = new ArrayList<>();
+//        if(SprintValues.size() > 0){
+//            String sprintId = ((JSONObject)SprintValues.get(0)).getString("id");
+        List<Tree<String>> issueTrees = jiraService.getSpringIssues(sprintIds);
+//        }else{
+//            return Result.fail("无活动的Sprint");
+//        }
        return Result.success(issueTrees);
     }
 
@@ -54,6 +54,12 @@ public class JiraProviderController {
     @GetMapping("/getBoards")
     public Result getBoards() {
         return Result.success(jiraService.getAllBoards());
+    }
+
+    @ApiOperation(value = "查询看板所有冲刺", notes = "查询看板所有冲刺")
+    @GetMapping("/getSprintInfo")
+    public Result getSprintInfo(@RequestParam String boardId) {
+        return Result.success(jiraService.getSprintInfo(boardId));
     }
 
 }
