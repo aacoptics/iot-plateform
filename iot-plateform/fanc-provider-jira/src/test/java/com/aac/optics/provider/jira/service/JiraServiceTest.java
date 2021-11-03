@@ -24,7 +24,7 @@ class JiraServiceTest {
 
     @Test
     void getSprint() {
-//        JSONObject test = jiraService.getSprintInfo("3285");
+        JSONObject test123 = jiraService.getSprintInfo("3285");
 //        JSONArray SprintValues = test.getJSONArray("values");
 //        if(SprintValues.size() > 0){
 //            String sprintId = ((JSONObject)SprintValues.get(0)).getString("id");
@@ -39,7 +39,7 @@ class JiraServiceTest {
         List<Tree<String>> issueTrees = new ArrayList<>();
         if(SprintValues.size() > 0){
             String sprintId = ((JSONObject)SprintValues.get(0)).getString("id");
-            issueTrees = jiraService.getSpringIssues(sprintId);
+            //issueTrees = jiraService.getSpringIssues(sprintId);
         }else{
             //return Result.fail("无活动的Sprint");
         }

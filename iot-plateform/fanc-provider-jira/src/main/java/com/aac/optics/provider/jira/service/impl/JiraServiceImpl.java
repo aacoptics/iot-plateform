@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -136,6 +137,7 @@ public class JiraServiceImpl implements JiraService {
             DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             createTimeStr = df.format(createTime);
             updateTimeStr = df.format(updateTime);
+
             issueInfo.setUsername(username)
                     .setJobNumber(jobNumber)
                     .setIssueType(issueType)
@@ -148,11 +150,16 @@ public class JiraServiceImpl implements JiraService {
                     .setCreateTime(createTimeStr)
                     .setUpdateTime(updateTimeStr)
                     .setTerritory(territory);
+            List<IssueInfo> tempSprintIssues = sprintIssues.stream()
+                    .filter(_sprint -> issueInfo.getIssueKey().equals(_sprint.getIssueKey()))
+                    .collect(Collectors.toList());
+            if(tempSprintIssues.size() > 0)
+                continue;
             sprintIssues.add(issueInfo);
         }
-        if(startTime != null){
-            List<ProcessInfo> res = processInfoService.getProcessInfo(userMap.keySet(), startTime, endTime);
-        }
+//        if(startTime != null){
+//            List<ProcessInfo> res = processInfoService.getProcessInfo(userMap.keySet(), startTime, endTime);
+//        }
         List<Tree<String>> finalRes = getIssueTrees(sprintIssues);
         return finalRes;
     }

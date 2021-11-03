@@ -11,7 +11,7 @@ import java.util.List;
 public interface JiraService {
     JSONObject getSprintInfo(String boardId);
 
-    List<Tree<String>> getSpringIssues(String sprintId);
+    List<Tree<String>> getSpringIssues(List<String> sprintIds);
 
     JSONArray getAllBoards();
 
