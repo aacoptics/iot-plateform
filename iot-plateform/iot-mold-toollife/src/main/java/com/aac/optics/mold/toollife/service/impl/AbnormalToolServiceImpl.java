@@ -65,7 +65,7 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
             abnormalTool.setLastMachineNo(programDetail.getMachineNo());
             abnormalTool.setArea(programDetail.getProgramName());
 
-            if (programDetail.getTotalTime() < Integer.valueOf(scrapedTool.getLifeSalvage())) {
+            if (programDetail.getTotalTime() < Integer.parseInt(scrapedTool.getLifeSalvage())) {
                 this.save(abnormalTool);
             }
         }
@@ -76,8 +76,7 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
         QueryWrapper<AbnormalTool> wrapper = new QueryWrapper<>();
         wrapper.eq("is_confirmed", 0)
                 .orderByDesc("scraped_time");
-        List<AbnormalTool> abnormalTools = list(wrapper);
-        return abnormalTools;
+        return list(wrapper);
     }
 
     @Override
@@ -96,8 +95,7 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
     public Integer getAbnormalCount(String startTime, String endTime) {
         QueryWrapper<AbnormalTool> wrapper = new QueryWrapper<>();
         wrapper.between("scraped_time", startTime, endTime);
-        Integer count = abnormalToolMapper.selectCount(wrapper);
-        return count;
+        return abnormalToolMapper.selectCount(wrapper);
     }
 
     @Override
@@ -115,11 +113,7 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
         List<AbnormalTool> resultList = getRandomList(5, abnormalTools);
         String subject = "刀具寿命每日提醒";
         StringBuilder content = new StringBuilder("<html><head></head><body><h4>刀具寿命异常确认结果:</h4>");
-        content.append("<h5>时间段：" +
-                startDateTime.format(df1) +
-                "至" +
-                endDateTime.format(df1) +
-                "</h5>");
+        content.append("<h5>时间段：").append(startDateTime.format(df1)).append("至").append(endDateTime.format(df1)).append("</h5>");
         content.append("<h5>异常总数：" + totalCount + "</h5>");
         content.append("<h5>已确认数：" + abnormalTools.size() + "</h5>");
         if (resultList.size() > 0) {

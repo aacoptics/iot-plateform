@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 import Login from "../views/login/Login.vue";
+import jira from "../views/system/permission/jira"
 import routeMap from "./components"
 import {setMenuInfo, setMenuItems, getUsername, getAccessToken, getMenuItems} from '@/utils/auth'
 import {getMenuByUsername} from "@/api/system/user";
@@ -17,6 +18,15 @@ const routes = [
             title: '登录'
         },
         component: Login
+    },
+    {
+        path: "/jiraDashboard",
+        name: "jiraDashboard",
+        meta: {
+            title: 'jira看板',
+            openView: true
+        },
+        component: jira
     }
 ]
 
@@ -101,6 +111,12 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     saveRefreshTime()
     document.title = `${to.meta.title} | 光学IoT平台`;
+
+    if(to.meta.openView){
+        document.title = to.meta.title
+        next();
+        return
+    }
     if (!getAccessToken() && to.path !== '/login') {
         next('/login');
     } else if ((isFetchRemote || !getMenuItems()) && to.path !== '/login') {

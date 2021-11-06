@@ -2,6 +2,7 @@ package com.aac.optics.mold.toollife.service.impl;
 
 import com.aac.optics.mold.toollife.dao.ToolInfoMapper;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.entity.UpdateSheetForm;
 import com.aac.optics.mold.toollife.service.ToolInfoService;
 import com.aac.optics.mold.toollife.util.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -37,6 +38,8 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             excelDataList = ExcelUtil.read(in).get(0);
             String workpiece = excelDataList.get(3)[2];
             monitorNo = excelDataList.get(3)[12];
+            if(StringUtils.isBlank(monitorNo))
+                return "";
             String material = excelDataList.get(16)[17];
             Pattern isSwo = Pattern.compile("^O?([\\d]{3,5})+([\\S]*)?$");
             String tempRoute = "";
@@ -110,6 +113,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
 
 
     @Transactional
+    @Override
     public boolean updateToolLifeInfo(List<ToolInfo> toolInfos) {
         try {
             for (ToolInfo toolInfo : toolInfos) {
@@ -118,6 +122,26 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                                 !StringUtils.isBlank(toolInfo.getMatInfo().getHandleCode()))) {
                     updateInfo(toolInfo);
                 }
+            }
+            return true;
+        } catch (Exception err) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+    }
+
+    @Transactional
+    @Override
+    public boolean addMachineToolLifeInfo(UpdateSheetForm updateSheetForm) {
+        try {
+            for (ToolInfo toolInfo : updateSheetForm.getToolInfos()) {
+                toolInfo.setMatInfo(null)
+                        .setMatHandleCode(null)
+                        .setMatToolCode(null)
+                        .setMatCode(null)
+                        .setMatName(null)
+                        .setMachineNo(updateSheetForm.getMachineNo());
+                this.save(toolInfo);
             }
             return true;
         } catch (Exception err) {
@@ -135,8 +159,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                     .set("mat_name", toolInfo.getMatInfo().getMatName());
         }
         updateWrapper.set("machine_no", toolInfo.getMachineNo())
-                .eq("monitor_no", toolInfo.getMonitorNo())
-                .eq("program_name", toolInfo.getProgramName());
+                .eq("id", toolInfo.getId());
         update(updateWrapper);
     }
 

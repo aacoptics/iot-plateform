@@ -5,11 +5,14 @@ import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.mold.toollife.entity.AbnormalTool;
 import com.aac.optics.mold.toollife.entity.ProgramDetail;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.entity.UpdateSheetForm;
+import com.aac.optics.mold.toollife.exception.ToolLofeErrorType;
 import com.aac.optics.mold.toollife.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,6 +54,9 @@ public class MoldToolLifeController {
         String monitorNo = "";
         try {
             monitorNo = toolInfoService.phaseExcelData(file.getInputStream());
+            if (StringUtils.isBlank(monitorNo)) {
+                Result.fail(ToolLofeErrorType.MONITOR_IS_BLANK);
+            }
             return Result.success(monitorNo);
         } catch (Exception e) {
             return Result.fail(SystemErrorType.SYSTEM_ERROR);
@@ -106,8 +112,12 @@ public class MoldToolLifeController {
     @ApiOperation(value = "更新机台号，刀位，刀具编号", notes = "更新机台号，刀位，刀具编号")
     @ApiImplicitParam(name = "toolInfo", value = "信息", required = true, dataType = "ToolInfo")
     @PostMapping("/updateToolInfo")
-    public Result updateToolInfo(@RequestBody List<ToolInfo> toolInfos) {
-        boolean res = toolInfoService.updateToolLifeInfo(toolInfos);
+    public Result updateToolInfo(@RequestBody UpdateSheetForm updateSheetForm) {
+        boolean res;
+        if (StringUtils.isBlank(updateSheetForm.getMachineNo()))
+            res = toolInfoService.updateToolLifeInfo(updateSheetForm.getToolInfos());
+        else
+            res = toolInfoService.addMachineToolLifeInfo(updateSheetForm);
         if (res) {
             return Result.success();
         } else {

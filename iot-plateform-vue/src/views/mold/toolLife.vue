@@ -12,26 +12,28 @@
       <el-row>
         <el-col :span="10">
           <el-row style="padding: 10px">
-            <el-input style="width: 200px;margin-right: 10px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
+            <el-input style="width: 250px;margin-right: 10px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
+          </el-row>
+          <el-row style="padding: 10px" v-if="programSheetMachineList.length > 1">
+            <el-select v-model="programSheetMachineNo" filterable placeholder="请选择机台号" style="width: 250px" @change="onProgramMachineChange">
+              <el-option
+                  v-for="item in programSheetMachineList"
+                  :key="item.value"
+                  :label="item.text"
+                  :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-row>
+          <el-row style="padding: 10px">
             <el-button style="margin-right: 10px" type="primary" icon="el-icon-search" @click="getByMonitorNo(null)">查询
             </el-button>
             <el-button style="margin-right: 10px" type="success" :loading="saveBtnLoading" icon="el-icon-check"
                        @click="saveEditInfo()">保存
             </el-button>
-          </el-row>
-          <el-row style="padding: 10px">
-            <el-select v-model="machineName" filterable placeholder="请选择机台号">
-              <el-option
-                  v-for="item in machineNameList"
-                  :key="item.fequipName"
-                  :label="item.fequipName"
-                  :value="item.fequipName"
-              >
-              </el-option>
-            </el-select>
-          </el-row>
-          <el-row style="padding: 10px;float: left">
-
+            <el-button style="margin-right: 10px" type="warning" :loading="saveBtnLoading" icon="el-icon-plus"
+                       @click="addMachineProgramSheet()">新增程序单机台
+            </el-button>
           </el-row>
         </el-col>
         <el-col :span="14">
@@ -51,7 +53,7 @@
       </el-row>
       <el-table
           id="ToolLifeTable"
-          :data="moldToolLifeSheet"
+          :data="moldToolLifeSheetByMachine"
           border
           :height="tableMaxHeight"
           :key="1"
@@ -76,9 +78,17 @@
         <el-table-column prop="cutDepth" label="切深"></el-table-column>
         <el-table-column prop="feed" label="进给"></el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
-        <el-table-column :width=100 fixed="left" prop="machineNo" label="机台号">
+        <el-table-column :width=120 fixed="left" prop="machineNo" label="机台号">
           <template v-slot="scope">
-            <span v-if="machineName.length === 0">{{ scope.row.machineNo }}</span>
+<!--            <span v-if="machineName.length === 0">{{ scope.row.machineNo }}</span>-->
+            <el-select-v2
+                size="mini"
+                v-if="scope.row.isSelected"
+                v-model="machineName"
+                filterable
+                placeholder="请选择"
+                :options="machineOptions"
+                @blur="cellEvent(scope.row)"/>
             <span v-else>{{ machineName }}</span>
           </template>
         </el-table-column>
@@ -88,12 +98,12 @@
                 size="mini"
                 v-if="scope.row.isSelected"
                 v-model="scope.row.matInfo"
-                filterable
                 placeholder="请选择"
-                :options="options"
+                filterable
+                :options="toolOptions"
                 value-key="handleCode"
-                @change="checkDiameter(scope.row, scope.row.toolDiameter)"
                 @blur="cellEvent(scope.row)"/>
+<!--            @change="checkDiameter(scope.row, scope.row.toolDiameter)"-->
             <span v-else :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.handleCode }}</span>
           </template>
         </el-table-column>
@@ -115,11 +125,35 @@
         <el-table-column :width=200 prop="createDateTime" label="创建时间"></el-table-column>
       </el-table>
     </div>
+    <el-dialog v-model="addMachineDialog" title="添加机台程序单" :close-on-click-modal="false" :show-close="false" width="30%">
+      <el-select v-model="dialogMachineName" filterable placeholder="程序单机台号配置">
+        <el-option
+            v-for="item in machineNameList"
+            :key="item.fequipName"
+            :label="item.fequipName"
+            :value="item.fequipName"
+        >
+        </el-option>
+      </el-select>
+      <div class="dialog-footer" style="padding-top: 20px;text-align: end">
+        <slot name="footer">
+          <el-button @click="resetSelection">取消</el-button>
+          <el-button type="primary" @click="submitForm" :loading="addMachineLoading">提交</el-button>
+        </slot>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {uploadExcel, getByMonitorNo, updateToolInfo, getMachineList, getMatInfoList} from "@/api/iot/mold";
+import {
+  uploadExcel,
+  getByMonitorNo,
+  updateToolInfo,
+  getMachineList,
+  getMatInfoList,
+} from "@/api/iot/mold";
+import {tableFilter} from "@/utils/baseUtils";
 
 export default {
   name: "toolLife",
@@ -132,6 +166,9 @@ export default {
       rules: {
         diameter: {}
       },
+      addMachineDialog: false,
+      addMachineLoading: false,
+      dialogMachineName: "",
       selectLoading: false,
       machineName: "",
       machineNameList: [],
@@ -140,28 +177,76 @@ export default {
       monitorNo: "",
       moldToolLifeSheet: [],
       toolLifeLoading: false,
-      saveBtnLoading: false
+      saveBtnLoading: false,
+      programSheetMachineList: [],
+      programSheetMachineNo: ""
     }
   },
   computed: {
+    moldToolLifeSheetByMachine(){
+      if(this.programSheetMachineList.length > 1){
+        return this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo)
+      }else{
+        return this.moldToolLifeSheet
+      }
+    },
     tableMaxHeight() {
       return window.innerHeight - 370 + 'px';
     },
-    options() {
+    toolOptions() {
       const list = [];
       for (let i = 0; i < this.matInfoList.length; i++) {
         list.push({label: this.matInfoList[i].handleCode, value: this.matInfoList[i]})
       }
       return list
+    },
+    machineOptions(){
+      const list = [];
+      for (let i = 0; i < this.machineNameList.length; i++) {
+        list.push({label: this.machineNameList[i].fequipName, value: this.machineNameList[i].fequipName})
+      }
+      return list
     }
   },
   methods: {
+    resetSelection() {
+      this.dialogMachineName = ''
+      this.addMachineDialog = false
+    },
+    submitForm() {
+      if (this.dialogMachineName !== '' && this.dialogMachineName !== this.machineName) {
+        if(this.moldToolLifeSheetByMachine.length === 0){
+          this.$message.warning('当前列表为空，请先查询对应的程序单！')
+          return
+        }
+        this.$confirm('确认提交吗？', '提示', {}).then(() => {
+          this.addMachineLoading = true
+          updateToolInfo({toolInfos: this.moldToolLifeSheetByMachine, machineNo: this.dialogMachineName}).then((response) => {
+            const responseData = response.data
+            if (responseData.code === '000000') {
+              this.$message.success('添加成功！')
+            } else {
+              this.$message.error('添加失败！' + responseData.msg)
+            }
+            this.addMachineLoading = false
+          }).catch((err) => {
+            this.$message.error(err.message)
+            this.addMachineLoading = false
+          })
+        })
+      } else {
+        this.$message({message: '操作失败,机台号与之前相等，且不为空', type: 'error'})
+      }
+    },
     cellEvent(row) {
       row.isSelected = !row.isSelected
     },
     cellClick(row, column) {
       switch (column.label) {
         case '刀柄编码':
+          this.cellEvent(row)
+          break
+        case '机台号':
           this.cellEvent(row)
           break
         default:
@@ -175,22 +260,30 @@ export default {
         return false
       }
     },
+    addMachineProgramSheet() {
+      this.addMachineDialog = true
+    },
     saveEditInfo() {
-      for (let i = 0; i < this.moldToolLifeSheet.length; i++) {
-        if (this.moldToolLifeSheet[i].isCheck != null && !this.moldToolLifeSheet[i].isCheck) {
+      const tempMoldList = Object.assign([], this.moldToolLifeSheetByMachine)
+      if (tempMoldList.length === 0) {
+        this.$message.warning('当前列表为空，请先查询对应的程序单！')
+        return;
+      }
+      for (let i = 0; i < tempMoldList.length; i++) {
+        if (tempMoldList[i].isCheck != null && !tempMoldList[i].isCheck) {
           this.$message.error('保存失败，存在直径不匹配的刀柄（表格已标红）')
           return;
         }
-      }
-      if (this.machineName.length > 0) {
-        for (let i = 0; i < this.moldToolLifeSheet.length; i++) {
-          this.moldToolLifeSheet[i].machineNo = this.machineName
+        if (this.machineName.length > 0) {
+          tempMoldList[i].machineNo = this.machineName
         }
       }
       this.saveBtnLoading = true
-      updateToolInfo(this.moldToolLifeSheet).then((response) => {
+      updateToolInfo({toolInfos: tempMoldList, machineNo: null}).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
+          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+          this.programSheetMachineNo = this.machineName
           this.$message.success('保存成功！')
         } else {
           this.$message.error('保存失败！' + responseData.msg)
@@ -215,6 +308,9 @@ export default {
         this.$message.error(err)
       })
     },
+    onProgramMachineChange(){
+      this.machineName = this.programSheetMachineNo
+    },
     getByMonitorNo(monitorNo) {
       this.toolLifeLoading = true
       if (monitorNo == null) {
@@ -226,6 +322,13 @@ export default {
           this.moldToolLifeSheet = responseData.data;
         } else {
           this.$message.error('获取失败！' + responseData.msg)
+        }
+        this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+        if(this.programSheetMachineNo === '') {
+          this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
+          this.programSheetMachineNo = this.machineName
+        }else{
+          this.machineName = this.programSheetMachineNo
         }
         this.toolLifeLoading = false
       }).catch((err) => {

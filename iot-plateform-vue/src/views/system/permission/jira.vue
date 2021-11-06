@@ -1,24 +1,16 @@
 <template>
-  <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          系统管理
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>Jira问题</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-    <div class="container">
+    <div class="container" style="height: 100%;">
+      <h1 style="text-align: center;margin-bottom: 20px;font-family: 楷体,serif">Jira任务清单</h1>
       <el-row>
         <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
-          <el-switch
-              v-model="byBoard"
-              active-text="根据Sprint"
-              inactive-text="根据时间"
-              :size="size"
-              style="margin-bottom: 10px"
-          >
-          </el-switch>
+<!--          <el-switch-->
+<!--              v-model="byBoard"-->
+<!--              active-text="根据Sprint"-->
+<!--              inactive-text="根据时间"-->
+<!--              :size="size"-->
+<!--              style="margin-bottom: 10px"-->
+<!--          >-->
+<!--          </el-switch>-->
 
           <el-form :inline="true" :size="size">
             <el-form-item>
@@ -96,16 +88,17 @@
                   border
                   lazy
                   :load="load"
-                  :show-header="false"
                   :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
                   v-loading="tableLoading"
                   height="375px"
               >
                 <el-table-column prop="issueKey" label="JIRA代码" sortable width="100"/>
                 <el-table-column prop="username" label="姓名" sortable width="120"/>
+                <el-table-column prop="territory" label="领域" sortable width="150"/>
                 <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
                 <el-table-column prop="issueSummary" label="JIRA任务" sortable width="200"/>
                 <el-table-column prop="status" label="状态" sortable width="80"/>
+                <el-table-column prop="ekpIssueNo" label="需求清单号" sortable width="180"/>
                 <el-table-column prop="estimateTime" label="任务时长" sortable width="80" :formatter="timeFormatter"/>
               </el-table>
             </el-col>
@@ -140,11 +133,12 @@
             height="600px"
         >
           <el-table-column prop="issueKey" label="JIRA代码" sortable width="180"/>
-          <el-table-column prop="username" label="姓名" sortable width="150"/>
+          <el-table-column prop="username" label="姓名" sortable width="150" :filters="headFilters.username" :filter-method="filterHandler"/>
           <el-table-column prop="jobNumber" label="工号" sortable width="150"/>
-          <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+          <el-table-column prop="territory" label="领域" sortable width="150" :filters="headFilters.territory" :filter-method="filterHandler"/>
+          <el-table-column prop="issueType" label="需求类型" sortable width="180" :filters="headFilters.issueType" :filter-method="filterHandler"/>
           <el-table-column prop="issueSummary" label="JIRA任务" sortable width="180"/>
-          <el-table-column prop="status" label="状态" sortable width="180"/>
+          <el-table-column prop="status" label="状态" sortable width="180" :filters="headFilters.status" :filter-method="filterHandler"/>
           <el-table-column prop="createTime" label="创建时间" sortable width="180"/>
           <el-table-column prop="updateTime" label="更新时间" sortable width="180"/>
           <el-table-column prop="ekpIssueNo" label="需求清单号" sortable width="180"/>
@@ -152,7 +146,6 @@
         </el-table>
       </el-row>
     </div>
-  </div>
 </template>
 
 <script>
@@ -272,6 +265,9 @@ export default {
         return this.sprintIssues
       }
     },
+    headFilters(){
+      return this.tableFilter(this.filterTable)
+    },
 
     topTimeTask() {
       const _temp = Object.assign([], this.filterTable)
@@ -288,6 +284,26 @@ export default {
     }
   },
   methods: {
+    tableFilter(list){ // 传入表格数据
+      let filters = {}
+      if (list.length) {
+        Object.keys(list[0]).forEach(item => { // 拿到第一条数据，将key值组成数组，并将key给filters对象作为键名，值为空数组
+          filters[item] = []
+        })
+        list.forEach(item => { // 遍历表格的数据数组
+          for (let key in item) { // 遍历数据数组的每一项(对象)
+            if (Object.prototype.hasOwnProperty.call(filters, key) && !filters[key].find(i => i.text === item[key])) { // 如果filters对象中有当前键名（它的值是数组）,并且该数组中不含当前值的对象
+              filters[key].push({text: item[key], value: item[key]}) // filters当前键名对应的值（数组），再push该值组成的对象（el-table筛选条件的格式）
+            }
+          }
+        })
+      }
+      return filters;
+    },
+    filterHandler(value, row, column) {
+      const property = column['property'];
+      return row[property] === value;
+    },
     sortArray(a, b) {
       return b.estimateTime - a.estimateTime
     },
@@ -464,6 +480,10 @@ export default {
     },
     getRowKey(row) {
       return row.name;
+    },
+
+    filterStatus(value, row) {
+      return row.status === value
     },
     // 获取分页数据
     findPage: function () {
