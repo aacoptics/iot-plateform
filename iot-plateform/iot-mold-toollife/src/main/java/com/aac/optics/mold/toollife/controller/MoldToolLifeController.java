@@ -46,6 +46,9 @@ public class MoldToolLifeController {
     @Autowired
     AbnormalToolService abnormalToolService;
 
+    @Autowired
+    AbnormalTypeService abnormalTypeService;
+
 
     @ApiOperation(value = "刀具寿命Excel上传", notes = "刀具寿命Excel上传")
     @ApiImplicitParam(name = "file", value = "Excel文件", required = true, dataType = "MultipartFile")
@@ -61,6 +64,12 @@ public class MoldToolLifeController {
         } catch (Exception e) {
             return Result.fail(SystemErrorType.SYSTEM_ERROR);
         }
+    }
+
+    @ApiOperation(value = "查询异常种类", notes = "查询异常种类")
+    @GetMapping("/getAbnormalType")
+    public Result getAbnormalType() {
+        return Result.success(abnormalTypeService.getAbnormalType());
     }
 
     @ApiOperation(value = "根据MonitorNo查询刀具寿命Excel", notes = "根据MonitorNo查询刀具寿命Excel")
@@ -100,6 +109,13 @@ public class MoldToolLifeController {
         res.put("scrap", scrapCount);
         res.put("out", outCount);
         return Result.success(res);
+    }
+
+    @ApiOperation(value = "查询刀具历史明细", notes = "查询刀具历史明细")
+    @ApiImplicitParam(name = "toolCode", value = "刀具号", required = true, dataType = "String")
+    @GetMapping("/getToolHisList")
+    public Result getToolHisList(@RequestParam String toolCode) {
+        return Result.success(programDetailService.getToolHisList(toolCode));
     }
 
 

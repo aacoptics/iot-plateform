@@ -16,11 +16,24 @@
 
     <select id="getAbnormalTotalTime" resultType="com.aac.optics.mold.toollife.entity.ProgramDetail">
         select top 1 a.machine_no,
-                     c.area as program_name,
+                     c.area                                                              as program_name,
                      (sum(datediff(minute, start_time, end_time)) over (partition by 1)) as totalTime
         from tb_mold_program_detail a
                  join tb_mold_program_sheet b on a.monitor_no = b.monitor_no and a.program_name = b.program_name
                  join tb_mold_machine_area_config c on a.machine_no = c.machine_name
+        where mat_tool_code = #{toolCode}
+        order by a.id desc
+    </select>
+
+    <select id="getToolHisList" resultType="com.aac.optics.mold.toollife.entity.ProgramDetail">
+        select a.machine_no,
+               a.monitor_no,
+               a.program_name,
+               start_time,
+               end_time,
+               DATEDIFF(SECOND, start_time, end_time) as totalTime
+        from tb_mold_program_detail a
+                 join tb_mold_program_sheet b on a.monitor_no = b.monitor_no and a.program_name = b.program_name
         where mat_tool_code = #{toolCode}
         order by a.id desc
     </select>

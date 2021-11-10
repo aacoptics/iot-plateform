@@ -51,4 +51,6 @@ public class AbnormalTool implements Serializable {
 
     private LocalDateTime createDateTime;
 
+    private Integer abnormalType;
+
 }

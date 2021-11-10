@@ -44,6 +44,16 @@ export function getMachineList() {
     })
 }
 
+export function getAbnormalType() {
+    return request({
+        url: '/moldToolLife/toolLife/getAbnormalType',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
 export function getMatInfoList() {
     return request({
         url: '/moldToolLife/toolLife/allMatInfo',
@@ -96,6 +106,19 @@ export function getLastDayTotalTime(startTime) {
         },
         params: {
             startTime: startTime
+        }
+    })
+}
+
+export function getToolHisList(toolCode) {
+    return request({
+        url: '/moldToolLife/toolLife/getToolHisList',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            toolCode: toolCode
         }
     })
 }

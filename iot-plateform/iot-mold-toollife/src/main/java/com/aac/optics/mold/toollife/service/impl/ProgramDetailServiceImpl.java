@@ -26,4 +26,9 @@ public class ProgramDetailServiceImpl extends ServiceImpl<ProgramDetailMapper, P
     public ProgramDetail getAbnormalTotalTime(String toolCode) {
         return programDetailMapper.getAbnormalTotalTime(toolCode);
     }
+
+    @Override
+    public List<ProgramDetail> getToolHisList(String toolCode){
+        return programDetailMapper.getToolHisList(toolCode);
+    }
 }

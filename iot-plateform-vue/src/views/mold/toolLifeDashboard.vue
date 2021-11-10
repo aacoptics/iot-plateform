@@ -34,8 +34,9 @@
             </template>
 
 
-            <div v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State) && !singleMachineInfo.CncBaseInfo.isMicroProg"
-                 style="height:30px;line-height:40px;text-align: center;font-weight: bold">
+            <div
+                v-if="getMaintainStatus(singleMachineInfo.CncBaseInfo.monitorNo, singleMachineInfo.CncNode.State) && !singleMachineInfo.CncBaseInfo.isMicroProg"
+                style="height:30px;line-height:40px;text-align: center;font-weight: bold">
               <el-badge is-dot class="item" style="height: 30px;line-height:40px">
                 {{ singleMachineInfo.MachineNo }}
               </el-badge>
@@ -100,7 +101,9 @@
             <el-row>
               <div style="float:left;width: 160px;font-weight: bold;font-size: xx-large">异常占比：</div>
               <div style="float:left;font-family: 'led regular';font-size: xxx-large;color: green">
-                {{ this.lastDayScrapRate.outCount > 0 ? (this.lastDayAbnormalCount * 1.0 / this.lastDayScrapRate.outCount * 100).toFixed(2) : '0.00' }}%
+                {{
+                  this.lastDayScrapRate.outCount > 0 ? (this.lastDayAbnormalCount * 1.0 / this.lastDayScrapRate.outCount * 100).toFixed(2) : '0.00'
+                }}%
               </div>
             </el-row>
           </el-col>
@@ -108,7 +111,8 @@
       </el-card>
       <div class="" style="width: 100%;height: 450px;margin-top: 20px">
         <!-- 表头 -->
-        <div class="warp-title" style="height: 25px;background-color: #f5f7fa;">
+        <div class="warp-title" style="height: 25px;background-color: #f5f7fa;cursor: pointer"
+             @dblclick="abnormalListDialog = true">
           <ul class="item">
             <li>
               <span class="id" style="width: 30px;font-weight: bold;text-align: center">序号</span>
@@ -135,7 +139,8 @@
               <li v-for="(item, index) of abnormalList" :key="index"
                   :style="{backgroundColor:((index+1)%2 == 0) ? '#f0f9eb' : '#ffffff'}">
                 <span class="id" style="width: 30px;text-align: center" v-text="index + 1"></span>
-                <span class="toolNo" style="width: 80px;text-align: center" v-text="item.toolNo"></span>
+                <span class="toolNo" style="width: 80px;text-align: center;cursor: pointer" v-text="item.toolNo"
+                      @click="onGetToolHisClick(item.toolNo, item.matCode, item.matName)"></span>
                 <span class="matCode" style="width: 100px;text-align: center" v-text="item.matCode"></span>
                 <span class="matName" style="width: 280px;text-align: center" v-text="item.matName"></span>
                 <span class="lifeSalvage" style="width: 80px;text-align: center" v-text="item.lifeSalvage"></span>
@@ -151,8 +156,8 @@
                   <template #content>
                     <p>原因：{{ item.reason }}</p>
                   </template>
-                <span class="reasonTxt" style="width: 300px;text-overflow:ellipsis;overflow:hidden;text-align: center"
-                      v-text="item.reason"></span>
+                  <span class="reasonTxt" style="width: 300px;text-overflow:ellipsis;overflow:hidden;text-align: center"
+                        v-text="item.reason"></span>
                 </el-tooltip>
                 <span v-else class="reasonTxt" style="width: 300px;text-align: center">
                   <el-tag type="danger">原因未填写</el-tag>
@@ -169,7 +174,17 @@
         </div>
       </div>
       <el-dialog v-model="reasonDialog" title="刀具异常原因填写" :close-on-click-modal="false">
-        <el-input v-model="addReasonDialog.abnormalTool.reason" auto-complete="off" placeholder="请填写异常原因"></el-input>
+        <el-select v-model="addReasonDialog.abnormalTool.abnormalType" filterable placeholder="请选择原因类型">
+          <el-option
+              v-for="item in abnormalType"
+              :key="item.typeCode"
+              :label="item.abnormalType"
+              :value="item.typeCode"
+          >
+          </el-option>
+        </el-select>
+        <el-input style="margin-top: 20px" v-model="addReasonDialog.abnormalTool.reason" auto-complete="off"
+                  placeholder="请填写异常原因"></el-input>
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
             <el-button @click="resetSelection">取消</el-button>
@@ -177,23 +192,115 @@
           </slot>
         </div>
       </el-dialog>
+
+      <el-dialog v-model="abnormalListDialog" title="刀具异常清单" :close-on-click-modal="false" width="90%">
+        <el-table
+            id="AbnormalListTable"
+            :data="abnormalList"
+            border
+            height="500px"
+            :key="1"
+            style="width: 100%;margin-top: 10px">
+          <el-table-column :width=60 prop="id" label="序号"></el-table-column>
+          <el-table-column :width=90 label="刀具编号">
+            <template v-slot="scope">
+            <span class="lifeRate" style="cursor: pointer" @click="onGetToolHisClick(scope.row.toolNo, scope.row.matCode, scope.row.matName)"
+                  v-text="scope.row.toolNo" ></span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=110 prop="matCode" label="刀具物料号"></el-table-column>
+          <el-table-column prop="matName" label="刀具名称"></el-table-column>
+          <el-table-column :width=100 prop="lifeSalvage" label="标准寿命"></el-table-column>
+          <el-table-column :width=100 prop="realLifeSalvage" label="实际寿命"></el-table-column>
+          <el-table-column :width=80 prop="lifeRate" label="寿命占比">
+            <template v-slot="scope">
+            <span class="lifeRate" style="width: 80px;text-align: center"
+                  v-text="(scope.row.realLifeSalvage * 1.0 / scope.row.lifeSalvage * 100).toFixed(2) + '%'"></span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=140 prop="scrapedTime" label="报废时间">
+            <template v-slot="scope">
+              <span v-text="this.$moment(scope.row.scrapedTime).format('YYYY/MM/DD HH:mm')"></span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=80 prop="area" label="工序" :filters="headFilters.area" :filter-method="filterHandler"></el-table-column>
+          <el-table-column :width=80 prop="lastMachineNo" label="机床号"></el-table-column>
+          <el-table-column label="原因">
+            <template v-slot="scope">
+              <el-tooltip v-if="scope.row.reason != null" placement="top">
+                <template #content>
+                  <p>原因：{{ scope.row.reason }}</p>
+                </template>
+                <span class="reasonTxt" style="text-overflow:ellipsis;overflow:hidden;text-align: center"
+                      v-text="scope.row.reason"></span>
+              </el-tooltip>
+              <span v-else class="reasonTxt" style="text-align: center">
+                  <el-tag type="danger">原因未填写</el-tag>
+                </span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=100 label="原因填写">
+            <template v-slot="scope">
+              <el-button type="primary" icon="el-icon-edit" circle @click="onAddReasonClick(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+          <el-table-column :width=100 label="确认">
+            <template v-slot="scope">
+              <el-button type="success" icon="el-icon-check" circle
+                         @click="onConfirmReasonClick(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
+      <el-dialog v-model="toolHisListDialog" title="刀具运转明细" :close-on-click-modal="false" width="60%">
+        <el-table
+            id="ToolHisListTable"
+            :data="toolHisList"
+            border
+            height="500px"
+            :key="1"
+            style="width: 100%;margin-top: 10px">
+          <el-table-column :width=90 prop="toolNo" label="刀具编号"></el-table-column>
+          <el-table-column :width=110 prop="matCode" label="刀具物料号"></el-table-column>
+          <el-table-column prop="matName" label="刀具名称"></el-table-column>
+          <el-table-column :width=80 prop="machineNo" label="机床号"></el-table-column>
+          <el-table-column :width=90 prop="programName" label="程序名"></el-table-column>
+          <el-table-column :width=140 label="开始时间">
+            <template v-slot="scope">
+              <span v-text="this.$moment(scope.row.startTime).format('YYYY/MM/DD HH:mm')"></span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=140 label="结束时间">
+            <template v-slot="scope">
+              <span v-text="this.$moment(scope.row.endTime).format('YYYY/MM/DD HH:mm')"></span>
+            </template>
+          </el-table-column>
+          <el-table-column :width=110 label="使用时长(min)">
+            <template v-slot="scope">
+            <span class="lifeRate" style="width: 80px;text-align: center"
+                  v-text="(scope.row.totalTime * 1.0 / 60).toFixed(2)"></span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { Client } from '@stomp/stompjs';
+import {Client} from '@stomp/stompjs';
 import scroll from 'vue-seamless-scroll/src'
 import {MQTT_PASSWORD, MQTT_SERVICE, MQTT_TOPIC_TOOL_LIFE, MQTT_USERNAME} from '@/utils/msgConfig'
 import {
   addAbnormalReason, confirmAbnormalReason,
-  getAbnormalList,
+  getAbnormalList, getAbnormalType,
   getAreaInfo, getLastDayAbnormalCount,
   getLastDayScrapCount,
-  getLastDayTotalTime,
+  getLastDayTotalTime, getToolHisList,
   getToolMaintainStatus
 } from "@/api/iot/mold";
 import {getUsername} from "@/utils/auth";
+import {tableFilter} from "@/utils/baseUtils";
 
 export default {
   name: "index",
@@ -202,6 +309,10 @@ export default {
   },
   data() {
     return {
+      toolHisList: [],
+      toolHisListDialog: false,
+      abnormalListDialog: false,
+      abnormalType: [],
       addReasonDialog: {abnormalTool: {}},
       reasonDialog: false,
       editReasonLoading: false,
@@ -264,7 +375,10 @@ export default {
         singleWidth: 0,   // 单步运动停止的宽度(默认值0是无缝不停止的滚动) direction => 2/3
         waitTime: 1000    // 单步运动停止的时间(默认值1000ms)
       }
-    }
+    },
+    headFilters(){
+      return tableFilter(this.abnormalList)
+    },
   },
   mounted() {
     this.getMachineAreaInfo();
@@ -272,41 +386,63 @@ export default {
     this.getToolMaintainStatus();
   },
   methods: {
-    submitForm() {
-        if (this.addReasonDialog.abnormalTool.reason != null && this.addReasonDialog.abnormalTool.reason.length > 0) {
-          this.$confirm('确认提交吗？', '提示', {}).then(() => {
-            this.addReasonDialog.abnormalTool.checkedPerson = getUsername()
-            this.editReasonLoading = true
-            addAbnormalReason(this.addReasonDialog.abnormalTool).then((response) => {
-              const responseData = response.data
-              if (responseData.code === '000000') {
-                this.$message({message: '添加原因成功！', type: 'success'})
-                this.addReasonDialog = {abnormalTool: {}}
-                this.reasonDialog = false
-              }else{
-                this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
-              }
-              this.getAbnormalInfo()
-              this.editReasonLoading = false
-            }).catch(()=>{
-              this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
-              this.editReasonLoading = false
-            })
+    filterHandler(value, row, column) {
+      const property = column['property'];
+      return row[property] === value;
+    },
+    onGetToolHisClick(toolNo, matCode, matName) {
+      getToolHisList(toolNo).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.toolHisList = responseData.data
+          this.toolHisList.forEach(item => {
+            item.toolNo = toolNo
+            item.matCode = matCode
+            item.matName = matName
           })
-        }else{
-          this.$message({message: '操作失败,原因不能为空', type: 'error'})
+          this.toolHisListDialog = true
+        } else {
+          this.$message({message: '查找明细失败，请联系管理员', type: 'error'})
         }
+      })
+
+    },
+    submitForm() {
+      if (this.addReasonDialog.abnormalTool.reason != null && this.addReasonDialog.abnormalTool.reason.length > 0 && this.addReasonDialog.abnormalTool.abnormalType != null) {
+        this.$confirm('确认提交吗？', '提示', {}).then(() => {
+          this.addReasonDialog.abnormalTool.checkedPerson = getUsername()
+          this.editReasonLoading = true
+          addAbnormalReason(this.addReasonDialog.abnormalTool).then((response) => {
+            const responseData = response.data
+            if (responseData.code === '000000') {
+              this.$message({message: '添加原因成功！', type: 'success'})
+              this.addReasonDialog = {abnormalTool: {}}
+              this.reasonDialog = false
+            } else {
+              this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
+            }
+            this.getAbnormalInfo()
+            this.editReasonLoading = false
+          }).catch(() => {
+            this.$message({message: '添加原因失败，请联系管理员', type: 'error'})
+            this.editReasonLoading = false
+          })
+        })
+      } else {
+        this.$message({message: '操作失败,原因不能为空', type: 'error'})
+      }
     },
     resetSelection() {
       this.addReasonDialog = {abnormalTool: {}}
       this.reasonDialog = false
     },
     onAddReasonClick(item) {
+      this.getAbnormalType()
       this.addReasonDialog.abnormalTool = Object.assign({}, item)
       this.reasonDialog = true
     },
     onConfirmReasonClick(item) {
-      if(item.reason == null){
+      if (item.reason == null) {
         this.$message({message: '异常原因未填写，请安排人员填写原因！', type: 'error'})
         return
       }
@@ -318,11 +454,11 @@ export default {
           if (responseData.code === '000000') {
             this.getAbnormalInfo()
             this.$message({message: '确认成功！', type: 'success'})
-          }else{
+          } else {
             this.$message({message: '确认失败，请联系管理员', type: 'error'})
           }
           this.editReasonLoading = false
-        }).catch(()=>{
+        }).catch(() => {
           this.$message({message: '确认失败，请联系管理员', type: 'error'})
           this.editReasonLoading = false
         })
@@ -358,7 +494,7 @@ export default {
     },
     onFailed: function (msg) {
       console.log(new Date() + "报错:" + msg);
-     // this.reconnect()
+      // this.reconnect()
     },
     //成功时的回调函数
     responseCallback: function (msg) {
@@ -494,6 +630,14 @@ export default {
           const {areaInfo, areaCode} = responseData.data
           this.areaInfo = areaInfo
           this.areaCode = areaCode
+        }
+      })
+    },
+    getAbnormalType() {
+      getAbnormalType().then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.abnormalType = responseData.data
         }
       })
     }
