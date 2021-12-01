@@ -263,6 +263,7 @@
           <el-table-column :width=90 prop="toolNo" label="刀具编号"></el-table-column>
           <el-table-column :width=110 prop="matCode" label="刀具物料号"></el-table-column>
           <el-table-column prop="matName" label="刀具名称"></el-table-column>
+          <el-table-column :width=120 prop="monitorNo" label="监控号"></el-table-column>
           <el-table-column :width=80 prop="machineNo" label="机床号"></el-table-column>
           <el-table-column :width=90 prop="programName" label="程序名"></el-table-column>
           <el-table-column :width=140 label="开始时间">
@@ -275,7 +276,7 @@
               <span v-text="this.$moment(scope.row.endTime).format('YYYY/MM/DD HH:mm')"></span>
             </template>
           </el-table-column>
-          <el-table-column :width=110 label="使用时长(min)">
+          <el-table-column :width=120 label="使用时长(min)">
             <template v-slot="scope">
             <span class="lifeRate" style="width: 80px;text-align: center"
                   v-text="(scope.row.totalTime * 1.0 / 60).toFixed(2)"></span>
