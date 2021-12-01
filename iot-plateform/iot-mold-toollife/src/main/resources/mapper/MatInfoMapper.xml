@@ -6,7 +6,8 @@
         SELECT ITSD.CODE_NO  AS handle_code,
                ITSD2.CODE_NO AS tool_code,
                BM.MAT_CODE   AS mat_code,
-               BM.MAT_NAME   AS mat_name
+               BM.MAT_NAME   AS mat_name,
+               BM.LIFE_SALVAGE AS life_salvage
         FROM INV_TOOL_SPLIT_DETAIL ITSD
                  JOIN TOOL_COMBINED TC ON TC.MAIN_TOOL_ID = ITSD.ID AND TC.IS_SPLIT = 0
                  JOIN TOOL_COMBINED_DETAILED TCD ON TCD.PID = TC.ID AND TCD.IS_SPLIT = 0

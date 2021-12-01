@@ -35,6 +35,19 @@
                        @click="addMachineProgramSheet()">新增程序单机台
             </el-button>
           </el-row>
+          <el-row style="padding: 10px">
+            <span style="padding-top: 10px">批量设置机台号：</span>
+<!--            <el-input style="width: 250px;margin-right: 10px" v-model="allMachineNumber" placeholder="请输入机台号" @change="changeAllMachineNumber"></el-input>-->
+            <el-select v-model="allMachineNumber" filterable placeholder="请选择机台号" style="width: 250px" @change="changeAllMachineNumber">
+              <el-option
+                  v-for="item in machineNameList"
+                  :key="item.fequipName"
+                  :label="item.fequipName"
+                  :value="item.fequipName"
+              >
+              </el-option>
+            </el-select>
+          </el-row>
         </el-col>
         <el-col :span="14">
           <el-upload
@@ -78,9 +91,10 @@
         <el-table-column prop="cutDepth" label="切深"></el-table-column>
         <el-table-column prop="feed" label="进给"></el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
-        <el-table-column :width=120 fixed="left" prop="machineNo" label="机台号">
+<!--        <el-table-column prop="machineNo" :width=120 fixed="left"  label="机台号"></el-table-column>-->
+
+        <el-table-column prop="machineNo" :width=120 fixed="left"  label="机台号">
           <template v-slot="scope">
-<!--            <span v-if="machineName.length === 0">{{ scope.row.machineNo }}</span>-->
             <el-select-v2
                 size="mini"
                 v-if="scope.row.isSelected"
@@ -88,8 +102,9 @@
                 filterable
                 placeholder="请选择"
                 :options="machineOptions"
-                @blur="cellEvent(scope.row)"/>
-            <span v-else>{{ machineName }}</span>
+                @change="cellEventForMachineNo(scope.row)"/>
+<!--            <span v-else>{{ machineName }}</span>-->
+                <span v-else>{{scope.row.machineNo}}</span>
           </template>
         </el-table-column>
         <el-table-column :width=120 fixed="left" prop="handleCode" label="刀柄编码">
@@ -120,6 +135,16 @@
         <el-table-column :width=230 fixed="left" prop="matName" label="物料名称">
           <template v-slot="scope">
             <span :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.matName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :width=100 fixed="left" prop="lifeSalvage" label="标准寿命">
+          <template v-slot="scope">
+            <span :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.lifeSalvage }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :width=100 fixed="left" prop="actualLife" label="实际寿命">
+          <template v-slot="scope">
+            <span :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.actualLife }}</span>
           </template>
         </el-table-column>
         <el-table-column :width=200 prop="createDateTime" label="创建时间"></el-table-column>
@@ -170,7 +195,7 @@ export default {
       addMachineLoading: false,
       dialogMachineName: "",
       selectLoading: false,
-      machineName: "",
+                                                                                                                                                                                                                                                                              machineName: "",
       machineNameList: [],
       matInfoList: [],
       matInfo: {},
@@ -179,14 +204,17 @@ export default {
       toolLifeLoading: false,
       saveBtnLoading: false,
       programSheetMachineList: [],
-      programSheetMachineNo: ""
+      programSheetMachineNo: "",
+      allMachineNumber: ""
     }
   },
   computed: {
     moldToolLifeSheetByMachine(){
       if(this.programSheetMachineList.length > 1){
+        //console.log(this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo))
         return this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo)
       }else{
+        //console.log(this.moldToolLifeSheet)
         return this.moldToolLifeSheet
       }
     },
@@ -239,6 +267,16 @@ export default {
       }
     },
     cellEvent(row) {
+      row.isSelected = !row.isSelected
+      console.log(row)
+    },
+    cellEventForMachineNo(row) {
+      var data = this.moldToolLifeSheetByMachine;
+      for(var i=0; i < data.length; i++) {
+        if(row.id == data[i].id) {
+          data[i].machineNo = this.machineName
+        }
+      }
       row.isSelected = !row.isSelected
     },
     cellClick(row, column) {
@@ -374,6 +412,12 @@ export default {
     },
     getFontColor(isCheck) {
       return isCheck == null || isCheck ? 'color:black' : 'color:red'
+    },
+    changeAllMachineNumber() {
+      var data = this.moldToolLifeSheetByMachine;
+      for(var i=0; i < data.length; i++) {
+        data[i].machineNo = this.allMachineNumber
+      }
     }
   },
 };

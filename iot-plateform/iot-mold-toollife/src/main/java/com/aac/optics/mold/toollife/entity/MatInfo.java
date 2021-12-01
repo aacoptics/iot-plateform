@@ -28,4 +28,7 @@ public class MatInfo implements Serializable {
 
     @TableField("mat_name")
     private String matName;
+
+    @TableField("life_salvage")
+    private String lifeSalvage;
 }

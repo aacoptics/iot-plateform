@@ -2,7 +2,9 @@ package com.aac.optics.mold.toollife.service.impl;
 
 import com.aac.optics.mold.toollife.dao.ToolInfoMapper;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.entity.ToolInfoHistory;
 import com.aac.optics.mold.toollife.entity.UpdateSheetForm;
+import com.aac.optics.mold.toollife.service.ToolInfoHistoryService;
 import com.aac.optics.mold.toollife.service.ToolInfoService;
 import com.aac.optics.mold.toollife.util.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,6 +30,10 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
 
     @Autowired
     ToolInfoMapper toolInfoMapper;
+
+    @Autowired
+    ToolInfoHistoryService toolInfoHistoryService;
+
 
     @Override
     public String phaseExcelData(InputStream in) {
@@ -117,9 +123,47 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
     public boolean updateToolLifeInfo(List<ToolInfo> toolInfos) {
         try {
             for (ToolInfo toolInfo : toolInfos) {
-                if (!StringUtils.isBlank(toolInfo.getMachineNo()) ||
-                        (toolInfo.getMatInfo() != null &&
-                                !StringUtils.isBlank(toolInfo.getMatInfo().getHandleCode()))) {
+                //如果刀柄编码不为空，将该条记录插入到history表中 ，然后再更新sheet表
+//                if (!StringUtils.isBlank(toolInfo.getMachineNo()) ||
+//                        (toolInfo.getMatInfo() != null &&
+//                                !StringUtils.isBlank(toolInfo.getMatInfo().getHandleCode()))) {
+//                    updateInfo(toolInfo);
+//                }
+                QueryWrapper<ToolInfo> wrapper = new QueryWrapper<>();
+                wrapper.eq("id", toolInfo.getId());
+                ToolInfo toolInfoQuery = getOne(wrapper);
+                String matHandleCode = toolInfoQuery.getMatHandleCode();
+                if(!StringUtils.isBlank(matHandleCode)) {
+                    ToolInfoHistory toolInfoHistory = new ToolInfoHistory();
+                    toolInfoHistory.setWorkpiece(toolInfo.getWorkpiece());
+                    toolInfoHistory.setMonitorNo(toolInfo.getMonitorNo());
+                    toolInfoHistory.setMaterial(toolInfo.getMaterial());
+                    toolInfoHistory.setRoute(toolInfo.getRoute());
+                    toolInfoHistory.setProgramName(toolInfo.getProgramName());
+                    toolInfoHistory.setToolDiameter(toolInfo.getToolDiameter());
+                    toolInfoHistory.setToolNo(toolInfo.getToolNo());
+                    toolInfoHistory.setType(toolInfo.getType());
+                    toolInfoHistory.setMargin(toolInfo.getMargin());
+                    toolInfoHistory.setToolValidLength(toolInfo.getToolValidLength());
+                    toolInfoHistory.setBrand(toolInfo.getBrand());
+                    toolInfoHistory.setMaxDepth(toolInfo.getMaxDepth());
+                    toolInfoHistory.setWorkTime(toolInfo.getWorkTime());
+                    toolInfoHistory.setCutDepth(toolInfo.getCutDepth());
+                    toolInfoHistory.setFeed(toolInfo.getFeed());
+                    toolInfoHistory.setRemark(toolInfo.getRemark());
+                    toolInfoHistory.setCreateDateTime(toolInfo.getCreateDateTime());
+                    toolInfoHistory.setMachineNo(toolInfo.getMachineNo());
+                    toolInfoHistory.setToolName(toolInfo.getToolName());
+                    toolInfoHistory.setMatHandleCode(toolInfo.getMatHandleCode());
+                    toolInfoHistory.setMatToolCode(toolInfo.getMatToolCode());
+                    toolInfoHistory.setMatCode(toolInfo.getMatCode());
+                    toolInfoHistory.setMatName(toolInfo.getMatName());
+                    toolInfoHistory.setLifeSalvage(toolInfo.getLifeSalvage());
+                    toolInfoHistory.setMaintenanceDateTime(toolInfo.getMaintenanceDateTime());
+                    toolInfoHistoryService.addToolInfoHistory(toolInfoHistory);
+
+                    updateInfo(toolInfo);
+                } else {
                     updateInfo(toolInfo);
                 }
             }
@@ -156,9 +200,10 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             updateWrapper.set("mat_handle_code", toolInfo.getMatInfo().getHandleCode())
                     .set("mat_tool_code", toolInfo.getMatInfo().getToolCode())
                     .set("mat_code", toolInfo.getMatInfo().getMatCode())
-                    .set("mat_name", toolInfo.getMatInfo().getMatName());
+                    .set("mat_name", toolInfo.getMatInfo().getMatName())
+                    .set("life_salvage", toolInfo.getMatInfo().getLifeSalvage());
         }
-        updateWrapper.set("machine_no", toolInfo.getMachineNo())
+        updateWrapper.set("machine_no", toolInfo.getMachineNo()).set("maintenance_date_time", new Date())
                 .eq("id", toolInfo.getId());
         update(updateWrapper);
     }

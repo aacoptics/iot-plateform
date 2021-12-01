@@ -11,12 +11,11 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
 @Data
 @EqualsAndHashCode()
 @Accessors(chain = true)
-@TableName("tb_mold_program_sheet")
-public class ToolInfo implements Serializable {
+@TableName("tb_mold_program_sheet_history")
+public class ToolInfoHistory implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -84,6 +83,4 @@ public class ToolInfo implements Serializable {
                 .setMatCode(this.matCode)
                 .setMatName(this.matName);
     }
-
-
 }
