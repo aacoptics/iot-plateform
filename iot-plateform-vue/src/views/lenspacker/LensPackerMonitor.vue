@@ -44,14 +44,7 @@
                   <!--                  </div>-->
                   <div v-if="singleMachineInfo.status === 2"
                        :style="'background-color:' + statusType[getMachineStatus(singleMachineInfo.status)] + ';height:30px;line-height:30px'">
-                    <!--                    <el-row>-->
-                    <!--                      <el-col :span="6">-->
-                    <!--                        {{ getMachineStatus(singleMachineInfo.status) + ':' }}-->
-                    <!--                      </el-col>-->
-                    <!--                      <el-col :span="18">-->
-                    <!--                        <marquee behavior="scroll" scrolldelay="200"> {{ singleMachineInfo.alarmInfo }}</marquee>-->
-                    <!--                      </el-col>-->
-                    <!--                    </el-row>-->
+
                     {{ singleMachineInfo.alarmInfo }}
                   </div>
                   <div v-else

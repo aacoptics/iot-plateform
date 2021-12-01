@@ -1,5 +1,6 @@
 package com.aac.optics.provider.jira.controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
@@ -12,7 +13,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +37,19 @@ public class JiraProviderController {
   //      List<Tree<String>> issueTrees = new ArrayList<>();
 //        if(SprintValues.size() > 0){
 //            String sprintId = ((JSONObject)SprintValues.get(0)).getString("id");
-        List<Tree<String>> issueTrees = jiraService.getSpringIssues(sprintIds);
+        LocalDateTime startTime = LocalDateTime.MAX;
+        LocalDateTime endTime = LocalDateTime.MIN;
+        for (String sprintId : sprintIds) {
+            JSONObject sprintJson = jiraService.getSprintDetail(sprintId);
+            LocalDateTime tempStartTime = DateUtil.parse(sprintJson.getString("startDate"), "yyyy-MM-dd'T'hh:mm:ss.SSS'+08:00'").toTimestamp().toLocalDateTime();
+            LocalDateTime tempEndTime = DateUtil.parse(sprintJson.getString("endDate"), "yyyy-MM-dd'T'hh:mm:ss.SSS'+08:00'").toTimestamp().toLocalDateTime();
+            if(tempStartTime.isBefore(startTime))
+                startTime = tempStartTime;
+            if(tempEndTime.isAfter(endTime))
+                endTime = tempEndTime;
+        }
+
+        List<Tree<String>> issueTrees = jiraService.getSpringIssues(sprintIds,startTime,endTime);
 //        }else{
 //            return Result.fail("无活动的Sprint");
 //        }

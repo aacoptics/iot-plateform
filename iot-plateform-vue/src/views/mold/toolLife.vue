@@ -184,7 +184,7 @@ export default {
   },
   computed: {
     moldToolLifeSheetByMachine(){
-      if(this.programSheetMachineList.length > 1){
+      if(this.programSheetMachineList.length && this.programSheetMachineList.length > 1){
         return this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo)
       }else{
         return this.moldToolLifeSheet
@@ -323,12 +323,16 @@ export default {
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
-        this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
-        if(this.programSheetMachineNo === '') {
-          this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
-          this.programSheetMachineNo = this.machineName
+        if(this.moldToolLifeSheet.length > 0) {
+          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+          if (this.programSheetMachineNo === '') {
+            this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
+            this.programSheetMachineNo = this.machineName
+          } else {
+            this.machineName = this.programSheetMachineNo
+          }
         }else{
-          this.machineName = this.programSheetMachineNo
+          this.$message.warning('查询不到该监控号数据！')
         }
         this.toolLifeLoading = false
       }).catch((err) => {
