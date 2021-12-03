@@ -311,9 +311,10 @@ export default {
           this.$message.error('保存失败，存在直径不匹配的刀柄（表格已标红）')
           return;
         }
-        if (this.machineName.length > 0) {
-          tempMoldList[i].machineNo = this.machineName
-        }
+        //无需批量赋值机台号
+        // if (this.machineName.length > 0) {
+        //   tempMoldList[i].machineNo = this.machineName
+        // }
       }
       this.saveBtnLoading = true
       updateToolInfo({toolInfos: tempMoldList, machineNo: null}).then((response) => {

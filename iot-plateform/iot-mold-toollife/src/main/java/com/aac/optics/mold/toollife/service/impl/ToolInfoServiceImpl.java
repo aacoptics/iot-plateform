@@ -44,7 +44,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             excelDataList = ExcelUtil.read(in).get(0);
             String workpiece = excelDataList.get(3)[2];
             monitorNo = excelDataList.get(3)[12];
-            if(StringUtils.isBlank(monitorNo))
+            if (StringUtils.isBlank(monitorNo))
                 return "";
             String material = excelDataList.get(16)[17];
             Pattern isSwo = Pattern.compile("^O?([\\d]{3,5})+([\\S]*)?$");
@@ -52,7 +52,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             for (String[] strings : excelDataList) {
                 String programName = strings[1].trim();
                 if (!StringUtils.isBlank(programName) & isSwo.matcher(programName).matches()) {
-                    if(programName.indexOf("O") != 0){
+                    if (programName.indexOf("O") != 0) {
                         programName = "O" + programName;
                     }
                     ToolInfo toolInfo = new ToolInfo();
@@ -133,7 +133,13 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 wrapper.eq("id", toolInfo.getId());
                 ToolInfo toolInfoQuery = getOne(wrapper);
                 String matHandleCode = toolInfoQuery.getMatHandleCode();
-                if(!StringUtils.isBlank(matHandleCode)) {
+                String matToolCode = toolInfoQuery.getMatToolCode();
+
+                if (!StringUtils.isBlank(matHandleCode)) {
+                    //如果修改后的刀具编码跟原来的相同 那就跳过该条数据 执行下一个循环
+                    if(matToolCode.equals(toolInfo.getMatInfo().getToolCode())) {
+                        continue;
+                    }
                     ToolInfoHistory toolInfoHistory = new ToolInfoHistory();
                     toolInfoHistory.setWorkpiece(toolInfo.getWorkpiece());
                     toolInfoHistory.setMonitorNo(toolInfo.getMonitorNo());
@@ -154,10 +160,14 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                     toolInfoHistory.setCreateDateTime(toolInfo.getCreateDateTime());
                     toolInfoHistory.setMachineNo(toolInfo.getMachineNo());
                     toolInfoHistory.setToolName(toolInfo.getToolName());
-                    toolInfoHistory.setMatHandleCode(toolInfo.getMatHandleCode());
-                    toolInfoHistory.setMatToolCode(toolInfo.getMatToolCode());
-                    toolInfoHistory.setMatCode(toolInfo.getMatCode());
-                    toolInfoHistory.setMatName(toolInfo.getMatName());
+//                    toolInfoHistory.setMatHandleCode(toolInfo.getMatHandleCode());
+//                    toolInfoHistory.setMatToolCode(toolInfo.getMatToolCode());
+//                    toolInfoHistory.setMatCode(toolInfo.getMatCode());
+//                    toolInfoHistory.setMatName(toolInfo.getMatName());
+                    toolInfoHistory.setMatHandleCode(toolInfo.getMatInfo().getHandleCode());
+                    toolInfoHistory.setMatToolCode(toolInfo.getMatInfo().getToolCode());
+                    toolInfoHistory.setMatCode(toolInfo.getMatInfo().getMatCode());
+                    toolInfoHistory.setMatName(toolInfo.getMatInfo().getMatName());
                     toolInfoHistory.setLifeSalvage(toolInfo.getLifeSalvage());
                     toolInfoHistory.setMaintenanceDateTime(toolInfo.getMaintenanceDateTime());
                     toolInfoHistoryService.addToolInfoHistory(toolInfoHistory);
@@ -166,6 +176,8 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 } else {
                     updateInfo(toolInfo);
                 }
+
+
             }
             return true;
         } catch (Exception err) {
@@ -201,26 +213,26 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                     .set("mat_tool_code", toolInfo.getMatInfo().getToolCode())
                     .set("mat_code", toolInfo.getMatInfo().getMatCode())
                     .set("mat_name", toolInfo.getMatInfo().getMatName())
-                    .set("life_salvage", toolInfo.getMatInfo().getLifeSalvage());
+                    .set("life_salvage", toolInfo.getMatInfo().getLifeSalvage())
+                    .set("maintenance_date_time", new Date());
         }
-        updateWrapper.set("machine_no", toolInfo.getMachineNo()).set("maintenance_date_time", new Date())
+        updateWrapper.set("machine_no", toolInfo.getMachineNo())
                 .eq("id", toolInfo.getId());
         update(updateWrapper);
     }
 
-    public Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos){
+    public Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos) {
         Map<String, Boolean> res = new HashMap<>();
-        if(monitorNos.size() == 0){
+        if (monitorNos.size() == 0) {
             return res;
         }
         Set<String> monitorNoSet = new HashSet<>(monitorNos);
         List<ToolInfo> toolInfos = toolInfoMapper.getToolMaintainStatus(monitorNoSet);
         for (String monitorNo : monitorNoSet) {
             List<ToolInfo> temp = toolInfos.stream().filter(toolInfo -> toolInfo.getMonitorNo().equals(monitorNo)).collect(Collectors.toList());
-            if(temp.size() > 0 && temp.get(0).getMachineNo() != null){
+            if (temp.size() > 0 && temp.get(0).getMachineNo() != null) {
                 res.put(monitorNo, true);
-            }
-            else{
+            } else {
                 res.put(monitorNo, false);
             }
         }
