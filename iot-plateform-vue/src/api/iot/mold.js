@@ -23,6 +23,20 @@ export function getByMonitorNo(monitorNo) {
     })
 }
 
+export function getByMonitorNoAndMachineNo(monitorNo, machineNo) {
+    return request({
+        url: '/moldToolLife/toolLife/getMachineNoByMonitorNo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            monitorNo: monitorNo,
+            machineNo: machineNo
+        }
+    })
+}
+
 export function updateToolInfo(param) {
     return request({
         url: '/moldToolLife/toolLife/updateToolInfo',
@@ -170,15 +184,3 @@ export function getAbnormalList() {
     })
 }
 
-export function getMachineNoByMonitorNo(monitorNo) {
-    return request({
-        url: '/moldToolLife/toolLife/getMachineNoByMonitorNo',
-        method: 'get',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        params: {
-            monitorNo: monitorNo
-        }
-    })
-}

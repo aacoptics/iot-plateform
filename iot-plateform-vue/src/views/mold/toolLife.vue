@@ -5,10 +5,10 @@
         <el-col :span="10">
           <el-row style="padding: 10px">
             <el-input style="width: 250px;margin-right: 10px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
-            <el-button style="margin-left: 10px" type="primary" icon="el-icon-search" @click="getMachineNoByMonitorNo(null)">查询机台号
+            <el-button style="margin-left: 10px" type="primary" icon="el-icon-search" @click="getMachineNoByMonitorNo(null)">查询（全部）
             </el-button>
           </el-row>
-          <el-row style="padding: 10px" v-if="programSheetMachineList.length > 1">
+          <el-row style="padding: 10px" v-if="programSheetMachineList.length > 0">
             <el-select v-model="programSheetMachineNo" filterable placeholder="请选择机台号" style="width: 250px" @change="onProgramMachineChange">
               <el-option
                   v-for="item in programSheetMachineList"
@@ -20,7 +20,7 @@
             </el-select>
           </el-row>
           <el-row style="padding: 10px">
-            <el-button style="margin-right: 10px" type="primary" icon="el-icon-search" @click="getByMonitorNo(null)">查询
+            <el-button style="margin-right: 10px" type="primary" icon="el-icon-search" @click="getByMonitorNo(null)">查询（单类）
             </el-button>
             <el-button style="margin-right: 10px" type="success" :loading="saveBtnLoading" icon="el-icon-check"
                        @click="saveEditInfo()">保存
@@ -170,7 +170,7 @@ import {
   getByMonitorNo,
   updateToolInfo,
   getMachineList,
-  getMatInfoList, getMachineNoByMonitorNo,
+  getMatInfoList, getByMonitorNoAndMachineNo,
 } from "@/api/iot/mold";
 import {tableFilter} from "@/utils/baseUtils";
 
@@ -273,13 +273,8 @@ export default {
       for(var i=0; i < this.moldToolLifeSheetByMachine.length; i++) {
         if(row.id == this.moldToolLifeSheetByMachine[i].id) {
           this.moldToolLifeSheetByMachine[i].machineNo = this.machineName
-          console.log("this.machineName=" + this.machineName)
-          console.log("row1 machineNo=" + this.moldToolLifeSheetByMachine[i].machineNo)
-          console.log('test')
         }
       }
-      console.log("机台号：" + this.machineName)
-      console.log(this.moldToolLifeSheetByMachine[0].machineNo)
       row.isSelected = !row.isSelected
     },
     cellClick(row, column) {
@@ -358,22 +353,29 @@ export default {
       if (monitorNo == null) {
         monitorNo = this.monitorNo;
       }
-      getByMonitorNo(monitorNo).then((response) => {
+      console.log(this.programSheetMachineList)
+      if(this.programSheetMachineList.length == 0) {
+        this.$message.error('请先查询机台号')
+        return
+      }
+      var machineNo = this.programSheetMachineNo
+      console.log("machineNo is " + machineNo)
+      getByMonitorNoAndMachineNo(monitorNo, machineNo).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.moldToolLifeSheet = responseData.data;
-          console.log(responseData.data)
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
         if(this.moldToolLifeSheet.length > 0) {
-          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
-          if (this.programSheetMachineNo === '') {
-            this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
-            this.programSheetMachineNo = this.machineName
-          } else {
-            this.machineName = this.programSheetMachineNo
-          }
+          // this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+          // console.log(this.programSheetMachineList)
+          // if (this.programSheetMachineNo === '') {
+          //   this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
+          //   this.programSheetMachineNo = this.machineName
+          // } else {
+          //   this.machineName = this.programSheetMachineNo
+          // }
         }else{
           this.$message.warning('查询不到该监控号数据！')
         }
@@ -388,15 +390,21 @@ export default {
       if (monitorNo == null) {
         monitorNo = this.monitorNo;
       }
-      getMachineNoByMonitorNo(monitorNo).then((response) => {
+      getByMonitorNo(monitorNo).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
-          this.moldToolLifeSheet = responseData.data
+          this.moldToolLifeSheet = responseData.data; //查询到的所有数据
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
         if(this.moldToolLifeSheet.length > 0) {
-          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo //筛选出机台号
+          for(var i=0; i < this.programSheetMachineList.length; i++) {
+            if(this.programSheetMachineList[i].value === '') {
+              this.programSheetMachineList[i].text = '未绑定机台程序'
+            }
+          }
+          console.log(this.programSheetMachineList)
           if (this.programSheetMachineNo === '') {
             this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
             this.programSheetMachineNo = this.machineName

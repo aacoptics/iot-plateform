@@ -24,4 +24,6 @@ public interface ToolInfoService extends IService<ToolInfo> {
     Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos);
 
     List<ToolMachineNo> getToolMachineNo(String monitorNo);
+
+    List<ToolInfo> getToolInfoByMonitorNoAndMachineNo(String monitorNo, String machineNo);
 }

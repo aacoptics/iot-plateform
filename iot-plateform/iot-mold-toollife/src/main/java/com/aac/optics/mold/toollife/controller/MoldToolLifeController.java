@@ -80,10 +80,10 @@ public class MoldToolLifeController {
     }
 
     @ApiOperation(value = "根据MonitorNo查询刀具寿命对应机台号", notes = "根据MonitorNo查询刀具寿命对应机台号")
-    @ApiImplicitParam(name = "monitorNo", value = "监控号", required = true, dataType = "String")
+    //@ApiImplicitParam(name = "monitorNo", value = "监控号", required = true, dataType = "String")
     @GetMapping("/getMachineNoByMonitorNo")
-    public Result getMachineNoByMonitorNo(@RequestParam String monitorNo) {
-        return Result.success(toolInfoService.getToolMachineNo(monitorNo));
+    public Result getMachineNoByMonitorNo(@RequestParam String monitorNo, @RequestParam String machineNo) {
+        return Result.success(toolInfoService.getToolInfoByMonitorNoAndMachineNo(monitorNo, machineNo));
     }
 
     @ApiOperation(value = "根据MonitorNo查询维护状态", notes = "根据MonitorNo查询维护状态")

@@ -119,6 +119,17 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
     }
 
     @Override
+    public List<ToolInfo> getToolInfoByMonitorNoAndMachineNo(String monitorNo, String machineNo) {
+        QueryWrapper<ToolInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("monitor_no", monitorNo).eq("machine_no", machineNo);
+        List<ToolInfo> toolInfos = list(wrapper);
+        for (ToolInfo toolInfo : toolInfos) {
+            toolInfo.SetMoldMatInfo();
+        }
+        return toolInfos;
+    }
+
+    @Override
     public List<ToolMachineNo> getToolMachineNo(String monitorNo) {
         List<ToolInfo> totalToolInfoList = getToolInfo(monitorNo);
         List<ToolMachineNo> totalMachineNoList = new ArrayList<ToolMachineNo>();
