@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          包料机监控
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>包料机报警数据</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container">
       <el-row style="margin-bottom: 20px">
         <el-date-picker

@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          模具IoT
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>刀具寿命管控</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container" style="overflow: hidden;">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"

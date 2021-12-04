@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          B客户
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>MTF托盘维护</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container">
       <el-row>
         <el-col :span="8">

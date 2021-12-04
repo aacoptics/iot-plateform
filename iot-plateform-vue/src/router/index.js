@@ -32,20 +32,22 @@ const routes = [
 
 let isFetchRemote = true;
 
-const formatMenus = function (menuData, menuItems) {
+const formatMenus = function (menuData, menuItems, levelInfo = '') {
     if (!menuItems) {
         menuItems = [];
     }
     menuData.length && menuData.forEach(menu => {
+        const newParent = levelInfo ? levelInfo + '|' + menu.title : '' + menu.title;
         const menuItem = {
             icon: menu.icon,
             index: menu.path ? menu.path.replace("/", "") : menu.name,
-            title: menu.title
+            title: menu.title,
+            levelInfo: newParent
         }
         menuItems.push(menuItem)
         if (menu.children && menu.children.length) {
             menuItem.subs = [];
-            formatMenus(menu.children, menuItem.subs);
+            formatMenus(menu.children, menuItem.subs, newParent);
         }
     });
     return menuItems;

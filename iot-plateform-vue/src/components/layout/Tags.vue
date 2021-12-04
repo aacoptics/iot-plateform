@@ -14,6 +14,10 @@
       </li>
     </ul>
     <div class="tags-close-box">
+      <el-tooltip :content="fullscreen ? '退出全屏' : '全屏'" placement="bottom">
+        <i class="el-icon-full-screen" style="margin-right: 10px" @click="screen"></i>
+      </el-tooltip>
+
       <el-dropdown @command="handleTags">
         <el-button size="mini" type="primary">
           标签选项
@@ -30,8 +34,14 @@
   </div>
 </template>
 
+
 <script>
 export default {
+  data() {
+    return {
+      fullscreen: false
+    };
+  },
   computed: {
     tagsList() {
       return this.$store.state.tagsList;
@@ -41,6 +51,32 @@ export default {
     }
   },
   methods: {
+    screen() {
+      let element = document.documentElement;
+      if (this.fullscreen) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      } else {
+        if (element.requestFullscreen) {
+          element.requestFullscreen();
+        } else if (element.webkitRequestFullScreen) {
+          element.webkitRequestFullScreen();
+        } else if (element.mozRequestFullScreen) {
+          element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+          // IE11
+          element.msRequestFullscreen();
+        }
+      }
+      this.fullscreen = !this.fullscreen;
+    },
     isActive(path) {
       return path === this.$route.fullPath;
     },
@@ -171,7 +207,7 @@ export default {
   box-sizing: border-box;
   padding-top: 1px;
   text-align: center;
-  width: 110px;
+  width: 140px;
   height: 30px;
   background: #fff;
   box-shadow: -3px 0 15px 3px rgba(0, 0, 0, 0.1);
