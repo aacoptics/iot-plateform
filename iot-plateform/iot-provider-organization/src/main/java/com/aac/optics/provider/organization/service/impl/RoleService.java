@@ -18,11 +18,13 @@ import com.aac.optics.provider.organization.service.IUserRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,6 +38,9 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
 
     @Autowired
     private IRoleMenuService roleMenuService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public boolean add(Role role) {
@@ -55,11 +60,28 @@ public class RoleService extends ServiceImpl<RoleMapper, Role> implements IRoleS
 
     @Override
     @CacheInvalidate(name = "role::", key = "#role.id")
+    @CacheInvalidate(name = "menu4user::", key = "targetObject.getMenu4UserKeys()", multi = true)
+    @CacheInvalidate(name = "resource4user::", key = "targetObject.getResource4UserKeys()", multi = true)
+    @CacheInvalidate(area = "shortTime", name = "resource4role::", key = "#role.id")
     public boolean update(Role role) {
         boolean isSuccess = this.updateById(role);
         roleResourceService.saveBatch(role.getId(), role.getResourceIds());
         roleMenuService.saveBatch(role.getId(), role.getMenuIds());
         return isSuccess;
+    }
+
+    public Set<String> getMenu4UserKeys(){
+        Set<String> menu4UserKeys = stringRedisTemplate.keys("menu4user::" + "*");
+        return menu4UserKeys.stream().map(key -> {
+            return key.replace("menu4user::", StringUtils.EMPTY);
+        }).collect(Collectors.toSet());
+    }
+
+    public Set<String> getResource4UserKeys(){
+        Set<String> resource4UserKeys = stringRedisTemplate.keys("resource4user::" + "*");
+        return resource4UserKeys.stream().map(key -> {
+            return key.replace("resource4user::", StringUtils.EMPTY);
+        }).collect(Collectors.toSet());
     }
 
     @Override

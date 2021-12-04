@@ -54,6 +54,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
     @Override
     @Transactional
     @CacheInvalidate(name = "user::", key = "#user.id")
+    @CacheInvalidate(name = "role4user::", key = "#user.id")
     public boolean update(User user) {
         if (StringUtils.isNotBlank(user.getPassword()))
             user.setPassword(passwordEncoder.encode(user.getPassword()));

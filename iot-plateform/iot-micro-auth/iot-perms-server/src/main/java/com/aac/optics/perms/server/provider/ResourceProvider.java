@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.provider;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.perms.server.entity.Resource;
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +13,8 @@ import java.util.Set;
 public interface ResourceProvider {
 
     @GetMapping(value = "/resource/all")
-    Result<Set<Resource>> resources();
+    Result<Set<ResourceDefinition>> resources();
 
     @GetMapping(value = "/resource/user/{username}")
-    Result<Set<Resource>> resources(@PathVariable("username") String username);
+    Result<Set<ResourceDefinition>> resources(@PathVariable("username") String username);
 }

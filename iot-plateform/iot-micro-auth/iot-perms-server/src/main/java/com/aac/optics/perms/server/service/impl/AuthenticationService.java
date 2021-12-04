@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.service.impl;
 
 import com.aac.optics.perms.server.service.IAuthenticationService;
-import com.aac.optics.perms.server.entity.Resource;
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.ConfigAttribute;
@@ -37,20 +37,20 @@ public class AuthenticationService implements IAuthenticationService {
         if (NONEXISTENT_URL.equals(urlConfigAttribute.getAttribute()))
             log.debug("url未在资源池中找到，拒绝访问");
         //获取此访问用户所有角色拥有的权限资源
-        Set<Resource> userResources = findResourcesByUsername(authentication.getName());
+        Set<ResourceDefinition> userResourceDefinitions = findResourcesByUsername(authentication.getName());
         //用户拥有权限资源 与 url要求的资源进行对比
-        return isMatch(urlConfigAttribute, userResources);
+        return isMatch(urlConfigAttribute, userResourceDefinitions);
     }
 
     /**
      * url对应资源与用户拥有资源进行匹配
      *
      * @param urlConfigAttribute
-     * @param userResources
+     * @param userResourceDefinitions
      * @return
      */
-    public boolean isMatch(ConfigAttribute urlConfigAttribute, Set<Resource> userResources) {
-        return userResources.stream().anyMatch(resource -> resource.getCode().equals(urlConfigAttribute.getAttribute()));
+    public boolean isMatch(ConfigAttribute urlConfigAttribute, Set<ResourceDefinition> userResourceDefinitions) {
+        return userResourceDefinitions.stream().anyMatch(resourceDefinition -> resourceDefinition.getCode().equals(urlConfigAttribute.getAttribute()));
     }
 
     /**
@@ -59,12 +59,12 @@ public class AuthenticationService implements IAuthenticationService {
      * @param username
      * @return
      */
-    private Set<Resource> findResourcesByUsername(String username) {
+    private Set<ResourceDefinition> findResourcesByUsername(String username) {
         //用户被授予的角色资源
-        Set<Resource> resources = resourceService.queryByUsername(username);
+        Set<ResourceDefinition> resourceDefinitions = resourceService.queryByUsername(username);
         if (log.isDebugEnabled()) {
-            log.debug("用户被授予角色的资源数量是:{}, 资源集合信息为:{}", resources.size(), resources);
+            log.debug("用户被授予角色的资源数量是:{}, 资源集合信息为:{}", resourceDefinitions.size(), resourceDefinitions);
         }
-        return resources;
+        return resourceDefinitions;
     }
 }

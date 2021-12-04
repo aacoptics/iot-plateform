@@ -1,6 +1,6 @@
 package com.aac.optics.perms.server.service;
 
-import com.aac.optics.perms.server.entity.Resource;
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.stereotype.Service;
 
@@ -13,16 +13,16 @@ public interface IResourceService {
     /**
      * 动态新增更新权限
      *
-     * @param resource
+     * @param resourceDefinition
      */
-    void saveResource(Resource resource);
+    void saveResource(ResourceDefinition resourceDefinition);
 
     /**
      * 动态删除权限
      *
-     * @param resource
+     * @param resourceDefinition
      */
-    void removeResource(Resource resource);
+    void removeResource(ResourceDefinition resourceDefinition);
 
     /**
      * 加载权限资源数据
@@ -43,5 +43,5 @@ public interface IResourceService {
      * @param username
      * @return
      */
-    Set<Resource> queryByUsername(String username);
+    Set<ResourceDefinition> queryByUsername(String username);
 }
