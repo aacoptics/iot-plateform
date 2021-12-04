@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          系统管理
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>角色管理</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container">
       <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
         <el-form :inline="true" :size="size">
@@ -328,6 +320,15 @@ export default {
         this.resourceLoading = false
       })
     },
+    getChildrenList(arr, res){
+      arr.forEach(item => {
+        if(item.children && item.children.length > 0){
+          this.getChildrenList(item.children, res)
+        }else{
+          res.push(item)
+        }
+      })
+    },
     // 角色选择改变监听
     handleRoleSelectChange(val) {
       if (val == null || val.val == null) {
@@ -341,7 +342,9 @@ export default {
         const responseData = res.data
         if (responseData.code === '000000') {
           this.currentRoleMenus = responseData.data
-          this.$refs.menuTree.setCheckedNodes(responseData.data)
+          const children = []
+          this.getChildrenList(responseData.data, children)
+          this.$refs.menuTree.setCheckedNodes(children)
         }
       })
       findRoleResource(val.val.id).then((res) => {
@@ -356,7 +359,9 @@ export default {
     resetSelection() {
       this.menuCheckAll = false
       this.resourceCheckAll = false
-      this.$refs.menuTree.setCheckedNodes(this.currentRoleMenus)
+      const children = []
+      this.getChildrenList(this.currentRoleMenus, children)
+      this.$refs.menuTree.setCheckedNodes(children)
       this.$refs.resourceTree.setCheckedNodes(this.currentRoleResource)
       this.dialogVisible = false
     },

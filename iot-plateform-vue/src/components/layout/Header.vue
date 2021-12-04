@@ -5,7 +5,7 @@
       <i v-if="!collapse" class="el-icon-s-fold"></i>
       <i v-else class="el-icon-s-unfold"></i>
     </div>
-    <div class="logo">光学IoT平台</div>
+    <div class="logo">模组IoT平台</div>
     <div class="header-right">
       <div class="header-user-con">
         <!-- 消息中心 -->
@@ -23,7 +23,7 @@
         <!--        </div>-->
         <!-- 用户头像 -->
         <div class="user-avator">
-          <img src="../assets/img/avator.png"/>
+          <img src="../../assets/img/avator.png"/>
         </div>
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">

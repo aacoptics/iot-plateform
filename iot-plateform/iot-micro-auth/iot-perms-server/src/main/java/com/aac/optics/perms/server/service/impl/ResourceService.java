@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.service.impl;
 
 import com.aac.optics.common.core.vo.Result;
-import com.aac.optics.perms.server.entity.Resource;
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.aac.optics.perms.server.provider.ResourceProvider;
@@ -33,33 +33,33 @@ public class ResourceService implements IResourceService {
     private static final Map<RequestMatcher, ConfigAttribute> resourceConfigAttributes = new HashMap<>();
 
     @Override
-    public synchronized void saveResource(Resource resource) {
+    public synchronized void saveResource(ResourceDefinition resourceDefinition) {
         resourceConfigAttributes.put(
-                new NewMvcRequestMatcher(new HandlerMappingIntrospector(), resource.getUrl(), resource.getMethod()),
-                new SecurityConfig(resource.getCode())
+                new NewMvcRequestMatcher(new HandlerMappingIntrospector(), resourceDefinition.getUrl(), resourceDefinition.getMethod()),
+                new SecurityConfig(resourceDefinition.getCode())
         );
         log.info("resourceConfigAttributes size:{}", resourceConfigAttributes.size());
     }
 
     @Override
-    public synchronized void removeResource(Resource resource) {
+    public synchronized void removeResource(ResourceDefinition resourceDefinition) {
         resourceConfigAttributes.remove(
                 new NewMvcRequestMatcher(
-                        new HandlerMappingIntrospector(), resource.getUrl(), resource.getMethod()));
+                        new HandlerMappingIntrospector(), resourceDefinition.getUrl(), resourceDefinition.getMethod()));
         log.info("resourceConfigAttributes size:{}", resourceConfigAttributes.size());
     }
 
     @Override
     public synchronized void loadResource() {
-        Result<Set<Resource>> resourcesResult = resourceProvider.resources();
+        Result<Set<ResourceDefinition>> resourcesResult = resourceProvider.resources();
         if (resourcesResult.isFail()) {
             System.exit(1);
         }
-        Set<Resource> resources = resourcesResult.getData();
-        Map<MvcRequestMatcher, SecurityConfig> tempResourceConfigAttributes = resources.stream()
+        Set<ResourceDefinition> resourceDefinitions = resourcesResult.getData();
+        Map<MvcRequestMatcher, SecurityConfig> tempResourceConfigAttributes = resourceDefinitions.stream()
                 .collect(Collectors.toMap(
-                        resource -> new NewMvcRequestMatcher(new HandlerMappingIntrospector(), resource.getUrl(), resource.getMethod()),
-                        resource -> new SecurityConfig(resource.getCode())
+                        resourceDefinition -> new NewMvcRequestMatcher(new HandlerMappingIntrospector(), resourceDefinition.getUrl(), resourceDefinition.getMethod()),
+                        resourceDefinition -> new SecurityConfig(resourceDefinition.getCode())
                 ));
         resourceConfigAttributes.putAll(tempResourceConfigAttributes);
         log.debug("init resourceConfigAttributes:{}", resourceConfigAttributes);
@@ -77,7 +77,7 @@ public class ResourceService implements IResourceService {
 
     @Override
     @Cached(name = "resource4user::", key = "#username", cacheType = CacheType.REMOTE)
-    public Set<Resource> queryByUsername(String username) {
+    public Set<ResourceDefinition> queryByUsername(String username) {
         return resourceProvider.resources(username).getData();
     }
 }

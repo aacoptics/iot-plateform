@@ -1,5 +1,6 @@
 package com.aac.optics.provider.organization.service.impl;
 
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,6 +22,7 @@ import com.aac.optics.provider.organization.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +49,10 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
 
     @Override
     public boolean add(Resource resource) {
-        eventSender.send(BusConfig.ROUTING_KEY, resource);
-        return this.save(resource);
+        boolean isSuccess = this.save(resource);
+        ResourceDefinition resourceDefinition = resourceToResourceDefinition(resource);
+        eventSender.send(BusConfig.ROUTING_KEY, resourceDefinition);
+        return isSuccess;
     }
 
     @Override
@@ -110,5 +114,11 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
             return new ArrayList<>();
         //根据resourceId列表查询出resource对象
         return (List<Resource>) this.listByIds(resourceIds);
+    }
+
+    private ResourceDefinition resourceToResourceDefinition(Resource resource) {
+        ResourceDefinition resourceDefinition = new ResourceDefinition();
+        BeanUtils.copyProperties(resource, resourceDefinition);
+        return resourceDefinition;
     }
 }

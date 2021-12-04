@@ -1,7 +1,7 @@
 package com.aac.optics.perms.server.events;
 
+import com.aac.optics.common.web.entity.ResourceDefinition;
 import com.aac.optics.perms.server.service.impl.ResourceService;
-import com.aac.optics.perms.server.entity.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,8 +13,8 @@ public class BusReceiver {
     @Autowired
     private ResourceService resourceService;
 
-    public void handleMessage(Resource resource) {
-        log.info("Received Message:<{}>", resource);
-        resourceService.saveResource(resource);
+    public void handleMessage(ResourceDefinition resourceDefinition) {
+        log.info("Received Message:<{}>", resourceDefinition);
+        resourceService.saveResource(resourceDefinition);
     }
 }

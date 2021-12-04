@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          包料机监控
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>新能源{{ this.$route.query.position }}</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container">
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"

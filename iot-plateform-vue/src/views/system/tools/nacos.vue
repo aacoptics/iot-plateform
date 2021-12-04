@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          开发相关
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>注册中心</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container" style="margin:0; padding:0;border: 0;height:auto;width: 100%;overflow: auto">
       <iframe id='webFrame'
               hight='auto'

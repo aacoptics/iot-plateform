@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          模具IoT
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>刀具寿命管控</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="container">
       <el-row>
         <el-col :span="10">
