@@ -1,6 +1,7 @@
 package com.aac.optics.mold.toollife.service;
 
 import com.aac.optics.mold.toollife.entity.ToolInfo;
+import com.aac.optics.mold.toollife.entity.ToolMachineNo;
 import com.aac.optics.mold.toollife.entity.UpdateSheetForm;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -21,4 +22,6 @@ public interface ToolInfoService extends IService<ToolInfo> {
     boolean addMachineToolLifeInfo(UpdateSheetForm updateSheetForm);
 
     Map<String, Boolean> getToolMaintainStatus(List<String> monitorNos);
+
+    List<ToolMachineNo> getToolMachineNo(String monitorNo);
 }

@@ -169,3 +169,16 @@ export function getAbnormalList() {
         }
     })
 }
+
+export function getMachineNoByMonitorNo(monitorNo) {
+    return request({
+        url: '/moldToolLife/toolLife/getMachineNoByMonitorNo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            monitorNo: monitorNo
+        }
+    })
+}

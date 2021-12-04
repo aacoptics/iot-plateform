@@ -13,6 +13,8 @@
         <el-col :span="10">
           <el-row style="padding: 10px">
             <el-input style="width: 250px;margin-right: 10px" v-model="monitorNo" placeholder="请输入监控号"></el-input>
+            <el-button style="margin-left: 10px" type="primary" icon="el-icon-search" @click="getMachineNoByMonitorNo(null)">查询机台号
+            </el-button>
           </el-row>
           <el-row style="padding: 10px" v-if="programSheetMachineList.length > 1">
             <el-select v-model="programSheetMachineNo" filterable placeholder="请选择机台号" style="width: 250px" @change="onProgramMachineChange">
@@ -176,7 +178,7 @@ import {
   getByMonitorNo,
   updateToolInfo,
   getMachineList,
-  getMatInfoList,
+  getMatInfoList, getMachineNoByMonitorNo,
 } from "@/api/iot/mold";
 import {tableFilter} from "@/utils/baseUtils";
 
@@ -195,7 +197,7 @@ export default {
       addMachineLoading: false,
       dialogMachineName: "",
       selectLoading: false,
-                                                                                                                                                                                                                                                                              machineName: "",
+      machineName: "",
       machineNameList: [],
       matInfoList: [],
       matInfo: {},
@@ -210,12 +212,12 @@ export default {
   },
   computed: {
     moldToolLifeSheetByMachine(){
-      if(this.programSheetMachineList.length && this.programSheetMachineList.length > 1){
-        return this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo)
-      }else{
-        //console.log(this.moldToolLifeSheet)
-        return this.moldToolLifeSheet
-      }
+      // if(this.programSheetMachineList.length && this.programSheetMachineList.length > 1){
+      //   return this.moldToolLifeSheet.filter(item => item.machineNo === this.programSheetMachineNo)
+      // }else{
+      //   return this.moldToolLifeSheet
+      // }
+      return this.moldToolLifeSheet
     },
     tableMaxHeight() {
       return window.innerHeight - 370 + 'px';
@@ -270,12 +272,22 @@ export default {
       console.log(row)
     },
     cellEventForMachineNo(row) {
-      var data = this.moldToolLifeSheetByMachine;
-      for(var i=0; i < data.length; i++) {
-        if(row.id == data[i].id) {
-          data[i].machineNo = this.machineName
+      // var data = this.moldToolLifeSheetByMachine;
+      // for(var i=0; i < data.length; i++) {
+      //   if(row.id == data[i].id) {
+      //     data[i].machineNo = this.machineName
+      //   }
+      // }
+      for(var i=0; i < this.moldToolLifeSheetByMachine.length; i++) {
+        if(row.id == this.moldToolLifeSheetByMachine[i].id) {
+          this.moldToolLifeSheetByMachine[i].machineNo = this.machineName
+          console.log("this.machineName=" + this.machineName)
+          console.log("row1 machineNo=" + this.moldToolLifeSheetByMachine[i].machineNo)
+          console.log('test')
         }
       }
+      console.log("机台号：" + this.machineName)
+      console.log(this.moldToolLifeSheetByMachine[0].machineNo)
       row.isSelected = !row.isSelected
     },
     cellClick(row, column) {
@@ -358,6 +370,36 @@ export default {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.moldToolLifeSheet = responseData.data;
+          console.log(responseData.data)
+        } else {
+          this.$message.error('获取失败！' + responseData.msg)
+        }
+        if(this.moldToolLifeSheet.length > 0) {
+          this.programSheetMachineList = tableFilter(this.moldToolLifeSheet).machineNo
+          if (this.programSheetMachineNo === '') {
+            this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
+            this.programSheetMachineNo = this.machineName
+          } else {
+            this.machineName = this.programSheetMachineNo
+          }
+        }else{
+          this.$message.warning('查询不到该监控号数据！')
+        }
+        this.toolLifeLoading = false
+      }).catch((err) => {
+        this.$message.error(err)
+        this.toolLifeLoading = false
+      })
+    },
+    getMachineNoByMonitorNo(monitorNo) {
+      this.toolLifeLoading = true
+      if (monitorNo == null) {
+        monitorNo = this.monitorNo;
+      }
+      getMachineNoByMonitorNo(monitorNo).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.moldToolLifeSheet = responseData.data
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }

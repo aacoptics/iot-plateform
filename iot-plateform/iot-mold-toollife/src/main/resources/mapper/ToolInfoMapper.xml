@@ -4,7 +4,7 @@
     <select id="getToolMaintainStatus" resultType="com.aac.optics.mold.toollife.entity.ToolInfo">
         select distinct machine_no, monitor_no
         from tb_mold_program_sheet
-        where monitor_no in
+        where machine_no is not null and monitor_no in
         <foreach item="item" index="index" collection="monitorNos" open="(" separator="," close=")">
             #{item}
         </foreach>

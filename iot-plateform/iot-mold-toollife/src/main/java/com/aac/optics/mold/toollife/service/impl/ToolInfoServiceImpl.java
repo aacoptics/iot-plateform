@@ -3,6 +3,7 @@ package com.aac.optics.mold.toollife.service.impl;
 import com.aac.optics.mold.toollife.dao.ToolInfoMapper;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.aac.optics.mold.toollife.entity.ToolInfoHistory;
+import com.aac.optics.mold.toollife.entity.ToolMachineNo;
 import com.aac.optics.mold.toollife.entity.UpdateSheetForm;
 import com.aac.optics.mold.toollife.service.ToolInfoHistoryService;
 import com.aac.optics.mold.toollife.service.ToolInfoService;
@@ -116,6 +117,20 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
         }
         return toolInfos;
     }
+
+    @Override
+    public List<ToolMachineNo> getToolMachineNo(String monitorNo) {
+        List<ToolInfo> totalToolInfoList = getToolInfo(monitorNo);
+        List<ToolMachineNo> totalMachineNoList = new ArrayList<ToolMachineNo>();
+        for(ToolInfo toolInfo : totalToolInfoList) {
+            ToolMachineNo toolMachineNo = new ToolMachineNo();
+            toolMachineNo.setId(toolInfo.getId());
+            toolMachineNo.setMachineNo(toolInfo.getMachineNo());
+            totalMachineNoList.add(toolMachineNo);
+        }
+        return totalMachineNoList;
+    }
+
 
 
     @Transactional
