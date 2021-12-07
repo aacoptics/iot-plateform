@@ -138,8 +138,9 @@
                 <span class="lifeSalvage" style="width: 80px;text-align: center" v-text="item.lifeSalvage"></span>
                 <span class="realLifeSalvage" style="width: 80px;text-align: center"
                       v-text="item.realLifeSalvage"></span>
-                <span class="lifeRate" style="width: 80px;text-align: center"
-                      v-text="(item.realLifeSalvage * 1.0 / item.lifeSalvage * 100).toFixed(2) + '%'"></span>
+<!--                <span class="lifeRate" style="width: 80px;text-align: center"-->
+<!--                      v-text="(item.realLifeSalvage * 1.0 / item.lifeSalvage * 100).toFixed(2) + '%'"></span>-->
+                <span class="lifeRate" style="width: 80px;text-align: center" v-text="item.lifeRate"></span>
                 <span class="scrapedTime" style="width: 120px;text-align: center"
                       v-text="this.$moment(item.scrapedTime).format('YYYY/MM/DD HH:mm')"></span>
                 <span class="area" style="width: 60px;text-align: center" v-text="item.area"></span>

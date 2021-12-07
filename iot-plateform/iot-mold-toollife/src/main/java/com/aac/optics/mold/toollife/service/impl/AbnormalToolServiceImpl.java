@@ -20,14 +20,12 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -76,7 +74,26 @@ public class AbnormalToolServiceImpl extends ServiceImpl<AbnormalToolMapper, Abn
         QueryWrapper<AbnormalTool> wrapper = new QueryWrapper<>();
         wrapper.eq("is_confirmed", 0)
                 .orderByDesc("scraped_time");
-        return list(wrapper);
+        List<AbnormalTool> abnormalToolList = list(wrapper);
+        Iterator iterator = abnormalToolList.iterator();
+        while(iterator.hasNext()) {
+            AbnormalTool abnormalTool = (AbnormalTool) iterator.next();
+            String lifeSalvage = abnormalTool.getLifeSalvage();
+            String realLifeSalvage = abnormalTool.getRealLifeSalvage();
+            if(StringUtils.isNotBlank(lifeSalvage) && StringUtils.isNotBlank(realLifeSalvage)) {
+                double lifeSalvageNumber = Double.parseDouble(lifeSalvage);
+                double realLifeSalvageNumber = Double.parseDouble(realLifeSalvage);
+                double lifeRateNumber = realLifeSalvageNumber/lifeSalvageNumber*100;
+                if(lifeRateNumber > 90) {
+                    iterator.remove();
+                } else {
+                    DecimalFormat df = new DecimalFormat("0.00");
+                    String lifeRate = df.format(lifeRateNumber);
+                    abnormalTool.setLifeRate(lifeRate + "%");
+                }
+            }
+        }
+        return abnormalToolList;
     }
 
     @Override

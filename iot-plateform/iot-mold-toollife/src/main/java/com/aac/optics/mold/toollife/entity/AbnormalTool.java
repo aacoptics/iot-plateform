@@ -1,6 +1,7 @@
 package com.aac.optics.mold.toollife.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -52,5 +53,9 @@ public class AbnormalTool implements Serializable {
     private LocalDateTime createDateTime;
 
     private Integer abnormalType;
+
+    @TableField(exist = false)
+    private String lifeRate;
+
 
 }
