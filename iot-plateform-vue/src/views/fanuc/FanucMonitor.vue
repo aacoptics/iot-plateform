@@ -555,15 +555,21 @@ import * as echarts from 'echarts';
 import {getByFloor, getDetailInfo, getCondData, getMonitData, getAlarmData} from "@/api/iot/fanuc";
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
+import MqttConstant from '@/utils/mqttConstant'
+import MqttClient from "@/components/MqttClient";
 
 export default {
   name: "FanucMonitor",
+  components: {
+    MqttClient
+  },
   created() {
     this.timer = setInterval(() => {
       this.getFanucDataByFloor()
     }, 10000)
   },
   mounted() {
+    this.initConnect()
     this.getFanucDataByFloor()
   },
   computed: {
@@ -603,6 +609,29 @@ export default {
     }
   },
   methods: {
+    initConnect() {
+      this.$nextTick(() => {
+        this.$refs.mqttClient.createMqttConnection();
+      });
+    },
+    //接收消息
+    messageArrived(msg) {
+      switch (msg.Message) {
+        case 'Status':
+          this.statusList[msg.ClientId] = msg
+          break;
+        case 'Alarm':
+          this.alarmList[msg.ClientId] = msg
+          break;
+        case 'Capacity':
+          this.capacityList[msg.ClientId] = msg
+          break;
+      }
+    },
+    //断开连接
+    disconnect() {
+      this.$refs.mqttClient.destroyMqttConnection();
+    },
     refreshPage() {
       this.$router.push(this.$route.fullPath)
     },
@@ -930,9 +959,14 @@ export default {
   },
   beforeUnmount() {
     clearInterval(this.timer);
+    this.disconnect();
   },
   data() {
     return {
+      client: {
+        connected: false,
+      },
+      secsTopic: MqttConstant.MQTT_Fanuc_TOPIC,
       tabRadio: '成型条件',
       shortcuts: [{
         text: '最近一周',
@@ -1020,6 +1054,6 @@ export default {
         default: 0
       }
     }
-  }
+  },
 };
 </script>
