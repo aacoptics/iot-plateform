@@ -94,7 +94,8 @@ const formatRoutes = function (routes, routeData) {
                 name: route.name,
                 component: () => import('../' + route.component),
                 meta: {
-                    title: route.title
+                    title: route.title,
+                    webUrl: route.webUrl ? route.webUrl : null
                 },
             })
         }
