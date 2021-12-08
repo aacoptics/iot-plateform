@@ -102,6 +102,7 @@ public class MenuService extends ServiceImpl<MenuMapper, Menu> implements IMenuS
                     tree.putExtra("title", treeNode.getTitle());
                     tree.putExtra("icon", treeNode.getIcon());
                     tree.putExtra("description", treeNode.getDescription());
+                    tree.putExtra("webUrl", treeNode.getWebUrl());
                     tree.putExtra("roles", treeNode.getRoles() == null ? null : Arrays
                             .stream(treeNode.getRoles().split(","))
                             .mapToInt(Integer::parseInt).toArray());

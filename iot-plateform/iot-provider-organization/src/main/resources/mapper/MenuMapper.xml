@@ -11,6 +11,7 @@
              , name
              , title
              , description
+             , web_url
              , order_num
              , created_time
              , updated_time
@@ -25,6 +26,7 @@
                , name
                , title
                , description
+               , web_url
                , order_num
                , created_time
                , updated_time
@@ -42,6 +44,7 @@
              , name
              , title
              , description
+             , web_url
              , order_num
              , created_time
              , updated_time
@@ -63,6 +66,7 @@
                , name
                , title
                , description
+               , web_url
                , order_num
                , created_time
                , updated_time
@@ -80,6 +84,7 @@
              , name
              , title
              , description
+             , web_url
              , order_num
              , created_time
              , updated_time
@@ -97,6 +102,7 @@
                , name
                , title
                , description
+               , web_url
                , order_num
                , created_time
                , updated_time
