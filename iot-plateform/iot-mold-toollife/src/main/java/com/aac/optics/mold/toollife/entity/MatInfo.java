@@ -31,4 +31,7 @@ public class MatInfo implements Serializable {
 
     @TableField("life_salvage")
     private String lifeSalvage;
+
+    @TableField(exist = false)
+    private String actualLife;
 }

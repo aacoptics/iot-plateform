@@ -75,6 +75,9 @@ public class ToolInfo implements Serializable {
     private LocalDateTime maintenanceDateTime;
 
     @TableField(exist = false)
+    private String actualLife;
+
+    @TableField(exist = false)
     private MatInfo matInfo;
 
     public void SetMoldMatInfo(){
@@ -82,7 +85,9 @@ public class ToolInfo implements Serializable {
         this.matInfo.setHandleCode(this.matHandleCode)
                 .setToolCode(this.matToolCode)
                 .setMatCode(this.matCode)
-                .setMatName(this.matName);
+                .setMatName(this.matName)
+                .setLifeSalvage(this.lifeSalvage)
+                .setActualLife(this.actualLife);
     }
 
 

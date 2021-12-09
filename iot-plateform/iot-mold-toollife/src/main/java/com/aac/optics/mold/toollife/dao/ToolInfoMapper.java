@@ -15,4 +15,6 @@ import java.util.Set;
 public interface ToolInfoMapper extends BaseMapper<ToolInfo> {
 
     List<ToolInfo> getToolMaintainStatus(@Param("monitorNos") Set<String> monitorNos);
+
+    Integer getActualLifeByToolCode(@Param("matToolCode") String matToolCode);
 }

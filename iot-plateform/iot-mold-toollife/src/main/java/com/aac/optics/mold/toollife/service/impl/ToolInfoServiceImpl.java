@@ -113,6 +113,16 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
         wrapper.eq("monitor_no", monitorNo);
         List<ToolInfo> toolInfos = list(wrapper);
         for (ToolInfo toolInfo : toolInfos) {
+            String matToolCode = toolInfo.getMatToolCode();
+            if(StringUtils.isNotBlank(matToolCode)) {
+                int actualLifeNumber = toolInfoMapper.getActualLifeByToolCode(matToolCode);
+                if(actualLifeNumber == 0) {
+                    toolInfo.setActualLife("");
+                } else {
+                    toolInfo.setActualLife(actualLifeNumber + "");
+                }
+
+            }
             toolInfo.SetMoldMatInfo();
         }
         return toolInfos;
@@ -124,6 +134,15 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
         wrapper.eq("monitor_no", monitorNo).eq("machine_no", machineNo);
         List<ToolInfo> toolInfos = list(wrapper);
         for (ToolInfo toolInfo : toolInfos) {
+            String matToolCode = toolInfo.getMatToolCode();
+            if(StringUtils.isNotBlank(matToolCode)) {
+                int actualLifeNumber = toolInfoMapper.getActualLifeByToolCode(matToolCode);
+                if(actualLifeNumber == 0) {
+                    toolInfo.setActualLife("");
+                } else {
+                    toolInfo.setActualLife(actualLifeNumber + "");
+                }
+            }
             toolInfo.SetMoldMatInfo();
         }
         return toolInfos;
