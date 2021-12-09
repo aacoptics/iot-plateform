@@ -353,7 +353,6 @@ export default {
       if (monitorNo == null) {
         monitorNo = this.monitorNo;
       }
-      console.log(this.programSheetMachineList)
       if(this.programSheetMachineList.length == 0) {
         this.$message.error('请先查询机台号')
         return
@@ -364,6 +363,7 @@ export default {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.moldToolLifeSheet = responseData.data;
+          console.log(this.moldToolLifeSheet)
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
