@@ -141,7 +141,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             if(monitData == null || moldData == null)
                 continue;
             if (!monitData.getString("Status").equals("-1")) {
-                totalPerCent += Double.valueOf(moldData.getString("mold_automate").replace("%", "").trim());
+                totalPerCent += Double.parseDouble(moldData.getString("mold_automate").replace("%", "").trim());
                 machineNums++;
             }
             DecimalFormat df=new DecimalFormat(".##");
