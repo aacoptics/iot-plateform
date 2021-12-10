@@ -11,6 +11,4 @@ public class FanucDataEntity implements Serializable {
     private Object condData;
 
     private Object moldData;
-
-    private String moldFileName;
 }

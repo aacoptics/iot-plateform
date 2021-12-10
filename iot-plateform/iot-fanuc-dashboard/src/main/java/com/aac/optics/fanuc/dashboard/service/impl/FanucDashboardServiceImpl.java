@@ -1,9 +1,9 @@
 package com.aac.optics.fanuc.dashboard.service.impl;
 
+import com.aac.optics.fanuc.dashboard.config.MqttConfig;
 import com.aac.optics.fanuc.dashboard.entity.FanucDigitalData;
 import com.aac.optics.fanuc.dashboard.entity.FanucOneHourShotCountData;
 import com.aac.optics.fanuc.dashboard.service.FanucDashboardService;
-import com.aac.optics.fanuc.dashboard.consumer.FanucConsumer;
 import com.aac.optics.fanuc.dashboard.entity.FanucDataEntity;
 import com.aac.optics.fanuc.dashboard.entity.RealFanucStatusInfo;
 import com.aac.optics.fanuc.dashboard.exception.MachineNotFoundException;
@@ -29,7 +29,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
 
     @Override
     public FanucDataEntity getDetailInfo(String machineName) {
-        Map<String, FanucDataEntity> fanucDataMap = FanucConsumer.FanucMachineDataMap;
+        Map<String, FanucDataEntity> fanucDataMap = MqttConfig.FanucMachineDataMap;
         if (fanucDataMap != null && fanucDataMap.containsKey(machineName)) {
             return fanucDataMap.get(machineName);
         } else {
@@ -40,12 +40,14 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
     @Override
     public List<RealFanucStatusInfo> getByFloor() {
         List<RealFanucStatusInfo> fanucStatusInfos = new ArrayList<>();
-        Map<String, FanucDataEntity> realMonitData = FanucConsumer.FanucMachineDataMap;
+        Map<String, FanucDataEntity> realMonitData = MqttConfig.FanucMachineDataMap;
         for (String machineName : realMonitData.keySet()) {
             RealFanucStatusInfo fanucStatusInfo = new RealFanucStatusInfo();
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
+            if(monitData == null)
+                continue;
             if (!monitData.getString("Status").equals("-1")) {
-                fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
+                //fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
                 fanucStatusInfo.setMonitCycle(monitData.getString("Cycle"));
                 fanucStatusInfo.setMonitCycleCount(monitData.getString("CycleCount"));
                 fanucStatusInfo.setMonitShotCount(monitData.getString("ShotCount"));
@@ -64,7 +66,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
     @Override
     public Map<String, Map<String, Integer>> getStatusCount() {
         Map<String, Map<String, Integer>> fanucStatusCount = new HashMap<>();
-        Map<String, FanucDataEntity> realMonitData = FanucConsumer.FanucMachineDataMap;
+        Map<String, FanucDataEntity> realMonitData = MqttConfig.FanucMachineDataMap;
         for (String machineName : realMonitData.keySet()) {
             String floor = machineName.substring(0, 2);
             if(!fanucStatusCount.containsKey(floor)){
@@ -72,6 +74,8 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
                 fanucStatusCount.put(floor, statusNums);
             }
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
+            if(monitData == null)
+                continue;
             String statusCode = monitData.getString("Status");
             if(!fanucStatusCount.get(floor).containsKey(statusCode)){
                 fanucStatusCount.get(floor).put(statusCode, 0);
@@ -84,7 +88,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
     @Override
     public List<FanucDigitalData> getDigitalData() {
         List<FanucDigitalData> fanucStatusInfos = new ArrayList<>();
-        Map<String, FanucDataEntity> realMonitData = FanucConsumer.FanucMachineDataMap;
+        Map<String, FanucDataEntity> realMonitData = MqttConfig.FanucMachineDataMap;
         List<FanucOneHourShotCountData> uph = fanucOneHourShotCountDataService.getUPH();
         for (String machineName : realMonitData.keySet()) {
             if(!machineName.startsWith("3F"))
@@ -93,7 +97,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
             JSONObject moldData = (JSONObject) realMonitData.get(machineName).getMoldData();
             if (!monitData.getString("Status").equals("-1")) {
-                fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
+                //fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
                 fanucStatusInfo.setMonitCycle(monitData.getString("Cycle"));
                 fanucStatusInfo.setMonitCycleCount(monitData.getString("CycleCount"));
                 fanucStatusInfo.setMonitShotCount(monitData.getString("ShotCount"));
@@ -125,7 +129,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
     @Override
     public Map<String, String> getCurrentOeeData() {
         Map<String, String> currentOee = new HashMap<>();
-        Map<String, FanucDataEntity> realMonitData = FanucConsumer.FanucMachineDataMap;
+        Map<String, FanucDataEntity> realMonitData = MqttConfig.FanucMachineDataMap;
         Double totalPerCent = 0D;
         Integer machineNums = 0;
         for (String machineName : realMonitData.keySet()) {
@@ -134,8 +138,10 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             FanucDigitalData fanucStatusInfo = new FanucDigitalData();
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
             JSONObject moldData = (JSONObject) realMonitData.get(machineName).getMoldData();
+            if(monitData == null || moldData == null)
+                continue;
             if (!monitData.getString("Status").equals("-1")) {
-                totalPerCent += Double.valueOf(moldData.getString("mold_automate").replace("%", "").trim());
+                totalPerCent += Double.parseDouble(moldData.getString("mold_automate").replace("%", "").trim());
                 machineNums++;
             }
             DecimalFormat df=new DecimalFormat(".##");
