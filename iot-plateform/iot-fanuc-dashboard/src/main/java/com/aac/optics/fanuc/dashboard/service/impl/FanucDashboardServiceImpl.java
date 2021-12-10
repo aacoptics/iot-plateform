@@ -44,6 +44,8 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
         for (String machineName : realMonitData.keySet()) {
             RealFanucStatusInfo fanucStatusInfo = new RealFanucStatusInfo();
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
+            if(monitData == null)
+                continue;
             if (!monitData.getString("Status").equals("-1")) {
                 //fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
                 fanucStatusInfo.setMonitCycle(monitData.getString("Cycle"));
@@ -72,6 +74,8 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
                 fanucStatusCount.put(floor, statusNums);
             }
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
+            if(monitData == null)
+                continue;
             String statusCode = monitData.getString("Status");
             if(!fanucStatusCount.get(floor).containsKey(statusCode)){
                 fanucStatusCount.get(floor).put(statusCode, 0);
@@ -134,6 +138,8 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             FanucDigitalData fanucStatusInfo = new FanucDigitalData();
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
             JSONObject moldData = (JSONObject) realMonitData.get(machineName).getMoldData();
+            if(monitData == null || moldData == null)
+                continue;
             if (!monitData.getString("Status").equals("-1")) {
                 totalPerCent += Double.valueOf(moldData.getString("mold_automate").replace("%", "").trim());
                 machineNums++;

@@ -124,10 +124,9 @@ public class MqttConfig {
     public MessageHandler handler() {
         return message -> {
             JSONObject msgJson = JSONObject.parseObject(message.getPayload().toString());
-            if (!FanucMachineDataMap.containsKey(msgJson.getString("ClientId")))
-                FanucMachineDataMap.put(msgJson.getString("ClientId"), new FanucDataEntity());
-
-            FanucDataEntity fanucDataEntity = FanucMachineDataMap.get(msgJson.getString("ClientId"));
+            FanucDataEntity fanucDataEntity = new FanucDataEntity();
+            if (FanucMachineDataMap.containsKey(msgJson.getString("ClientId")))
+                fanucDataEntity = FanucMachineDataMap.get(msgJson.getString("ClientId"));
             switch (msgJson.getString("Message")) {
                 case "moldData":
                     fanucDataEntity.setMoldData(msgJson.getJSONObject("Data"));
