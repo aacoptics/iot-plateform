@@ -558,7 +558,7 @@
 
 <script>
 import * as echarts from 'echarts';
-import {getCondData, getMonitData, getAlarmData} from "@/api/iot/fanuc";
+import {getCondData, getMonitData, getAlarmData, selectEquips} from "@/api/iot/fanuc";
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
 import MqttClient from "@/components/MqttClient";
@@ -571,6 +571,7 @@ export default {
   mounted() {
     let _this = this;
     setTimeout(function() {
+      _this.getEquipList()
       const position = _this.$route.query.position
       _this.floorInfo = position.substring(2, position.length)
       console.log(_this.floorInfo)
@@ -627,10 +628,21 @@ export default {
           this.statusCount.default++
         }
       }
-      return pages
+      return this.sortObjByKey(pages)
     }
   },
   methods: {
+    sortObjByKey(obj) {
+      const keys = Object.keys(obj).sort();
+      const newObj = {};
+      for (let i = 0; i < keys.length; i++) {
+        const index = keys[i];
+        if(this.equipList.indexOf(index) === -1)
+          continue
+        newObj[index] = obj[index];
+      }
+      return newObj;
+    },
     initConnect() {
       this.$nextTick(() => {
         this.$refs.mqttClient.createMqttConnection();
@@ -710,6 +722,14 @@ export default {
     onDialogClosed() {
       this.fanucDialogCondData = []
       this.dateTimePickerValue = []
+    },
+    getEquipList(){
+      selectEquips().then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.equipList = responseData.data;
+        }
+      })
     },
     getDialogMachineCondData() {
       if (this.dateTimePickerValue.length !== 2) {
@@ -1049,7 +1069,8 @@ export default {
         '50': 0,
         '-1': 0,
         default: 0
-      }
+      },
+      equipList: []
     }
   },
   watch: {
