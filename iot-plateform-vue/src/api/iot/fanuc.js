@@ -23,6 +23,16 @@ export function getFanucStatusCount() {
     })
 }
 
+export function selectEquips() {
+    return request({
+        url: '/fanuc/fanucDashboard/selectEquips',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
 export function getDetailInfo(machineName) {
     return request({
         url: '/fanuc/fanucDashboard/getDetailInfo',
