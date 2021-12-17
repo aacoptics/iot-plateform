@@ -261,7 +261,6 @@ export default {
     },
     cellEvent(row) {
       row.isSelected = !row.isSelected
-      console.log(row)
     },
     cellEventForMachineNo(row) {
       // var data = this.moldToolLifeSheetByMachine;
@@ -306,8 +305,13 @@ export default {
         return;
       }
       for (let i = 0; i < tempMoldList.length; i++) {
+        console.log(tempMoldList[i])
         if (tempMoldList[i].isCheck != null && !tempMoldList[i].isCheck) {
           this.$message.error('保存失败，存在直径不匹配的刀柄（表格已标红）')
+          return;
+        }
+        if (tempMoldList[i].machineNo == "" && tempMoldList[i].matToolCode != "") {
+          this.$message.error('保存失败，刀具编码有值时机台号不能为空')
           return;
         }
         //无需批量赋值机台号
@@ -336,7 +340,7 @@ export default {
         const responseData = response.data
         if (responseData.code === '000000') {
           const monitorNo = responseData.data;
-          this.getByMonitorNo(monitorNo)
+          this.getTableInfoByMonitorNo(monitorNo)
           this.$message.success('上传成功！')
         } else {
           this.$message.error('上传失败！' + responseData.msg)
@@ -348,6 +352,27 @@ export default {
     onProgramMachineChange(){
       this.machineName = this.programSheetMachineNo
     },
+    getTableInfoByMonitorNo(monitorNo) {
+      this.toolLifeLoading = true
+      if (monitorNo == null) {
+        monitorNo = this.monitorNo;
+      }
+      getByMonitorNo(monitorNo).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.moldToolLifeSheet = responseData.data;
+        } else {
+          this.$message.error('获取失败！' + responseData.msg)
+        }
+        if(this.moldToolLifeSheet.length == 0) {
+          this.$message.warning('查询不到该监控号数据！')
+        }
+        this.toolLifeLoading = false
+      }).catch((err) => {
+        this.$message.error(err)
+        this.toolLifeLoading = false
+      })
+    },
     getByMonitorNo(monitorNo) {
       this.toolLifeLoading = true
       if (monitorNo == null) {
@@ -358,12 +383,10 @@ export default {
         return
       }
       var machineNo = this.programSheetMachineNo
-      console.log("machineNo is " + machineNo)
       getByMonitorNoAndMachineNo(monitorNo, machineNo).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.moldToolLifeSheet = responseData.data;
-          console.log(this.moldToolLifeSheet)
         } else {
           this.$message.error('获取失败！' + responseData.msg)
         }
@@ -404,7 +427,6 @@ export default {
               this.programSheetMachineList[i].text = '未绑定机台程序'
             }
           }
-          console.log(this.programSheetMachineList)
           if (this.programSheetMachineNo === '') {
             this.machineName = this.programSheetMachineList.length > 0 ? this.programSheetMachineList[0].value : ""
             this.programSheetMachineNo = this.machineName
