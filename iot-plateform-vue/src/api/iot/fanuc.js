@@ -90,3 +90,17 @@ export function getAlarmData(startTime, endTime, machineName) {
         }
     })
 }
+
+export function getAllCycleList(startTime, endTime) {
+    return request({
+        url: '/fanuc/fanucDashboard/getAllCycleList',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            startTime: startTime,
+            endTime: endTime
+        }
+    })
+}
