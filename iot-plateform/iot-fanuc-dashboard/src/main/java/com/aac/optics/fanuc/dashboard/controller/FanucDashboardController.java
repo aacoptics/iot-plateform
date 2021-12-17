@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -107,5 +108,13 @@ public class FanucDashboardController {
     @GetMapping(value = "/selectEquips")
     public Result selectEquips() {
         return Result.success(fanucMasterDataService.selectEquipNames());
+    }
+
+    @ApiOperation(value = "按时间查询机台Cycle数据", notes = "按时间查询机台Cycle数据")
+    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+    @PostMapping("/getAllCycleList")
+    public Result getAllCycleList(@RequestBody Map<String, LocalDateTime> params) {
+        return Result.success(fanucMonitDataService.getAllCycleList(params.get("startTime"),
+                params.get("endTime")));
     }
 }
