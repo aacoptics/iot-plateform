@@ -1,6 +1,6 @@
 package com.aac.optics.provider.jira.service.impl;
 
-import com.aac.optics.provider.jira.dao.ProcessInfoMapper;
+import com.aac.optics.provider.jira.mapper.ProcessInfoMapper;
 import com.aac.optics.provider.jira.entity.ProcessInfo;
 import com.aac.optics.provider.jira.service.ProcessInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

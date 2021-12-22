@@ -1,4 +1,4 @@
-package com.aac.optics.provider.jira.dao;
+package com.aac.optics.provider.jira.mapper;
 
 import com.aac.optics.provider.jira.entity.ProcessInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

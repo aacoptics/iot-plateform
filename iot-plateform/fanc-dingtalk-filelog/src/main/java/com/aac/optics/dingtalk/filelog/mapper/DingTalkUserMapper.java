@@ -1,4 +1,4 @@
-package com.aac.optics.dingtalk.filelog.dao;
+package com.aac.optics.dingtalk.filelog.mapper;
 
 import com.aac.optics.dingtalk.filelog.entity.DingTalkUser;
 import com.baomidou.dynamic.datasource.annotation.DS;

@@ -21,6 +21,7 @@
         <module>iot-mold-toollife</module>
         <module>fanc-dingtalk-filelog</module>
         <module>fanc-provider-jira</module>
+        <module>fanc-dingtalk-sync</module>
     </modules>
 
     <packaging>pom</packaging>

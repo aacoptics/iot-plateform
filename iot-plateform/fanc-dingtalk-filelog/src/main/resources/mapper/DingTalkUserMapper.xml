@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aac.optics.dingtalk.filelog.dao.DingTalkUserMapper">
+<mapper namespace="com.aac.optics.dingtalk.filelog.mapper.DingTalkUserMapper">
 
     <select id="getDingtalkUserInfo" resultType="com.aac.optics.dingtalk.filelog.entity.DingTalkUser">
         SELECT b.FD_NAME, c.NAME, c.JOBNUMBER, b.FD_ID,c.USERID
