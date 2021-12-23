@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode()
@@ -30,11 +31,11 @@ public class DingTalkFileLog implements Serializable {
     @TableField(value = "bizId")
     private String bizId;
 
-    @TableField(value = "gmtCreate")
-    private Long gmtCreate;
+    @TableField(value = "fileCreateTime")
+    private LocalDateTime fileCreateTime;
 
-    @TableField(value = "gmtModified")
-    private Long gmtModified;
+    @TableField(value = "fileModifiedTime")
+    private LocalDateTime fileModifiedTime;
 
     @TableField(value = "ipAddress")
     private String ipAddress;
@@ -95,4 +96,7 @@ public class DingTalkFileLog implements Serializable {
 
     @TableField(value = "fdName")
     private String fdName;
+
+    @TableField(value = "createDate")
+    private LocalDateTime createDate;
 }

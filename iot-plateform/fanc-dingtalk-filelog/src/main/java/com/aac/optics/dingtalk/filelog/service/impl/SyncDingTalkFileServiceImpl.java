@@ -1,5 +1,6 @@
 package com.aac.optics.dingtalk.filelog.service.impl;
 
+import com.aac.optics.common.core.util.UnixTimeUtil;
 import com.aac.optics.dingtalk.filelog.entity.DingTalkFileLog;
 import com.aac.optics.dingtalk.filelog.entity.DingTalkUser;
 import com.aac.optics.dingtalk.filelog.provider.DingTalkApi;
@@ -38,7 +39,7 @@ public class SyncDingTalkFileServiceImpl implements SyncDingTalkFileService {
             OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
             String accessToken = oapiGettokenResponse.getAccessToken();
             LocalDateTime eTime = LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIN.withHour(23));
-            LocalDateTime sTime = eTime.plusDays(-1);
+            LocalDateTime sTime = eTime.minusDays(1);
             OapiCspaceAuditlogListResponse res = dingTalkApi.getDingTalkFileLog(accessToken, sTime, eTime, null, null);
             List<DingTalkFileLog> listAll = new ArrayList<>();
             List<OapiCspaceAuditlogListResponse.AuditLogVO> list = res.getResult().getList();
@@ -48,9 +49,12 @@ public class SyncDingTalkFileServiceImpl implements SyncDingTalkFileService {
                     if (userInfo.size() > 0) {
                         DingTalkFileLog dingTalkFileLog = new DingTalkFileLog();
                         BeanUtils.copyProperties(auditLogVO, dingTalkFileLog);
-                        dingTalkFileLog.setJobNumber(userInfo.get(0).getJobNumber());
-                        dingTalkFileLog.setFdId(userInfo.get(0).getFdId());
-                        dingTalkFileLog.setFdName(userInfo.get(0).getFdName());
+
+                        dingTalkFileLog.setJobNumber(userInfo.get(0).getJobNumber())
+                                .setFdId(userInfo.get(0).getFdId())
+                                .setFdName(userInfo.get(0).getFdName())
+                                .setFileCreateTime(UnixTimeUtil.getDateTimeOfTimestamp(auditLogVO.getGmtCreate()))
+                                .setFileModifiedTime(UnixTimeUtil.getDateTimeOfTimestamp(auditLogVO.getGmtModified()));
                         listAll.add(dingTalkFileLog);
                     }
                 }
