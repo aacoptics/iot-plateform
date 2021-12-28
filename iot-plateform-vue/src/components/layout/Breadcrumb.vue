@@ -19,8 +19,7 @@ export default {
   methods: {
     getMenu(value, arr, res) {
       arr.forEach(element => {
-        const indexTitle = element.index.indexOf('?') === -1 ? element.index : element.index.split('?')[0]
-        if (indexTitle === value) { // 判断条件
+        if (element.name === value) { // 判断条件
           res = element.levelInfo;
         } else {
           if (element.subs && element.subs.length > 0) {

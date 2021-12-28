@@ -71,10 +71,24 @@ export default {
   },
   computed: {
     onRoutes() {
-      return this.$route.path.replace("/", "");
+      return this.getMenu(this.$route.path.replace("/", ""), this.items)
     },
     collapse() {
       return this.$store.state.collapse
+    }
+  },
+  methods: {
+    getMenu(value, arr, res) {
+      arr.forEach(element => {
+        if (element.name === value) { // 判断条件
+          res = element.index;
+        } else {
+          if (element.subs && element.subs.length > 0) {
+            res = this.getMenu(value, element.subs, res);
+          }
+        }
+      });
+      return res;
     }
   }
 };
