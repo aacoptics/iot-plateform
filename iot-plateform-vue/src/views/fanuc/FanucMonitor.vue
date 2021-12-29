@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="container">
+      <mqtt-client ref="mqttClient" :value="fanucTopic" @messageArrived="messageArrived"/>
       <div style="margin-bottom: 20px">
         <div v-for="(item, index) of statusRadio" :key="index" class="status_radio_type"
              :style="'background-color:' + getStatusRadioColor(item) + ';text-align:center'"
@@ -8,26 +9,27 @@
           {{ this.status[item] + '(' + this.statusCount[item] + ')' }}
         </div>
       </div>
-      <el-card v-for="(item, index) of fanucMachineInfo" :key="index" :body-style="{ padding: '0px', height:'255px'}"
+      <el-card v-for="(val, key, index) in fanucMachineInfo" :key="index"
+               :body-style="{ padding: '0px', height:'255px'}"
                shadow="hover"
                class="fanuc_card_type"
                style="cursor: pointer"
-               @click="onCardClick(item.monitMcName)">
-        <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ item.monitMcName }}</p>
+               @click="onCardClick(key)">
+        <p style="text-align: center;font-weight: bold;color: #008000;font-size: 24px">{{ key }}</p>
         <el-row style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
           <el-col :span="24">
-            <div :style="'background-color:' + getStatusColor(item.monitStatus) + ';height:30px;line-height:30px'">
-              {{ this.status[item.monitStatus] ? this.status[item.monitStatus] : this.status.default }}
+            <div :style="'background-color:' + getStatusColor(val.Status) + ';height:30px;line-height:30px'">
+              {{ this.status[val.Status] ? this.status[val.Status] : this.status.default }}
             </div>
           </el-col>
         </el-row>
         <el-row>
           <el-col>
             <div style="font-weight: bold">
-              <p style="margin-top: 5px">模具文件名：{{ item.condMoldFileName }}</p>
+              <p style="margin-top: 5px">模具文件名：{{ val.MoldFileName }}</p>
               <el-row>
-                <el-col :span="12">射出数：{{ item.monitShotCount }}</el-col>
-                <el-col v-if="checkMachineStatus(item.monitStatus)" :span="12">周期：{{ item.monitCycle }}秒</el-col>
+                <el-col :span="12">射出数：{{ val.ShotCount }}</el-col>
+                <el-col v-if="checkMachineStatus(val.Status)" :span="12">周期：{{ val.Cycle }}秒</el-col>
                 <el-col v-else :span="12">周期：</el-col>
               </el-row>
               <!--              <p >-->
@@ -35,9 +37,9 @@
               <!--                <span>{{ item.monitCycle }}秒</span>-->
               <!--              </p>-->
               <el-row>
-                <el-col :span="12">良品数：{{ item.monitGoodCount }}</el-col>
-                <el-col v-if="checkMachineStatus(item.monitStatus)" :span="12">时间：{{
-                    this.$moment(item.monitDateTime, 'YYMMDDHHmmss')
+                <el-col :span="12">良品数：{{ val.GoodCount }}</el-col>
+                <el-col v-if="checkMachineStatus(val.Status)" :span="12">时间：{{
+                    this.$moment(val.Date + val.Time, 'YYMMDDHHmmss')
                         .format('MM/DD HH:mm')
                   }}
                 </el-col>
@@ -58,7 +60,7 @@
           <!--          </el-col>-->
         </el-row>
         <el-row style="border-top: 1px dashed cornflowerblue">
-          <div v-if="checkMachineStatus(item.monitStatus)" :id="'circleChart' + item.monitMcName"
+          <div :id="'circleChart' + key"
                style="margin-top: 10px;height: 120px;width: 280px"></div>
         </el-row>
       </el-card>
@@ -84,39 +86,43 @@
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>当前状态：</p>
-                  <p style="color: green">{{ this.status[this.fanucDialogData.monitData.Status] }}</p>
+                  <p style="color: green">{{
+                      this.status[this.fanucMonitorData[this.dialogMachineName].Data.Status] ?
+                          this.status[this.fanucMonitorData[this.dialogMachineName].Data.Status]
+                          : this.status.default
+                    }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>模具文件名：</p>
-                  <p style="color: green">{{ this.fanucDialogData.moldFileName }}</p>
+                  <p style="color: green">{{ this.fanucMonitorData[this.dialogMachineName].Data.MoldFileName }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>HR模式：</p>
-                  <p style="color: green">{{ this.fanucDialogData.condData.cond_hr_mode }}</p>
+                  <p style="color: green">{{ this.fanucCondData[this.dialogMachineName].Data.cond_hr_mode }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>实时成型间隔时间(s)：</p>
-                  <p style="color: green">{{ this.fanucDialogData.monitData.Cycle }}</p>
+                  <p style="color: green">{{ this.fanucMonitorData[this.dialogMachineName].Data.Cycle }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>最后一次成型时间：</p>
                   <p style="color: green">{{
-                      this.$moment(this.fanucDialogData.monitData.Date
-                          + this.fanucDialogData.monitData.Time, 'YYMMDDHHmmss')
+                      this.$moment(this.fanucMonitorData[this.dialogMachineName].Data.Date
+                          + this.fanucMonitorData[this.dialogMachineName].Data.Time, 'YYMMDDHHmmss')
                           .format('MM/DD HH:mm:ss')
                     }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>最大射出速度(mm/s)：</p>
-                  <p style="color: green">{{ this.fanucDialogData.condData.cond_inj_speed1 }}</p>
+                  <p style="color: green">{{ this.fanucCondData[this.dialogMachineName].Data.cond_inj_speed1 }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>最大射出压力(kgf/cm2)：</p>
-                  <p style="color: green">{{ this.fanucDialogData.condData.cond_max_inj_pres }}</p>
+                  <p style="color: green">{{ this.fanucCondData[this.dialogMachineName].Data.cond_max_inj_pres }}</p>
                 </el-row>
                 <el-row style="margin-bottom: 10px">
                   <p>保压切换模式：</p>
-                  <p style="color: green">{{ this.fanucDialogData.condData.cond_trans_mode }}</p>
+                  <p style="color: green">{{ this.fanucCondData[this.dialogMachineName].Data.cond_trans_mode }}</p>
                 </el-row>
               </el-col>
               <el-col :span="6" style="justify-content: flex-end;">
@@ -124,20 +130,20 @@
                   <p>成型次数</p>
                 </el-row>
                 <el-row style="font-family: 'led regular';font-size: xxx-large;color: green">
-                  <p>{{ this.fanucDialogData.monitData.ShotCount }}</p>
+                  <p>{{ this.fanucMonitorData[this.dialogMachineName].Data.ShotCount }}</p>
                 </el-row>
                 <el-row style="font-weight: bold;font-size: large">
                   <p>良品数</p>
                 </el-row>
                 <el-row style="font-family: 'led regular';font-size: xxx-large;color: green">
-                  <p>{{ this.fanucDialogData.monitData.GoodCount }}</p>
+                  <p>{{ this.fanucMonitorData[this.dialogMachineName].Data.GoodCount }}</p>
                 </el-row>
                 <el-row style="font-weight: bold;font-size: large">
                   <p>良率（%）</p>
                 </el-row>
                 <el-row style="font-family: 'led regular';font-size: xxx-large;color: green">
                   <p>{{
-                      Math.round(this.fanucDialogData.monitData.GoodCount / this.fanucDialogData.monitData.ShotCount * 10000) / 100.00
+                      Math.round(this.fanucMonitorData[this.dialogMachineName].Data.GoodCount / this.fanucMonitorData[this.dialogMachineName].Data.ShotCount * 10000) / 100.00
                     }}%</p>
                 </el-row>
               </el-col>
@@ -552,10 +558,9 @@
 
 <script>
 import * as echarts from 'echarts';
-import {getByFloor, getDetailInfo, getCondData, getMonitData, getAlarmData} from "@/api/iot/fanuc";
+import {getCondData, getMonitData, getAlarmData, selectEquips} from "@/api/iot/fanuc";
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
-import MqttConstant from '@/utils/mqttConstant'
 import MqttClient from "@/components/MqttClient";
 
 export default {
@@ -563,18 +568,37 @@ export default {
   components: {
     MqttClient
   },
-  created() {
-    this.timer = setInterval(() => {
-      this.getFanucDataByFloor()
-    }, 10000)
-  },
   mounted() {
-    this.initConnect()
-    this.getFanucDataByFloor()
+    let _this = this;
+    setTimeout(function() {
+      _this.getEquipList()
+      const position = _this.$route.query.position
+      _this.floorInfo = position.substring(2, position.length)
+      console.log(_this.floorInfo)
+      _this.initConnect()
+    }, 100);
+
+    //this.getFanucDataByFloor()
   },
   computed: {
+    fanucTopic() {
+      return [
+        {
+          topic: 'Fanuc/monitData/' + this.floorInfo + '/+',
+          qos: 0
+        },
+        {
+          topic: 'Fanuc/condData/' + this.floorInfo + '/+',
+          qos: 0
+        },
+        {
+          topic: 'Fanuc/moldData/' + this.floorInfo + '/+',
+          qos: 0
+        }
+      ]
+    },
     fanucMachineInfo() {
-      const pages = []
+      const pages = {}
       const position = this.$route.query.position;
       if (this.$route.params.status) {
         this.setStatusRadioValue(this.$route.params.status);
@@ -589,26 +613,36 @@ export default {
       }
       this.setDefaultCount()
       const floor = position.substring(2, position.length)
-
-      this.fanucMonitorInfo.forEach((item) => {
-        if (item.monitMcName.indexOf(floor) === 0) {
-          if (this.status[item.monitStatus]) {
-            if (this.statusRadioValue.indexOf(item.monitStatus) > -1) {
-              pages.push(item)
-            }
-            this.statusCount[item.monitStatus]++
-          } else {
-            if (this.statusRadioValue.indexOf("default") > -1) {
-              pages.push(item)
-            }
-            this.statusCount.default++
+      for (const item in this.fanucMonitorData) {
+        if (item.indexOf(floor) === -1)
+          continue;
+        if (this.status[this.fanucMonitorData[item].Data.Status]) {
+          if (this.statusRadioValue.indexOf(this.fanucMonitorData[item].Data.Status) > -1) {
+            pages[item] = this.fanucMonitorData[item].Data
           }
+          this.statusCount[this.fanucMonitorData[item].Data.Status]++
+        } else {
+          if (this.statusRadioValue.indexOf("default") > -1) {
+            pages[item] = this.fanucMonitorData[item].Data
+          }
+          this.statusCount.default++
         }
-      })
-      return pages
+      }
+      return this.sortObjByKey(pages)
     }
   },
   methods: {
+    sortObjByKey(obj) {
+      const keys = Object.keys(obj).sort();
+      const newObj = {};
+      for (let i = 0; i < keys.length; i++) {
+        const index = keys[i];
+        if(this.equipList.indexOf(index) === -1)
+          continue
+        newObj[index] = obj[index];
+      }
+      return newObj;
+    },
     initConnect() {
       this.$nextTick(() => {
         this.$refs.mqttClient.createMqttConnection();
@@ -617,14 +651,17 @@ export default {
     //接收消息
     messageArrived(msg) {
       switch (msg.Message) {
-        case 'Status':
-          this.statusList[msg.ClientId] = msg
+        case 'monitData':
+          this.fanucMonitorData[msg.ClientId] = msg
           break;
-        case 'Alarm':
-          this.alarmList[msg.ClientId] = msg
+        case 'moldData':
+          this.fanucMoldData[msg.ClientId] = msg
+          setTimeout(() => {
+            this.refreshData('circleChart' + msg.ClientId)
+          }, 100)
           break;
-        case 'Capacity':
-          this.capacityList[msg.ClientId] = msg
+        case 'condData':
+          this.fanucCondData[msg.ClientId] = msg
           break;
       }
     },
@@ -664,21 +701,6 @@ export default {
       }
       return wbOut
     },
-    getFanucDataByFloor() {
-      getByFloor().then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          this.fanucMonitorInfo = responseData.data;
-          setTimeout(() => { //延时加载echarts初始化函数
-            for (let fanucMachineInfoElement of this.fanucMachineInfo) {
-              if (fanucMachineInfoElement.monitStatus === '-1')
-                continue;
-              this.refreshData(fanucMachineInfoElement, 'circleChart' + fanucMachineInfoElement.monitMcName)
-            }
-          }, 0)
-        }
-      })
-    },
     onStatusRadioClick(statusCode) {
       const idx = this.statusRadioValue.indexOf(statusCode)
       if (idx > -1)
@@ -690,31 +712,24 @@ export default {
       this.fanucDialogCondData = []
       this.fanucDialogMonitData = []
     },
-    getFanucDetailData() {
-      getDetailInfo(this.dialogMachineName).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          this.fanucDialogData = responseData.data;
-        }
-      })
-    },
     checkMachineStatus(status) {
       return status !== '-1';
     },
     onCardClick(mcName) {
       this.dialogMachineName = mcName
-      this.getFanucDetailData()
       this.dialogVisible = true
     },
     onDialogClosed() {
       this.fanucDialogCondData = []
       this.dateTimePickerValue = []
     },
-    getStatusType(status) {
-      return Object.prototype.hasOwnProperty.call(this.statusType, status) ? this.statusType[status] : "item_otherStatus";
-    },
-    getStatusName(status) {
-      return Object.prototype.hasOwnProperty.call(this.status, status) ? this.status[status] : "其他";
+    getEquipList(){
+      selectEquips().then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.equipList = responseData.data;
+        }
+      })
     },
     getDialogMachineCondData() {
       if (this.dateTimePickerValue.length !== 2) {
@@ -791,20 +806,18 @@ export default {
             labelLine: {
               show: false
             },
-            data: this.getMoldData(this.fanucDialogData)
+            data: this.getMoldData(this.fanucMoldData[this.dialogMachineName])
           }
         ],
         color: ["rgba(59,162,114,1)", "rgba(250,200,88,1)", "rgba(84,112,198,1)", "rgba(238,102,102,1)", "rgba(154,96,180,1)", "gray", "rgba(252,132,82,1)"]
       };
       myChart.setOption(option);
     },
-    drawCircleChart(fanucData, chartId) {
+    drawCircleChart(chartId) {
       const chartDom = document.getElementById(chartId);
       const myChart = echarts.init(chartDom);
       let option;
-
-      const listData = this.getMoldData(fanucData)
-
+      const listData = this.getMoldData(this.fanucMoldData[chartId.replace('circleChart', '')])
       option = {
         tooltip: {
           trigger: 'item',
@@ -894,16 +907,17 @@ export default {
 
       myChart.setOption(option);
     },
-    refreshData(fanucData, chartId) {
+    refreshData(chartId) {
       const chartDom = document.getElementById(chartId);
+      if (!chartDom)
+        return
       const myChart = echarts.getInstanceByDom(chartDom)
       if (!myChart) {
-        this.drawCircleChart(fanucData, chartId)
+        this.drawCircleChart(chartId)
         return;
       }
-
       //更新数据
-      const list = this.getMoldData(fanucData)
+      const list = this.getMoldData(this.fanucMoldData[chartId.replace('circleChart', '')])
       myChart.setOption({
         legend: {
           formatter: function (name) {  //该函数用于设置图例显示后的百分比
@@ -926,12 +940,12 @@ export default {
     },
     getMoldData(fanucData) {
       const moldData = [];
-      const mold_automate = fanucData.moldData.mold_automate.replace('%', '').trim()
-      const mold_wait = fanucData.moldData.mold_wait.replace('%', '').trim()
-      const mold_manual = fanucData.moldData.mold_manual.replace('%', '').trim()
-      const mold_alarm = fanucData.moldData.mold_alarm.replace('%', '').trim()
-      const mold_complete = fanucData.moldData.mold_complete.replace('%', '').trim()
-      const mold_shutdown = fanucData.moldData.mold_shutdown.replace('%', '').trim()
+      const mold_automate = fanucData.Data.mold_automate.replace('%', '').trim()
+      const mold_wait = fanucData.Data.mold_wait.replace('%', '').trim()
+      const mold_manual = fanucData.Data.mold_manual.replace('%', '').trim()
+      const mold_alarm = fanucData.Data.mold_alarm.replace('%', '').trim()
+      const mold_complete = fanucData.Data.mold_complete.replace('%', '').trim()
+      const mold_shutdown = fanucData.Data.mold_shutdown.replace('%', '').trim()
       const mold_other = (100.00 - mold_automate - mold_wait - mold_manual - mold_alarm - mold_complete - mold_shutdown).toFixed(2)
       moldData.push({value: mold_automate, name: '自动运转'})
       moldData.push({value: mold_wait, name: '运转待机'})
@@ -958,15 +972,15 @@ export default {
     }
   },
   beforeUnmount() {
-    clearInterval(this.timer);
     this.disconnect();
   },
   data() {
     return {
+      floorInfo: '',
       client: {
         connected: false,
       },
-      secsTopic: MqttConstant.MQTT_Fanuc_TOPIC,
+      circlePieData: {},
       tabRadio: '成型条件',
       shortcuts: [{
         text: '最近一周',
@@ -997,6 +1011,9 @@ export default {
       dialogMachineName: '',
       dialogVisible: false,
       fanucMonitorInfo: [],
+      fanucMonitorData: {},
+      fanucCondData: {},
+      fanucMoldData: {},
       fanucDialogData: {
         monitData: {},
         condData: {},
@@ -1052,8 +1069,21 @@ export default {
         '50': 0,
         '-1': 0,
         default: 0
-      }
+      },
+      equipList: []
     }
   },
+  watch: {
+    $route: {
+      handler() {
+        let _this = this;
+        setTimeout(function() {
+          _this.floorInfo = _this.$route.query.position.substring(2, _this.$route.query.position.length)
+          _this.initConnect()
+        }, 100);
+      },
+      deep: true,
+    }
+  }
 };
 </script>

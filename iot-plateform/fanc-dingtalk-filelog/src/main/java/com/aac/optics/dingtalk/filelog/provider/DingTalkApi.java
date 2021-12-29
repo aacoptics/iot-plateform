@@ -49,7 +49,7 @@ public class DingTalkApi {
         OapiCspaceAuditlogListRequest req = new OapiCspaceAuditlogListRequest();
         req.setStartDate(startTimeUnix);
         req.setEndDate(endTimeUnix);
-        req.setPageSize(500L);
+        req.setPageSize(300L);
         if(gmtCreate != null && bizId != null) {
             req.setLoadMoreGmtCreate(gmtCreate);
             req.setLoadMoreBizId(bizId);

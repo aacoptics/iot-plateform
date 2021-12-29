@@ -1,6 +1,7 @@
 package com.aac.optics.fanuc.dashboard.controller;
 
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.fanuc.dashboard.entity.FanucMasterData;
 import com.aac.optics.fanuc.dashboard.service.*;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import io.swagger.annotations.Api;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -29,6 +32,9 @@ public class FanucDashboardController {
 
     @Autowired
     FanucAlarmDataService fanucAlarmDataService;
+
+    @Resource
+    FanucMasterDataService fanucMasterDataService;
 
     @Autowired
     FanucOneHourShotCountDataService fanucOneHourShotCountDataService;
@@ -98,4 +104,17 @@ public class FanucDashboardController {
         return Result.success(fanucDashboardService.getDigitalData());
     }
 
+    @ApiOperation(value = "获取机台String list", notes = "获取机台String list")
+    @GetMapping(value = "/selectEquips")
+    public Result selectEquips() {
+        return Result.success(fanucMasterDataService.selectEquipNames());
+    }
+
+    @ApiOperation(value = "按时间查询机台Cycle数据", notes = "按时间查询机台Cycle数据")
+    @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
+    @PostMapping("/getAllCycleList")
+    public Result getAllCycleList(@RequestBody Map<String, LocalDateTime> params) {
+        return Result.success(fanucMonitDataService.getAllCycleList(params.get("startTime"),
+                params.get("endTime")));
+    }
 }

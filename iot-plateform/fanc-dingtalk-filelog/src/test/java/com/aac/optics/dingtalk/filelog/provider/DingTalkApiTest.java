@@ -2,9 +2,9 @@ package com.aac.optics.dingtalk.filelog.provider;
 
 import com.aac.optics.dingtalk.filelog.entity.DingTalkUser;
 import com.aac.optics.dingtalk.filelog.service.DingTalkUserService;
+import com.aac.optics.dingtalk.filelog.service.SyncDingTalkFileService;
 import com.dingtalk.api.response.OapiCspaceAuditlogListResponse;
 import com.dingtalk.api.response.OapiGettokenResponse;
-import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
@@ -29,6 +27,9 @@ class DingTalkApiTest {
 
     @Autowired
     DingTalkUserService dingTalkUserService;
+
+    @Autowired
+    SyncDingTalkFileService syncDingTalkFileService;
 
     @Test
     void getAccessToken() {
@@ -40,25 +41,18 @@ class DingTalkApiTest {
     void getDingTalkFileLog() {
         try {
             List<DingTalkUser> opticsUsers = dingTalkUserService.getDingtalkUserInfo();
-
-
             OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
             String accessToken = oapiGettokenResponse.getAccessToken();
-
             LocalDateTime eTime = LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIN.withHour(23));
             LocalDateTime sTime = eTime.plusDays(-1);
-
             OapiCspaceAuditlogListResponse res = dingTalkApi.getDingTalkFileLog(accessToken,sTime,eTime,null,null);
-
             List<OapiCspaceAuditlogListResponse.AuditLogVO> listAll = new ArrayList<>();
-
             List<OapiCspaceAuditlogListResponse.AuditLogVO> list = res.getResult().getList();
             while(list != null && list.size() > 0){
                 listAll.addAll(list);
                 res = dingTalkApi.getDingTalkFileLog(accessToken,sTime,eTime,list.get(list.size() - 1).getGmtCreate(),Long.valueOf(list.get(list.size() - 1).getBizId()));
                 list = res.getResult().getList();
             }
-
             Integer i = 0;
             if(listAll.size() > 0){
                 for (OapiCspaceAuditlogListResponse.AuditLogVO auditLogVO : listAll) {
@@ -72,5 +66,10 @@ class DingTalkApiTest {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void test(){
+        syncDingTalkFileService.GetDingTalkFileLog();
     }
 }

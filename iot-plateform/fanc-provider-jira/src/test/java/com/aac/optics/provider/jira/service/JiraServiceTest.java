@@ -62,4 +62,9 @@ class JiraServiceTest {
         }
        // return Result.success(issueTrees);
     }
+
+    @Test
+    public void test(){
+
+    }
 }
