@@ -241,6 +241,7 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                         .setMatToolCode(null)
                         .setMatCode(null)
                         .setMatName(null)
+                        .setLifeSalvage(null)
                         .setMachineNo(updateSheetForm.getMachineNo());
                 this.save(toolInfo);
             }
