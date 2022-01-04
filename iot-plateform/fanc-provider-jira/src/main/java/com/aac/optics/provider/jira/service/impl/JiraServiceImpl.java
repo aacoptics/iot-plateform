@@ -7,6 +7,7 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import com.aac.optics.provider.jira.entity.IssueInfo;
+import com.aac.optics.provider.jira.entity.JiraIssue;
 import com.aac.optics.provider.jira.entity.ProcessInfo;
 import com.aac.optics.provider.jira.service.JiraService;
 import com.aac.optics.provider.jira.service.ProcessInfoService;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -79,6 +82,108 @@ public class JiraServiceImpl implements JiraService {
             issues.addAll(res.getJSONArray("issues"));
         }
         return getFinalTrees(issues, null, null);
+    }
+
+    @Override
+    public List<JiraIssue> getJiraIssue(String boardId, String startTime, String endTime) {
+        Integer startAt = 0;
+        JSONObject res = getIssuesByTime(boardId, startTime, endTime, startAt);
+        JSONArray issues = res.getJSONArray("issues");
+        while (res.getJSONArray("issues").size() == 500) {
+            startAt += 500;
+            res = getIssuesByTime(boardId, startTime, endTime, startAt);
+            issues.addAll(res.getJSONArray("issues"));
+        }
+
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0800'");
+
+        DateTimeFormatter pattern0 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startTimeLocal = LocalDateTime.parse(startTime + " 00:00:00", pattern0);
+        LocalDateTime endTimeLocal = LocalDateTime.parse(endTime + " 00:00:00", pattern0);
+
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        List<JiraIssue> jiraIssueList = new ArrayList<>();
+
+        for (Object issue : issues) {
+            JSONObject issueJson = (JSONObject) issue;
+            JiraIssue jiraIssue = new JiraIssue();
+
+            String username = "";
+            String issueStartTime = "";
+            String issueEndTime = "";
+
+            try {
+                username = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
+            } catch (Exception err) {
+
+            }
+            String status = issueJson.getJSONObject("fields").getJSONObject("status").getString("name");
+            String issueSummary = issueJson.getJSONObject("fields").getString("summary");
+            String issueKey = issueJson.getString("key");
+
+            String createTimeStr = issueJson.getJSONObject("fields").getString("created");
+            String updateTimeStr = issueJson.getJSONObject("fields").getString("updated");
+            LocalDateTime createTime = LocalDateTime.parse(createTimeStr, pattern);
+            LocalDateTime updateTime = LocalDateTime.parse(updateTimeStr, pattern);
+
+            Integer estimateTime = issueJson.getJSONObject("fields").getJSONObject("timetracking")
+                                    .getInteger("originalEstimateSeconds");
+            JSONArray workLogs = issueJson.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
+            if(workLogs.size() > 0)
+            {
+                estimateTime = 0;
+                for (Object workLog : workLogs) {
+                    JSONObject workLogJson = (JSONObject) workLog;
+                    LocalDateTime workLogTime = DateUtil.parse(workLogJson.getString("created"), "yyyy-MM-dd'T'hh:mm:ss.SSS'+0800'").toTimestamp().toLocalDateTime();
+                    if(workLogTime.isAfter(startTimeLocal) && workLogTime.isBefore(endTimeLocal))
+                        estimateTime += workLogJson.getInteger("timeSpentSeconds");
+                }
+            }
+            String businessCost = "";
+            String devlopCost = "";
+
+            float estimateTimeF = 0.0f;
+            if(estimateTime != null)
+            {
+                estimateTimeF = (float) estimateTime;
+            }
+            float hourF = (float) 3600;
+
+            NumberFormat numberFormat = NumberFormat.getInstance();
+            numberFormat.setMaximumFractionDigits(2);
+
+            if(issueKey.indexOf("DEV-") > -1)
+            {
+                devlopCost = numberFormat.format(estimateTimeF/hourF) + " h";
+            }
+            else
+            {
+                businessCost = numberFormat.format(estimateTimeF/hourF) + " h";
+            }
+
+            issueStartTime = df.format(createTime);
+            if("完成".equals(status))
+            {
+                issueEndTime = df.format(updateTime);
+            }
+            else
+            {
+                issueEndTime = "";
+            }
+
+            jiraIssue.setIssueKey(issueKey);
+            jiraIssue.setIssue(issueSummary);
+            jiraIssue.setUsername(username);
+            jiraIssue.setStartTime(issueStartTime);
+            jiraIssue.setEndTime(issueEndTime);
+            jiraIssue.setBusinessCost(businessCost);
+            jiraIssue.setDevlopCost(devlopCost);
+            jiraIssue.setStatus(status);
+
+            jiraIssueList.add(jiraIssue);
+        }
+        return jiraIssueList;
     }
 
     private List<Tree<String>> getFinalTrees(JSONArray issues, LocalDateTime startTime, LocalDateTime endTime) {

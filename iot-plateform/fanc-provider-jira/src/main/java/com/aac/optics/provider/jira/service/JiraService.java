@@ -2,6 +2,7 @@ package com.aac.optics.provider.jira.service;
 
 
 import cn.hutool.core.lang.tree.Tree;
+import com.aac.optics.provider.jira.entity.JiraIssue;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,4 +20,6 @@ public interface JiraService {
     List<Tree<String>> getIssuesByTime(String boardId, String startTime, String endTime);
 
     JSONObject getSprintDetail(String sprintId);
+
+    List<JiraIssue> getJiraIssue(String boardId, String startTime, String endTime);
 }
