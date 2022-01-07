@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container" style="height: 100%;">
       <h1 style="text-align: center;margin-bottom: 20px;font-family: 楷体,serif">JIRA工时看板</h1>
       <el-row>
         <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
@@ -46,8 +46,8 @@
                   border
                   lazy
                   :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-                  v-loading="tableLoading" 
-                  :data="sprintIssues" 
+                  v-loading="tableLoading"
+                  :data="sprintIssues"
                   height="375px"
               >
                 <el-table-column prop="issue" label="任务" sortable width="270"/>
