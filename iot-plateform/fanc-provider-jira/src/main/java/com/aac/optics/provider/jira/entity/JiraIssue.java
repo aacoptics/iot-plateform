@@ -18,7 +18,9 @@ public class JiraIssue implements Serializable {
 
     private String issueKey;
 
-    private String startTime;
+    private String ekpIssueNo;
+
+   private String startTime;
 
     private String endTime;
 

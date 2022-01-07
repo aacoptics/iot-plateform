@@ -121,6 +121,7 @@ public class JiraServiceImpl implements JiraService {
             String status = issueJson.getJSONObject("fields").getJSONObject("status").getString("name");
             String issueSummary = issueJson.getJSONObject("fields").getString("summary");
             String issueKey = issueJson.getString("key");
+            String ekpIssueNo = issueJson.getJSONObject("fields").getString("customfield_14901");
 
             String createTimeStr = issueJson.getJSONObject("fields").getString("created");
             String updateTimeStr = issueJson.getJSONObject("fields").getString("updated");
@@ -173,6 +174,7 @@ public class JiraServiceImpl implements JiraService {
             }
 
             jiraIssue.setIssueKey(issueKey);
+            jiraIssue.setEkpIssueNo(ekpIssueNo);
             jiraIssue.setIssue(issueSummary);
             jiraIssue.setUsername(username);
             jiraIssue.setStartTime(issueStartTime);
