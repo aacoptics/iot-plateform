@@ -5,6 +5,7 @@ import routeMap from "./components"
 import {setMenuInfo, setMenuItems, getUsername, getAccessToken, getMenuItems} from '@/utils/auth'
 import {getMenuByUsername} from "@/api/system/user";
 import {saveRefreshTime} from "@/api";
+import worklog from "@/views/system/permission/worklog";
 
 const routes = [
     {
@@ -27,6 +28,15 @@ const routes = [
             openView: true
         },
         component: jira
+    },
+    {
+        path: "/jiraWorkLog",
+        name: "jiraWorkLog",
+        meta: {
+            title: 'jira工时看板',
+            openView: true
+        },
+        component: worklog
     }
 ]
 
