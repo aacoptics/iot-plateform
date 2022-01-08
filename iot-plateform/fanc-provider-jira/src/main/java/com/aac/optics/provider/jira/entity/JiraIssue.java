@@ -24,9 +24,13 @@ public class JiraIssue implements Serializable {
 
     private String endTime;
 
-    private String devlopCost;
+    private String developCost;
+
+    private String developOwner;
 
     private String businessCost;
+
+    private String businessOwner;
 
     private String status;
 }
