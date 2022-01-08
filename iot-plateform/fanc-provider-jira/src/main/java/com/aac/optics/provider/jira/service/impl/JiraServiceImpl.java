@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -45,6 +47,21 @@ public class JiraServiceImpl implements JiraService {
     @Autowired
     ProcessInfoService processInfoService;
 
+
+    public static Date addDateByDay(Date dateTime,int n) {
+
+        //日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        java.util.Calendar calstart = java.util.Calendar.getInstance();
+        calstart.setTime(dateTime);
+
+        calstart.add(java.util.Calendar.DAY_OF_WEEK, n);
+
+        System.out.println(df.format(calstart.getTime()));
+        return calstart.getTime();
+
+    }
 
     @Override
     public JSONObject getSprintInfo(String boardId) {
@@ -87,12 +104,42 @@ public class JiraServiceImpl implements JiraService {
     @Override
     public List<JiraIssue> getJiraIssue(String boardId, String startTime, String endTime) {
         Integer startAt = 0;
+        JSONArray issues;
+
+        JSONArray issues1 = new JSONArray();
+        JSONArray issues2 = new JSONArray();
+
+
+
         JSONObject res = getIssuesByTime(boardId, startTime, endTime, startAt);
-        JSONArray issues = res.getJSONArray("issues");
+        issues = res.getJSONArray("issues");
+
         while (res.getJSONArray("issues").size() == 500) {
             startAt += 500;
             res = getIssuesByTime(boardId, startTime, endTime, startAt);
             issues.addAll(res.getJSONArray("issues"));
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        ParsePosition pos = new ParsePosition(0);
+        JSONArray issureArray = new JSONArray();
+        if("3285".equals(boardId))
+        {
+            Date startDate = formatter.parse(startTime, pos);
+            startDate = addDateByDay(startDate, -60);
+            String startTime1 = formatter.format(startDate);
+
+            JSONObject res1 = getIssuesByTime("3302", startTime1, endTime, startAt);
+            issureArray = res1.getJSONArray("issues");
+        }
+        else if("3302".equals(boardId))
+        {
+            Date endDate = formatter.parse(endTime, pos);
+            endDate = addDateByDay(endDate, 60);
+            String endTime1 = formatter.format(endDate);
+
+            JSONObject res2 = getIssuesByTime("3285", startTime, endTime1, startAt);
+            issureArray = res2.getJSONArray("issues");
         }
 
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0800'");
@@ -104,6 +151,11 @@ public class JiraServiceImpl implements JiraService {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         List<JiraIssue> jiraIssueList = new ArrayList<>();
+
+        float hourF = (float) 3600;
+
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setMaximumFractionDigits(2);
 
         for (Object issue : issues) {
             JSONObject issueJson = (JSONObject) issue;
@@ -142,25 +194,26 @@ public class JiraServiceImpl implements JiraService {
                 }
             }
             String businessCost = "";
-            String devlopCost = "";
+            String businessOwner = "";
+            String developCost = "";
+            String developOwner = "";
 
             float estimateTimeF = 0.0f;
             if(estimateTime != null)
             {
                 estimateTimeF = (float) estimateTime;
             }
-            float hourF = (float) 3600;
 
-            NumberFormat numberFormat = NumberFormat.getInstance();
-            numberFormat.setMaximumFractionDigits(2);
 
             if(issueKey.indexOf("DEV-") > -1)
             {
-                devlopCost = numberFormat.format(estimateTimeF/hourF) + " h";
+                developCost = numberFormat.format(estimateTimeF/hourF) + " h";
+                developOwner = username;
             }
             else
             {
                 businessCost = numberFormat.format(estimateTimeF/hourF) + " h";
+                businessOwner = username;
             }
 
             issueStartTime = df.format(createTime);
@@ -180,12 +233,83 @@ public class JiraServiceImpl implements JiraService {
             jiraIssue.setStartTime(issueStartTime);
             jiraIssue.setEndTime(issueEndTime);
             jiraIssue.setBusinessCost(businessCost);
-            jiraIssue.setDevlopCost(devlopCost);
+            jiraIssue.setDevelopCost(developCost);
+
+            jiraIssue.setBusinessOwner(businessOwner);
+            jiraIssue.setDevelopOwner(developOwner);
+
             jiraIssue.setStatus(status);
 
             jiraIssueList.add(jiraIssue);
         }
-        return jiraIssueList;
+        if("3285".equals(boardId) || "3302".equals(boardId))
+        {
+            List<JiraIssue> resultJiraList = new ArrayList<>();
+
+
+            if(jiraIssueList != null && !jiraIssueList.isEmpty())
+            {
+                for(int i=0;i<jiraIssueList.size();i++)
+                {
+                    JiraIssue bean = jiraIssueList.get(i);
+                    String ekpNo = bean.getEkpIssueNo();
+                    String beanIssueKey = bean.getIssueKey();
+
+                    if(ekpNo != null && !"".equalsIgnoreCase(ekpNo.trim()))
+                    {
+                        for(Object issueBean:issureArray)
+                        {
+                            JSONObject issueBeanJson = (JSONObject) issueBean;
+                            String ekpIssueNo = issueBeanJson.getJSONObject("fields").getString("customfield_14901");
+                            if(!ekpNo.equalsIgnoreCase(ekpIssueNo))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                String owner = issueBeanJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
+                                Integer estimateTime1 = issueBeanJson.getJSONObject("fields").getJSONObject("timetracking")
+                                        .getInteger("originalEstimateSeconds");
+                                JSONArray workLogs1 = issueBeanJson.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
+                                if(workLogs1.size() > 0)
+                                {
+                                    estimateTime1 = 0;
+                                    for (Object workLog : workLogs1) {
+                                        JSONObject workLogJson = (JSONObject) workLog;
+                                        LocalDateTime workLogTime = DateUtil.parse(workLogJson.getString("created"), "yyyy-MM-dd'T'hh:mm:ss.SSS'+0800'").toTimestamp().toLocalDateTime();
+                                        if(workLogTime.isAfter(startTimeLocal) && workLogTime.isBefore(endTimeLocal))
+                                            estimateTime1 += workLogJson.getInteger("timeSpentSeconds");
+                                    }
+                                }
+
+                                float estimateTimeF1 = 0.0f;
+                                if(estimateTime1 != null)
+                                {
+                                    estimateTimeF1 = (float) estimateTime1;
+                                }
+
+                                if(beanIssueKey.indexOf("DEV-") > -1)
+                                {
+                                    bean.setBusinessOwner(owner);
+                                    bean.setBusinessCost(numberFormat.format(estimateTimeF1/hourF) + " h");
+                                }
+                                else
+                                {
+                                    bean.setDevelopOwner(owner);
+                                    bean.setDevelopCost(numberFormat.format(estimateTimeF1/hourF) + " h");
+                                }
+                            }
+                        }
+                    }
+                    resultJiraList.add(bean);
+                }
+            }
+            return resultJiraList;
+        }
+        else
+        {
+            return jiraIssueList;
+        }
     }
 
     private List<Tree<String>> getFinalTrees(JSONArray issues, LocalDateTime startTime, LocalDateTime endTime) {

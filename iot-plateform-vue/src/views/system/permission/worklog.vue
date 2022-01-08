@@ -41,22 +41,23 @@
               <h3 style="text-align: center">任务明细</h3>
               <el-table
                   id="topIssues"
-                  style="width: 100%;font-size: xx-small"
+                  style="width:100%;font-size: xx-small;height:100%;"
                   row-key="issueKey"
                   border
                   lazy
-                  :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-                  v-loading="tableLoading"
-                  :data="sprintIssues"
-                  height="375px"
+                  :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" 
+                  v-loading="tableLoading" 
+                  :data="sprintIssues" 
               >
                 <el-table-column prop="issue" label="任务" sortable width="230"/>
                 <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="180"/>
-                <el-table-column prop="status" label="状态" sortable width="130"/>
+                <el-table-column prop="status" label="状态" sortable width="100"/>
                 <el-table-column prop="startTime" label="开始时间" sortable width="160"/>
                 <el-table-column prop="endTime" label="结束时间" sortable width="160"/>
-                <el-table-column prop="businessCost" label="业务用时" sortable width="120"/>
-                <el-table-column prop="devlopCost" label="开发用时" sortable width="120"/>
+                <el-table-column prop="businessOwner" label="业务人员" sortable width="100"/>
+                <el-table-column prop="businessCost" label="业务用时" sortable width="100"/>
+                <el-table-column prop="developOwner" label="开发人员" sortable width="100"/>
+                <el-table-column prop="developCost" label="开发用时" sortable width="100"/>
               </el-table>
             </el-col>
           </el-row>
