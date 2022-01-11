@@ -51,6 +51,7 @@ const formatMenus = function (menuData, menuItems, levelInfo = '') {
         const menuItem = {
             icon: menu.icon,
             index: menu.path ? menu.path.replace("/", "") : menu.name,
+            name: menu.name,
             title: menu.title,
             levelInfo: newParent
         }
