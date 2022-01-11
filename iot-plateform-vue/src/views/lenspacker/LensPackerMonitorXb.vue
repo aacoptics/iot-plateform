@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import {getMachineStatus, getMachineAlarms} from "@/api/iot/lenspacker";
+import {getMachineStatus, getMachineAlarms} from "@/api/iot/lenspackerXb";
 
 export default {
   name: "CoatingMachineMonitor",
