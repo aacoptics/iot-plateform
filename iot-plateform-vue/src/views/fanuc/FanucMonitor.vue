@@ -584,15 +584,15 @@ export default {
     fanucTopic() {
       return [
         {
-          topic: 'Fanuc/monitData/' + this.siteInfo + '/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/monitData/' + this.floorInfo + '/+',
           qos: 0
         },
         {
-          topic: 'Fanuc/condData/' + this.siteInfo + '/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/condData/' + this.floorInfo + '/+',
           qos: 0
         },
         {
-          topic: 'Fanuc/moldData/' + this.siteInfo + '/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/moldData/' + this.floorInfo + '/+',
           qos: 0
         }
       ]
