@@ -6,33 +6,31 @@
                alarm_code,
                start_time,
                end_time,
-               B.description,
+               B.parameter_desc as description,
                datediff(SS, start_time, end_time) as duration
         from z_lenspacker_alarm_data A
-                 LEFT JOIN lensDescription B
+                 LEFT JOIN z_lenspacker_alarm_config B
                            ON A.cavity_nums = B.Hole
-                               and A.alarm_code = B.TagName
+                               and A.alarm_code = B.parameter_name
         where end_time is not null
           and start_time &gt; CONVERT(varchar(100), #{startTime}, 21)
           and start_time &lt; CONVERT(varchar(100), #{endTime}, 21)
-          and datediff(SS, start_time, end_time) &gt;= 20
     </select>
 
     <select id="getMachineAlarmCount" resultType="com.aac.optics.lenspacker.dashboard.entity.LensPackerAlarmInfo">
         select monit_mc_name,
                alarm_code,
-               B.description,
+               B.parameter_desc as description,
                sum(datediff(SS, start_time, end_time)) as duration,
                count(*)                                as alarmCount
         from z_lenspacker_alarm_data A
-                 LEFT JOIN lensDescription B
+                 LEFT JOIN z_lenspacker_alarm_config B
                            ON A.cavity_nums = B.Hole
-                               and A.alarm_code = B.TagName
+                               and A.alarm_code = B.parameter_name
         where end_time is not null
           and start_time &gt; CONVERT(varchar(100), #{startTime}, 21)
           and start_time &lt; CONVERT(varchar(100), #{endTime}, 21)
-          and datediff(SS, start_time, end_time) &gt;= 20
-        group by monit_mc_name, alarm_code, B.description
+        group by monit_mc_name, alarm_code, B.parameter_desc
     </select>
 
     <select id="getMachineNameList" resultType="com.aac.optics.lenspacker.dashboard.entity.LensPackerAlarmInfo">

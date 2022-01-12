@@ -22,8 +22,6 @@
         <module>fanc-dingtalk-filelog</module>
         <module>fanc-provider-jira</module>
         <module>fanc-dingtalk-sync</module>
-        <module>iot-fanuc-dashboard-xb</module>
-        <module>iot-lenspacker-dashboard-xb</module>
     </modules>
 
     <packaging>pom</packaging>
