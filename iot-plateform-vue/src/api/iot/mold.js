@@ -184,3 +184,15 @@ export function getAbnormalList() {
     })
 }
 
+export function getAbnormalToolLifeRatio() {
+    return request({
+        url: '/moldToolLife/toolLife/abnormalToolLifeRatio',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+
+
