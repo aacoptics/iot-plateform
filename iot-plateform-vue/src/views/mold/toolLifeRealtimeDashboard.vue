@@ -45,14 +45,17 @@
             <span>时间段：{{ timeArea.startTime }} 至 {{ timeArea.endTime }}</span>
           </div>
         </template>
-        <el-row :gutter="20">
-          <el-col :span="10">
+        <el-row :gutter="10">
+          <el-col :span="6">
             <div v-for="(area, index) of areaCode" :key="index">
               <div :id="'oee'+area" style="height: 200px"></div>
             </div>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="9">
             <div id="abnormalRatioChart" style="height:600px"></div>
+          </el-col>
+          <el-col :span="8">
+            <div id="abnormalQty" style="height:600px"></div>
           </el-col>
         </el-row>
 <!--        <el-row :gutter="20">-->
@@ -301,7 +304,7 @@ import {
   getAreaInfo, getLastDayAbnormalCount,
   getLastDayScrapCount,
   getLastDayTotalTime, getToolHisList,
-  getToolMaintainStatus, getAbnormalToolLifeRatio
+  getToolMaintainStatus, getAbnormalToolLifeRatio, getAbnormalQty
 } from "@/api/iot/mold";
 import {getUsername} from "@/utils/auth";
 import {tableFilter} from "@/utils/baseUtils";
@@ -367,7 +370,8 @@ export default {
         endTime: ''
       },
       abnormalMatCode: [],
-      abnormalLifeRatio: []
+      abnormalLifeRatio: [],
+      abnormalQty: []
     }
   },
   computed: {
@@ -394,6 +398,8 @@ export default {
     this.drawOEECharts();
     this.getAbnormalToolLifeRatio();
     this.drawAbnormalRatioChart();
+    this.getAbnormalQty();
+    this.drawAbnormalQtyPieChart();
   },
   methods: {
     filterHandler(value, row, column) {
@@ -732,7 +738,12 @@ export default {
             y: 'top'
           },
           grid:{
-            y2:140
+            y2:140,
+            left: '15%',
+            right: '15%',
+            bottom: '3%',
+            containLabel: true
+
           },
           xAxis: {
             name: '刀具物料号',
@@ -768,6 +779,53 @@ export default {
           ]
         };
         abnormalRatioChart.setOption(option);
+      }, 1000);
+    },
+    getAbnormalQty() {
+      getAbnormalQty().then((response) => {
+        const responseData = response.data;
+        if (responseData.code === '000000') {
+          for(var i = 0; i < responseData.data.length; i++) {
+            var m = {};
+            m["value"] = responseData.data[i].abnormal_qty;
+            m["name"] = responseData.data[i].abnormal_name;
+            this.abnormalQty.push(m);
+          }
+        }
+      });
+    },
+    drawAbnormalQtyPieChart(){
+      setTimeout(() => {
+        let abnormalQtyPieChart = this.$echarts.init(document.getElementById("abnormalQty"));
+        var option = {
+          title: {
+            text: '按刀具异常类型分类',
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left'
+          },
+          series: [
+            {
+              type: 'pie',
+              radius: '50%',
+              data: this.abnormalQty
+            }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+
+        };
+        abnormalQtyPieChart.setOption(option);
       }, 1000);
     }
   },
