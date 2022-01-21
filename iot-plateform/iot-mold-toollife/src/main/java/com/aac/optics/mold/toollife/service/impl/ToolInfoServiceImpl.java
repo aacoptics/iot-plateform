@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -283,5 +284,24 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             }
         }
         return res;
+    }
+
+    public Map<String, Object> getAbnormalToolLifeRatio() {
+        List<Map<String, Object>> abnormalToolLifeRatioList = new ArrayList<>();
+        abnormalToolLifeRatioList = toolInfoMapper.getAbnormalToolLifeRatio();
+        List<String> matCode = new ArrayList<>();
+        List<Double> ratio = new ArrayList<>();
+        for(Map<String, Object> abnormalToolLifeRatio : abnormalToolLifeRatioList) {
+            matCode.add(abnormalToolLifeRatio.get("mat_code").toString());
+            ratio.add(Double.parseDouble(abnormalToolLifeRatio.get("lifeRatio").toString()));
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("matCode", matCode);
+        result.put("ratio", ratio);
+        return result;
+    }
+
+    public List<Map<String, Object>> getAbnormalQty() {
+        return toolInfoMapper.getAbnormalQty();
     }
 }

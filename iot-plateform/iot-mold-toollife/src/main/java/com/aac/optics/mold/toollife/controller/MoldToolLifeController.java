@@ -181,4 +181,14 @@ public class MoldToolLifeController {
     public Result getAllMatInfo() {
         return Result.success(matInfoService.getMatInfo());
     }
+
+    @ApiOperation(value = "获取异常物料刀具寿命比例信息", notes = "获取异常物料刀具寿命比例信息")
+    @GetMapping("/abnormalToolLifeRatio")
+    public Result getAbnormalToolListRatio() { return Result.success(toolInfoService.getAbnormalToolLifeRatio()); }
+
+    @ApiOperation(value = "获取刀具异常类型分类数量", notes = "获取刀具异常类型分类数量")
+    @GetMapping("/abnormalQty")
+    public Result getAbnormalQty() {
+        return Result.success(toolInfoService.getAbnormalQty());
+    }
 }

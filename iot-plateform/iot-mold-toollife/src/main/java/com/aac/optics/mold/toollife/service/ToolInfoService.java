@@ -26,4 +26,8 @@ public interface ToolInfoService extends IService<ToolInfo> {
     List<ToolMachineNo> getToolMachineNo(String monitorNo);
 
     List<ToolInfo> getToolInfoByMonitorNoAndMachineNo(String monitorNo, String machineNo);
+
+    Map<String, Object> getAbnormalToolLifeRatio();
+
+    List<Map<String, Object>> getAbnormalQty();
 }
