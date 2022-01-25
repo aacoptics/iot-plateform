@@ -263,6 +263,7 @@ export default {
           this.territoryStoryPoints[item.territory] = 0
         }
 
+        var issueKey = item.issueKey + '';
         var estimateTime = 0.0;
         if(issueKey.indexOf('DEV-') > -1)
         {
