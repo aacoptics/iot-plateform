@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.provider.jira.service.ETLJiraService;
 import com.aac.optics.provider.jira.service.JiraService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -24,9 +25,12 @@ import java.util.List;
 @Api("JiraProvider")
 @Slf4j
 public class JiraProviderController {
+
     @Autowired
     JiraService jiraService;
 
+    @Autowired
+    ETLJiraService etlJiraService;
 
     @ApiOperation(value = "查询Sprint任务", notes = "查询Sprint任务")
     @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
@@ -65,13 +69,23 @@ public class JiraProviderController {
         return Result.success(jiraService.getIssuesByTime(boardId, startTime, endTime));
     }
 
+    @ApiOperation(value = "按时间查询TOP10任务", notes = "按时间查询TOP10任务")
+    @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
+    @GetMapping("/getTop10IssuesByTime")
+    public Result getTop10IssuesByTime(@RequestParam("boardId") String boardId,
+                                  @RequestParam("startTime") String startTime,
+                                  @RequestParam("endTime") String endTime) {
+        return Result.success(etlJiraService.findTOP10JIRA(boardId, startTime, endTime));
+    }
+
     @ApiOperation(value = "按看板查询任务清单", notes = "按看板查询任务清单")
     @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
     @GetMapping("/getJiraIssue")
     public Result getJiraIssue(@RequestParam("boardId") String boardId,
                                   @RequestParam("startTime") String startTime,
                                   @RequestParam("endTime") String endTime) {
-        return Result.success(jiraService.getJiraIssue(boardId, startTime, endTime));
+        // return Result.success(jiraService.getJiraIssue(boardId, startTime, endTime));
+        return Result.success(etlJiraService.filterIssuesByCondition(boardId, startTime, endTime));
     }
 
     @ApiOperation(value = "查询所有看板", notes = "查询所有看板")
