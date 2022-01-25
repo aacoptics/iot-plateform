@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.provider.jira.mapper.IssueDataMapper">
+
+    <insert id="insertIssueData" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
+  		INSERT INTO JIRA_00_ISSUE([ISSUE_ID], [ISSUE_KEY], [ISSUE_NAME], [EKP_ISSUE_NO], [ISSUE_TYPE], [DOMAIN]
+  		                         ,[STATUS], [START_TIME], [END_TIME], [BUSINESS_OWNER], [BUSINESS_COST]
+  		                         ,[DEVELOP_OWNER], [DEVELOP_COST], CREATE_TIME, UPDATE_TIME, FINISH_FLAG)
+  		VALUES(#{ISSUE_ID}, #{ISSUE_KEY}, #{ISSUE_NAME}, #{EKP_ISSUE_NO}, #{ISSUE_TYPE}, #{DOMAIN}
+  		       , #{STATUS}, convert(datetime, #{START_TIME}, 120), convert(datetime, #{END_TIME}, 120)
+  		       , #{BUSINESS_OWNER}, #{BUSINESS_COST}, #{DEVELOP_OWNER},#{DEVELOP_COST}, GETDATE(), NULL, 0)
+	</insert>
+
+    <select id="getIssueByKey" parameterType="java.lang.String" resultType="com.aac.optics.provider.jira.entity.IssueData">
+        SELECT TOP 1 I.*
+        FROM JIRA_00_ISSUE I
+        WHERE I.ISSUE_KEY LIKE ('%' + #{ISSUE_KEY} + '%')
+    </select>
+
+	<insert id="insertDashboardIssue" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
+  		INSERT INTO JIRA_00_DASHBOARD_ISSUE(DASHBOARD_ID, ISSUE_KEY,  CREATE_TIME, UPDATE_TIME)
+  		VALUES(#{DASHBOARD_ID}, #{ISSUE_KEY},  GETDATE(), GETDATE())
+	</insert>
+
+	<select id="getIssuesToUpdate" parameterType="Map" resultType="Map">
+        SELECT    I.ISSUE_ID, I.ISSUE_KEY, ISNULL(I.EKP_ISSUE_NO, '') AS EKP_ISSUE_NO
+        		, CONVERT(varchar(100), I.START_TIME, 120) AS CREATE_TIME
+        		, ISNULL(BUSINESS_OWNER,'') AS BUSINESS_OWNER
+        		, ISNULL(DEVELOP_OWNER,'') AS DEVELOP_OWNER
+        		, ISNULL(BUSINESS_COST, 0.0) AS BUSINESS_COST
+        		, ISNULL(DEVELOP_COST, 0.0) AS DEVELOP_COST 
+        FROM JIRA_00_ISSUE I
+        WHERE I.FINISH_FLAG = 0
+    </select>
+
+	<update id="updateIssueLog" parameterType="Map" flushCache="true" timeout="20">
+		UPDATE JIRA_00_ISSUE
+		 SET STATUS = #{status}
+		    ,END_TIME = convert(datetime, #{endTime}, 120)
+		    ,FINISH_FLAG = #{finishFlag}
+		    ,BUSINESS_COST = #{businessCost}
+		    ,BUSINESS_OWNER = #{businessOwner}
+		    ,DEVELOP_COST = #{developCost}
+		    ,DEVELOP_OWNER = #{developOwner}
+		    ,UPDATE_TIME = GETDATE()
+		WHERE 1=1
+		AND ISSUE_KEY = #{issueKey}
+    </update>
+
+	<select id="filterIssuesByCondition" parameterType="Map" resultType="Map">
+        SELECT    I.ISSUE_ID  as issueId
+        		, I.ISSUE_KEY as issueKey
+        		, I.ISSUE_NAME as issue
+        		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
+        		, STATUS AS status
+        		, DOMAIN AS territory
+        		, CONVERT(varchar(100), I.START_TIME, 120) AS startTime
+        		, CASE WHEN I.END_TIME IS NULL THEN ''
+				       ELSE CONVERT(varchar(100), I.END_TIME, 120)
+				  END AS endTime
+        		, ISNULL(BUSINESS_OWNER,'') AS businessOwner
+        		, ISNULL(DEVELOP_OWNER,'') AS developOwner
+        		, ISNULL(BUSINESS_COST, 0.0) AS businessCost
+        		, ISNULL(DEVELOP_COST, 0.0) AS developCost
+        FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI
+        WHERE I.ISSUE_KEY = DI.ISSUE_KEY
+        AND DI.DASHBOARD_ID = #{boardId}
+        AND I.START_TIME between convert(datetime, #{startTime}, 120) and convert(datetime, #{endTime}, 120)
+    </select>
+
+	<select id="findTOP10BusinessJIRA" parameterType="Map" resultType="Map">
+        SELECT   TOP 10 I.ISSUE_KEY as issueKey
+        		, I.ISSUE_NAME as issueSummary
+        		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
+        		, STATUS AS status
+        		, DOMAIN AS territory
+        		, ISSUE_TYPE AS issueType
+        		, ISNULL(BUSINESS_OWNER,'') AS username
+        		, ISNULL(BUSINESS_COST, 0.0) AS estimateTime
+        FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI
+        WHERE I.ISSUE_KEY = DI.ISSUE_KEY
+        AND DI.DASHBOARD_ID = #{boardId}
+        AND I.START_TIME between convert(datetime, #{startTime}, 120) and convert(datetime, #{endTime}, 120)
+        ORDER BY ISNULL(BUSINESS_COST, 0.0) DESC
+    </select>
+
+	<select id="findTOP10DevelopJIRA" parameterType="Map" resultType="Map">
+        SELECT    TOP 10 I.ISSUE_KEY as issueKey
+        		, I.ISSUE_NAME as issueSummary
+        		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
+        		, STATUS AS status
+        		, DOMAIN AS territory
+        		, ISSUE_TYPE AS issueType
+        		, ISNULL(DEVELOP_OWNER,'') AS username
+        		, ISNULL(DEVELOP_COST, 0.0) AS estimateTime
+        FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI
+        WHERE I.ISSUE_KEY = DI.ISSUE_KEY
+        AND DI.DASHBOARD_ID = #{boardId}
+        AND I.START_TIME between convert(datetime, #{startTime}, 120) and convert(datetime, #{endTime}, 120)
+        ORDER BY ISNULL(DEVELOP_COST, 0.0) DESC
+    </select>
+
+</mapper>
