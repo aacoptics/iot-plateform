@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.provider.jira.mapper.DashboardDataMapper">
+
+    <select id="getAllDashboard" resultType="Map">
+        SELECT D.ID, D.DASHBOARD_ID, D.DASHBOARD_NAME, D.DASHBOARD_LINK, D.CREATE_TIME, D.UPDATE_TIME
+        FROM JIRA_00_DASHBOARD D
+        WHERE D.DASHBOARD_ID IN (3183, 3285, 3423, 3302, 3342, 3243)
+    </select>
+
+    <insert id="insertDashboard" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
+  		INSERT INTO JIRA_00_DASHBOARD(DASHBOARD_ID, DASHBOARD_NAME, DASHBOARD_LINK, CREATE_TIME, UPDATE_TIME)
+  		VALUES(#{DASHBOARD_ID}, #{DASHBOARD_NAME}, #{DASHBOARD_LINK}, GETDATE(), GETDATE())
+	</insert>
+
+    <select id="getDashboardByName" parameterType="java.lang.String" resultType="com.aac.optics.provider.jira.entity.DashboardData">
+        SELECT D.ID, D.DASHBOARD_ID, D.DASHBOARD_NAME, D.DASHBOARD_LINK, D.CREATE_TIME, D.UPDATE_TIME
+        FROM JIRA_00_DASHBOARD D
+        WHERE D.DASHBOARD_NAME = #{DASHBOARD_NAME}
+    </select>
+
+</mapper>

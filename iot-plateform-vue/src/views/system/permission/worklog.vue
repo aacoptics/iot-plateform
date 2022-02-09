@@ -1,6 +1,7 @@
 <template>
     <div class="container" style="height: 100%;">
       <h1 style="text-align: center;margin-bottom: 20px;font-family: 楷体,serif">JIRA工时看板</h1>
+      
       <el-row>
         <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
 
@@ -35,13 +36,51 @@
         </div>
       </el-row>
       <el-row>
+        <el-col :span="12">
+          <el-card shadow="hover" style="height:400px;margin-right: 10px" id="territoryPieChart">
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card shadow="hover" style="height:400px;margin-right: 10px" id="pieChart">
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <h3 style="text-align: center" v-show="topTimeTask.length > 0">时长Top10任务</h3>
+          <el-table
+              id="topIssues"
+              :data="topTimeTask"
+              style="width: 100%;font-size: xx-small"
+              row-key="issueKey"
+              border
+              lazy 
+              v-loading="tableLoading1"
+              height="375px"
+          >
+            <el-table-column prop="issueKey" label="JIRA代码" sortable width="100"/>
+            <el-table-column prop="username" label="姓名" sortable width="120"/>
+            <el-table-column prop="territory" label="领域" sortable width="150"/>
+            <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+            <el-table-column prop="issueSummary" label="JIRA任务" sortable width="200"/>
+            <el-table-column prop="status" label="状态" sortable width="80"/>
+            <el-table-column prop="ekpIssueNo" label="需求清单号" sortable width="180"/>
+            <el-table-column prop="estimateTime" label="任务时长" sortable width="80" :formatter="timeFormatter"/>
+          </el-table>
+        </el-col>
+        <el-col :span="12">
+          <el-card shadow="hover" style="height:400px;margin-right: 10px" id="barChart">
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row>
         <el-col :span="24">
           <el-row style="margin-right: 10px;margin-top: 10px">
             <el-col :span="24">
               <h3 style="text-align: center">任务明细</h3>
               <el-table
                   id="topIssues"
-                  style="width:100%;font-size: xx-small;height:100%;"
+                  style="width:100%;height:600px;font-size: xx-small;height:100%;"
                   row-key="issueKey"
                   border
                   lazy
@@ -67,7 +106,8 @@
 </template>
 
 <script>
-import {getJiraIssue} from "@/api/system/worklog";
+import {getJiraIssue, getTop10JiraIssue} from "@/api/system/worklog";
+import * as echarts from 'echarts';
 
 export default {
   name: "worklog",
@@ -123,7 +163,15 @@ export default {
         }
       ],
       tableLoading: false,
-      sprintIssues: []
+      tableLoading1: false,
+
+      sprintIssues: [],
+      pieData: [],
+      territoryPieData: [],
+      barData: {value: [], name: []},
+      topTimeTask: [],
+      userStoryPoints: {},
+      territoryStoryPoints: {}
     }
   },
 
@@ -143,17 +191,214 @@ export default {
       const startTime = this.$moment(this.filters.dateRange[0]).format('YYYY-MM-DD');
       const endTime = this.$moment(this.filters.dateRange[1]).format('YYYY-MM-DD');
 
+      this.barData = {value: [], name: []};
+      this.pieData = [];
+      this.territoryPieData = [];
+
       getJiraIssue(this.filters.code, startTime, endTime).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.sprintIssues = responseData.data
+          this.sprintIssues = responseData.data;
+
+          this.getUserStoryPoints(this.sprintIssues);
+          this.getTerritoryStoryPoints(this.sprintIssues);
+
+          for (const p in this.userStoryPoints) {
+            this.pieData.push({value: this.userStoryPoints[p], name: p})
+            this.barData.name.push(p)
+            this.barData.value.push(this.userStoryPoints[p])
+          }
+          for (const p in this.territoryStoryPoints) {
+            this.territoryPieData.push({value: this.territoryStoryPoints[p], name: p})
+          }
+
+          this.drawPieChart();
+          this.drawBarChart();
+          this.drawTerritoryPieChart();
+
         }
         this.tableLoading = false;
       }).catch(() => {
         this.tableLoading = false;
         this.sprintIssues = [];
+      });
+
+      getTop10JiraIssue(this.filters.code, startTime, endTime).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.topTimeTask = responseData.data;
+        }
+        this.tableLoading1 = false;
+      }).catch(() => {
+        this.tableLoading1 = false;
+        this.topTimeTask = [];
+      });
+    },
+    getUserStoryPoints(val) {
+      val.forEach(item => {
+        var issueKey = item.issueKey + '';
+        var username = '';
+        var estimateTime = 0.0;
+        if(issueKey.indexOf('DEV-') > -1)
+        {
+          username = item.developOwner;
+          estimateTime = parseFloat(item.developCost + '');
+        }
+        else
+        {
+          username = item.businessOwner;
+          estimateTime = parseFloat(item.businessCost + '');
+        }
+
+        if (!this.userStoryPoints[username]) {
+          this.userStoryPoints[username] = 0
+        }
+        this.userStoryPoints[username] += estimateTime;
+        
       })
-    }
+    },
+    getTerritoryStoryPoints(val) {
+      val.forEach(item => {
+        if (!this.territoryStoryPoints[item.territory]) {
+          this.territoryStoryPoints[item.territory] = 0
+        }
+
+        var issueKey = item.issueKey + '';
+        var estimateTime = 0.0;
+        if(issueKey.indexOf('DEV-') > -1)
+        {
+          estimateTime = parseFloat(item.developCost + '');
+        }
+        else
+        {
+          estimateTime = parseFloat(item.businessCost + '');
+        }
+
+        this.territoryStoryPoints[item.territory] += estimateTime;
+      })
+    },
+    drawPieChart() {
+      const chartDom = document.getElementById('pieChart');
+      const myChart = echarts.init(chartDom);
+      let option;
+      option = {
+        title: {
+          text: '任务时间比例',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}({d}%)'
+        },
+        legend: {
+          orient: 'horizontal',
+          top: 'bottom'
+        },
+        series: [
+          {
+            name: '姓名',
+            type: 'pie',
+            radius: '50%',
+            data: this.pieData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+      option && myChart.setOption(option);
+    },
+    drawTerritoryPieChart() {
+      const chartDom = document.getElementById('territoryPieChart');
+      const myChart = echarts.init(chartDom);
+      let option;
+      option = {
+        title: {
+          text: '产品线时间比例',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left',
+          textStyle: {
+            fontSize: 16
+          }
+        },
+        series: [
+          {
+            name: '产品线',
+            type: 'pie',
+            radius: '50%',
+            data: this.territoryPieData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+      option && myChart.setOption(option);
+    },
+    drawBarChart() {
+      const chartDom = document.getElementById('barChart');
+      const myChart = echarts.init(chartDom);
+      let option;
+
+      option = {
+        title: {
+          text: '任务时间柱状图',
+          left: 'center'
+        },
+        xAxis: {
+          type: 'category',
+          data: this.barData.name,
+          axisLabel: {
+            interval: 0,
+            rotate: 30
+          }
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            data: this.barData.value,
+            type: 'bar',
+            markLine: {
+              silent: true,
+              lineStyle: {
+                normal: {
+                  color: 'red'                   // 这儿设置安全基线颜色
+                }
+              },
+              data: [{
+                yAxis: 40,
+              },
+                {
+                  yAxis: 48,
+                }],
+              label: {
+                normal: {
+                  formatter: '标准基线'           // 这儿设置安全基线
+                }
+              },
+            }
+          }
+        ]
+      };
+      option && myChart.setOption(option);
+    },
   }
 }
 </script>
