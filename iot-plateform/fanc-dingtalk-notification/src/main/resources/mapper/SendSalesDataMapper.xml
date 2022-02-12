@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aac.optics.dingtalk.notification.mapper.SendSalesDataMapper">
+
+
+    <select id="getSalesContent" resultType="com.aac.optics.dingtalk.notification.entity.Content">
+        SELECT A.ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE, A.CONTENT, A.FLAG, A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME
+            FROM TAB_01_CONTENT A
+            WHERE A.FLAG = '0'
+            ORDER BY A.TAB_DATE
+    </select>
+
+    <select id="getSendUsersByType" resultType="com.aac.optics.dingtalk.notification.entity.SalesUser">
+        SELECT A.USER_NO, C.USERID, B.TAB_URL
+            FROM TAB_03_USER_TABTYPE_MAPPING A
+                     JOIN TAB_02_TABTYPE_URL_MAPPING  B ON A.TAB_TYPE = B.TAB_TYPE
+                     JOIN DD_001_DINGTALK_USER C ON A.USER_NO = C.JOBNUMBER
+            WHERE A.TAB_STATUS = '1'
+            AND B.TAB_STATUS = '1'
+            AND A.TAB_TYPE = #{tabType}
+            ORDER BY A.USER_NO
+    </select>
+
+    <update id="updateSalesContentSendFlag">
+		update TAB_01_CONTENT
+		set FLAG = '1', MODIFY_TIME = GETDATE()
+		where id = #{id}
+	</update>
+</mapper>
