@@ -26,4 +26,14 @@ class SendSalesUserServiceImplTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void sendSalesDataGroupMessage()
+    {
+        try {
+            sendSalesDataService.sendSalesDataGroupMessage();
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+    }
 }

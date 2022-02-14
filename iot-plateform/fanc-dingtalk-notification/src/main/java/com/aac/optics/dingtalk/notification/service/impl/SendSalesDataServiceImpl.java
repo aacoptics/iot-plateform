@@ -1,19 +1,25 @@
 package com.aac.optics.dingtalk.notification.service.impl;
 
-import com.aac.optics.dingtalk.notification.entity.Content;
-import com.aac.optics.dingtalk.notification.entity.MarkdownCard;
-import com.aac.optics.dingtalk.notification.entity.SalesUser;
+import com.aac.optics.dingtalk.notification.entity.*;
 import com.aac.optics.dingtalk.notification.mapper.SendSalesDataMapper;
 import com.aac.optics.dingtalk.notification.provider.DingTalkApi;
 import com.aac.optics.dingtalk.notification.service.SendSalesDataService;
+import com.dingtalk.api.DefaultDingTalkClient;
+import com.dingtalk.api.DingTalkClient;
+import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
+import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -99,5 +105,78 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
         }
 
         return markdownCard.toString();
+    }
+
+    @Override
+    public void sendSalesDataGroupMessage() throws ApiException {
+
+        List<Map<String, String>> batchList = sendSalesDataMapper.getSalesDataBatch();
+        if(batchList == null || batchList.size() == 0)
+        {
+            log.info("没有需要发送到钉钉群的销售数据");
+            return;
+        }
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.0");
+
+        DecimalFormat percentDecimalFormat = new DecimalFormat("0.0%");
+        for(Map<String, String> batchMap: batchList)
+        {
+            String title = batchMap.get("TITLE");
+            String batchId = batchMap.get("BATCH");
+            String titleTime = batchMap.get("TITLE_TIME");
+            String tabType = batchMap.get("TAB_TYPE");
+
+            //获取销售数据明细
+            List<ProductContent> productContentList = sendSalesDataMapper.getSalesProductContentByBatch(batchId);
+
+            MarkdownGroupMessage markdownGroupMessage = new MarkdownGroupMessage();
+            markdownGroupMessage.setTitle(title);
+            markdownGroupMessage.addContent("日期：" + titleTime);
+            for(ProductContent productContent : productContentList)
+            {
+                String productType = productContent.getTabProductType();
+                String shipQty = decimalFormat.format(productContent.getShipQty());
+                String shipAmount =  decimalFormat.format(productContent.getShipAmount());
+                String shipPlanQty = decimalFormat.format(productContent.getShipPlanQty());
+                String shipPlanAmount = decimalFormat.format(productContent.getShipPlanAmount());
+                String shipQtyRate = percentDecimalFormat.format(productContent.getShipQtyRate());
+                String shipAmountRate = percentDecimalFormat.format(productContent.getShipAmountRate());
+
+                if("汇总".equals(productType)) {
+                    markdownGroupMessage.addBlankLine();
+                    markdownGroupMessage.addBlobContent(productType + "计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addBlobContent(productType + "实际出货数量：" + shipQty + " K");
+                    markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent(productType + "计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent(productType + "实际出货金额：" + shipAmount + " K");
+                    markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
+                }
+                else {
+                    markdownGroupMessage.addContent(productType + "计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addContent(productType + "实际出货数量：" + shipQty + " K");
+                    markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addContent(productType + "计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addContent(productType + "实际出货金额：" + shipAmount + " K");
+                    markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
+
+                }
+            }
+            //获取详情URL
+            String tabUrl = sendSalesDataMapper.getUrlByTabType(tabType);
+            if(StringUtils.isEmpty(tabUrl))
+            {
+                log.warn("类型【{}】详情地址URL未配置", tabType);
+            }
+            else {
+                markdownGroupMessage.addContent("[查看详情](" + tabUrl + ")");
+            }
+
+            dingTalkApi.sendGroupRobotMessage(title, markdownGroupMessage.toString());
+
+            //更新发送状态
+            sendSalesDataMapper.updateSalesProductContentSendFlag(batchId);
+            log.info("销售数据【{}】推送到群", batchId);
+        }
     }
 }
