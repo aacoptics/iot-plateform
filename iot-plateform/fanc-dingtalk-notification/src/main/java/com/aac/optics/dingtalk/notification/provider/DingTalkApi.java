@@ -92,6 +92,12 @@ public class DingTalkApi {
         log.info(rsp.getBody());
     }
 
+    /**
+     * 销售数据推送到钉钉群
+     * @param title
+     * @param message
+     * @throws ApiException
+     */
     public void sendGroupRobotMessage(String title, String message) throws ApiException {
 
         DingTalkClient client = new DefaultDingTalkClient(salesWebhook);
@@ -99,7 +105,7 @@ public class DingTalkApi {
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
         // isAtAll类型如果不为Boolean，请升级至最新SDK
         at.setIsAtAll(false);
-        at.setAtMobiles(Arrays.asList("15351344650"));
+//        at.setAtMobiles(Arrays.asList("15351344650"));
         request.setAt(at);
 
         request.setMsgtype("markdown");
