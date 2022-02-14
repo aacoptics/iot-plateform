@@ -109,9 +109,8 @@ public class DingTalkApi {
 
         request.setMarkdown(markdown);
 
-        System.out.println(message);
-//        OapiRobotSendResponse response = client.execute(request);
-//        log.info(response.getBody());
+        OapiRobotSendResponse response = client.execute(request);
+        log.info(response.getBody());
     }
 
 }
