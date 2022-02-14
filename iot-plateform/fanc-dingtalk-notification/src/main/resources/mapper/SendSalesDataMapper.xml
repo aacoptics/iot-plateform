@@ -23,7 +23,42 @@
 
     <update id="updateSalesContentSendFlag">
 		update TAB_01_CONTENT
-		set FLAG = '1', MODIFY_TIME = GETDATE()
+		set FLAG = '1', MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
 		where id = #{id}
 	</update>
+
+
+    <select id="getSalesDataBatch" resultType="java.util.Map">
+        SELECT DISTINCT A.BACH_ID BATCH, A.TITLE TITLE, A.TITLE_TIME TITLE_TIME, A.TAB_TYPE TAB_TYPE
+            FROM TAB_01_PRODUCT_CONTENT A
+            WHERE A.FLAG = '0'
+            ORDER BY A.BACH_ID
+    </select>
+
+    <select id="getSalesProductContentByBatch" resultType="com.aac.optics.dingtalk.notification.entity.ProductContent">
+        SELECT A.ID, A.BACH_ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE_TIME,
+            A.TITLE, A.TAB_PRODUCT_SEQ, A.TAB_PRODUCT_TYPE, A.SHIP_QTY, A.SHIP_AMOUNT, A.FLAG,
+            A.SHIP_PLAN_QTY, A.SHIP_PLAN_AMOUNT, A.SHIP_QTY_RATE, A.SHIP_AMOUNT_RATE,
+            A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME
+            FROM TAB_01_PRODUCT_CONTENT A
+            WHERE A.FLAG = '0'
+            AND BACH_ID = #{batchId}
+            ORDER BY A.TAB_PRODUCT_SEQ
+    </select>
+
+    <update id="updateSalesProductContentSendFlag">
+		update TAB_01_PRODUCT_CONTENT
+		set FLAG = '1', MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
+		where bach_id = #{batchId}
+		AND FLAG = '0'
+	</update>
+
+
+    <select id="getUrlByTabType" resultType="string">
+        SELECT TOP 1 A.TAB_URL
+            FROM TAB_02_TABTYPE_URL_MAPPING A
+            WHERE A.TAB_TYPE = #{tabType}
+            AND TAB_STATUS = '1'
+    </select>
+
 </mapper>

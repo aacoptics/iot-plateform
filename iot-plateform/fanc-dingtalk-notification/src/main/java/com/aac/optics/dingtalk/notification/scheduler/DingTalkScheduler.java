@@ -20,12 +20,25 @@ public class DingTalkScheduler {
     @Scheduled(cron = "${dingtalk.cronStr.sendSalesDataNotificationCron}")
     @SchedulerLock(name = "sendSalesDataNotification", lockAtMostFor = "30m", lockAtLeastFor = "3m")
     public void sendSalesDataNotification() {
-        log.info(LocalDateTime.now() + "开始执行推送销售数据异常定时任务");
+        log.info(LocalDateTime.now() + "开始执行推送销售数据工作通知异常定时任务");
         try {
             sendSalesDataService.sendSalesDataNotification();
         } catch (ApiException e) {
-            log.error("推送销售数据异常", e);
+            log.error("推送销售数据工作通知异常", e);
         }
-        log.info(LocalDateTime.now() + "完成执行推送销售数据异常定时任务");
+        log.info(LocalDateTime.now() + "完成执行推送销售数据工作通知异常定时任务");
+    }
+
+
+    @Scheduled(cron = "${dingtalk.cronStr.sendSalesDataGroupMessageCron}")
+    @SchedulerLock(name = "sendSalesDataGroupMessage", lockAtMostFor = "30m", lockAtLeastFor = "3m")
+    public void sendSalesDataGroupMessage() {
+        log.info(LocalDateTime.now() + "开始执行推送销售数据到群异常定时任务");
+        try {
+            sendSalesDataService.sendSalesDataGroupMessage();
+        } catch (ApiException e) {
+            log.error("推送销售数据到群异常", e);
+        }
+        log.info(LocalDateTime.now() + "完成执行推送销售数据到群异常定时任务");
     }
 }

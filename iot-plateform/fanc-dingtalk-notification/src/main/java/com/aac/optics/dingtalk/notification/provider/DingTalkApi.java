@@ -4,12 +4,16 @@ import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
+import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
+import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -20,6 +24,8 @@ public class DingTalkApi {
     private String appSecret;
     @Value("${dingtalk.host}")
     private String BASE_API_CONTENT;//钉钉服务器地址
+    @Value("${dingtalk.robot.salesWebhook}")
+    private String salesWebhook ;//销售数据推送钉钉机器人地址
 
     public OapiGettokenResponse getAccessToken() throws ApiException {
         DefaultDingTalkClient client = new DefaultDingTalkClient(BASE_API_CONTENT + "/gettoken");
@@ -86,5 +92,26 @@ public class DingTalkApi {
         log.info(rsp.getBody());
     }
 
+    public void sendGroupRobotMessage(String title, String message) throws ApiException {
+
+        DingTalkClient client = new DefaultDingTalkClient(salesWebhook);
+        OapiRobotSendRequest request = new OapiRobotSendRequest();
+        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
+        // isAtAll类型如果不为Boolean，请升级至最新SDK
+        at.setIsAtAll(false);
+        at.setAtMobiles(Arrays.asList("15351344650"));
+        request.setAt(at);
+
+        request.setMsgtype("markdown");
+        OapiRobotSendRequest.Markdown markdown = new OapiRobotSendRequest.Markdown();
+        markdown.setTitle(title);
+        markdown.setText(message);
+
+        request.setMarkdown(markdown);
+
+        System.out.println(message);
+//        OapiRobotSendResponse response = client.execute(request);
+//        log.info(response.getBody());
+    }
 
 }
