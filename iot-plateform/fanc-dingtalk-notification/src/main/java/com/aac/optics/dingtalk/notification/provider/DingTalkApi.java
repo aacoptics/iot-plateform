@@ -104,7 +104,7 @@ public class DingTalkApi {
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
         // isAtAll类型如果不为Boolean，请升级至最新SDK
-        at.setIsAtAll(false);
+        at.setIsAtAll(true);
 //        at.setAtMobiles(Arrays.asList("15351344650"));
         request.setAt(at);
 
