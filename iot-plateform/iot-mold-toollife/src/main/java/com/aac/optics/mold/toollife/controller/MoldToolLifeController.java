@@ -100,6 +100,14 @@ public class MoldToolLifeController {
         return Result.success(programDetailService.getLastDayOee(startTime));
     }
 
+    @ApiOperation(value = "查询前一天OEE", notes = "查询前一天OEE")
+    @GetMapping("/getLastDayOEEByType")
+    public Result getLastDayOEEByType(@RequestParam String type) {
+        return Result.success(programDetailService.getLastDayOEEByType(type));
+    }
+    
+
+
     @ApiOperation(value = "查询机台区域信息", notes = "查询机台区域信息")
     @GetMapping("/getAreaInfo")
     public Result getAreaInfo() {
@@ -190,5 +198,11 @@ public class MoldToolLifeController {
     @GetMapping("/abnormalQty")
     public Result getAbnormalQty() {
         return Result.success(toolInfoService.getAbnormalQty());
+    }
+
+    @ApiOperation(value = "获取机台状态对应的数量", notes = "获取机台状态对应的数量")
+    @GetMapping("/machineStatus")
+    public Result getMachineStatus() {
+        return Result.success(toolInfoService.getMachineStatus());
     }
 }
