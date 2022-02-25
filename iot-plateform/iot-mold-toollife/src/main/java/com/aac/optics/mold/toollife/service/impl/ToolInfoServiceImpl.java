@@ -1,5 +1,6 @@
 package com.aac.optics.mold.toollife.service.impl;
 
+import com.aac.optics.mold.toollife.consumer.MoldConsumer;
 import com.aac.optics.mold.toollife.dao.ToolInfoMapper;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.aac.optics.mold.toollife.entity.ToolInfoHistory;
@@ -20,6 +21,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -302,6 +304,22 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
     }
 
     public List<Map<String, Object>> getAbnormalQty() {
-        return toolInfoMapper.getAbnormalQty();
+        List<Map<String, Object>> abnormalQtyMapList = toolInfoMapper.getAbnormalQty();
+        int totalQty = 0;
+        for(Map<String, Object> abnormalQtyMap : abnormalQtyMapList) {
+            totalQty = totalQty + (int) abnormalQtyMap.get("abnormal_qty");
+        }
+        for(Map<String, Object> abnormalQtyMap : abnormalQtyMapList) {
+            double ratio = (((int) abnormalQtyMap.get("abnormal_qty")*1.0) / totalQty) * 100;
+            BigDecimal bd = new BigDecimal(ratio);
+            double ratioNew = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            String ratioString = ratioNew + "%";
+            abnormalQtyMap.put("ratio", ratioString);
+        }
+        return abnormalQtyMapList;
+    }
+
+    public List<Map<String, Object>> getMachineStatus() {
+        return MoldConsumer.machineStatus;
     }
 }

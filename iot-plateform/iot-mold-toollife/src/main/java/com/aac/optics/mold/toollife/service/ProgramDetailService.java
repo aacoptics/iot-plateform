@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProgramDetailService extends IService<ProgramDetail> {
 
@@ -13,4 +14,6 @@ public interface ProgramDetailService extends IService<ProgramDetail> {
     ProgramDetail getAbnormalTotalTime(String toolCode);
 
     List<ProgramDetail> getToolHisList(String toolCode);
+
+    Map<String, String> getLastDayOEEByType(String type);
 }
