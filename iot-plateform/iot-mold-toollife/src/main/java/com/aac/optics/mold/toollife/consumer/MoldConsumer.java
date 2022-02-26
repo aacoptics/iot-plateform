@@ -50,12 +50,13 @@ public class MoldConsumer {
             } else if(state == 5) {
                 workNum++;
             } else if(state == 6) {
-                handModeNum++;
+//                handModeNum++;
+                adjustNum++;
             }
         }
         machineStatus = new ArrayList<>();
         Map<String, Object> offlineMap = new HashMap<>();
-        offlineMap.put("status", "离线");
+        offlineMap.put("status", "闲置");
         offlineMap.put("qty", offlineNum);
         machineStatus.add(offlineMap);
         Map<String, Object> idleMap = new HashMap<>();
@@ -74,10 +75,10 @@ public class MoldConsumer {
         workMap.put("status", "加工中");
         workMap.put("qty", workNum);
         machineStatus.add(workMap);
-        Map<String, Object> handModeMap = new HashMap<>();
-        handModeMap.put("status", "手轮模式");
-        handModeMap.put("qty", handModeNum);
-        machineStatus.add(handModeMap);
+//        Map<String, Object> handModeMap = new HashMap<>();
+//        handModeMap.put("status", "手轮模式");
+//        handModeMap.put("qty", handModeNum);
+//        machineStatus.add(handModeMap);
 
 
 //        machineStatus.put("离线", offlineNum);
