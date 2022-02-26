@@ -35,6 +35,10 @@ public interface SendSalesDataMapper extends BaseMapper<Content> {
     @DS("jiraDB")
     void updateSalesProductContentSendFlag(@Param("batchId") String batchId);
 
+    @DS("jiraDB")
     String getUrlByTabType(@Param("tabType") String tabType);
+
+    @DS("jiraDB")
+    List<String> getRobotUrlByTabType(@Param("tabType") String tabType);
 
 }

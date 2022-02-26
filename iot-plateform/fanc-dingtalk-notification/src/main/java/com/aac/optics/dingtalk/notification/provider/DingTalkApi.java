@@ -24,8 +24,6 @@ public class DingTalkApi {
     private String appSecret;
     @Value("${dingtalk.host}")
     private String BASE_API_CONTENT;//钉钉服务器地址
-    @Value("${dingtalk.robot.salesWebhook}")
-    private String salesWebhook ;//销售数据推送钉钉机器人地址
 
     public OapiGettokenResponse getAccessToken() throws ApiException {
         DefaultDingTalkClient client = new DefaultDingTalkClient(BASE_API_CONTENT + "/gettoken");
@@ -94,13 +92,15 @@ public class DingTalkApi {
 
     /**
      * 销售数据推送到钉钉群
+     *
+     * @param serverUrl 销售数据推送钉钉机器人地址
      * @param title
      * @param message
      * @throws ApiException
      */
-    public void sendGroupRobotMessage(String title, String message) throws ApiException {
+    public void sendGroupRobotMessage(String serverUrl, String title, String message) throws ApiException {
 
-        DingTalkClient client = new DefaultDingTalkClient(salesWebhook);
+        DingTalkClient client = new DefaultDingTalkClient(serverUrl);
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
         // isAtAll类型如果不为Boolean，请升级至最新SDK

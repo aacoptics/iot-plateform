@@ -136,12 +136,12 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             for(ProductContent productContent : productContentList)
             {
                 String productType = productContent.getTabProductType();
-                String shipQty = decimalFormat.format(productContent.getShipQty());
-                String shipAmount =  decimalFormat.format(productContent.getShipAmount());
-                String shipPlanQty = decimalFormat.format(productContent.getShipPlanQty());
-                String shipPlanAmount = decimalFormat.format(productContent.getShipPlanAmount());
-                String shipQtyRate = percentDecimalFormat.format(productContent.getShipQtyRate());
-                String shipAmountRate = percentDecimalFormat.format(productContent.getShipAmountRate());
+                String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
+                String shipAmount =  productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
+                String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
+                String shipPlanAmount = productContent.getShipPlanAmount() != null ? decimalFormat.format(productContent.getShipPlanAmount()) : "-";
+                String shipQtyRate = productContent.getShipQtyRate() != null ? percentDecimalFormat.format(productContent.getShipQtyRate()) : "-";
+                String shipAmountRate = productContent.getShipAmountRate() != null ? percentDecimalFormat.format(productContent.getShipAmountRate()) : "-";
 
                 if("汇总".equals(productType)) {
                     markdownGroupMessage.addBlankLine();
@@ -172,8 +172,16 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 markdownGroupMessage.addContent("[查看详情](" + tabUrl + ")");
             }
 
-            dingTalkApi.sendGroupRobotMessage(title, markdownGroupMessage.toString());
+            List<String> robotUrlList = sendSalesDataMapper.getRobotUrlByTabType(tabType);
+            if(robotUrlList == null || robotUrlList.size() == 0)
+            {
+                log.error("类型{}机器人URL未配置，请确认");
+                return;
+            }
 
+            for(String robotUrl : robotUrlList) {
+                dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+            }
             //更新发送状态
             sendSalesDataMapper.updateSalesProductContentSendFlag(batchId);
             log.info("销售数据【{}】推送到群", batchId);
