@@ -61,4 +61,11 @@
             AND TAB_STATUS = '1'
     </select>
 
+    <select id="getRobotUrlByTabType" resultType="string">
+        SELECT A.ROBOT_URL
+            FROM tab_04_robot A
+            WHERE A.TAB_TYPE = #{tabType}
+            AND TAB_STATUS = '1'
+    </select>
+
 </mapper>
