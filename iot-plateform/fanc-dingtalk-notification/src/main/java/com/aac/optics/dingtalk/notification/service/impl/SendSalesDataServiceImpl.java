@@ -136,6 +136,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             for(ProductContent productContent : productContentList)
             {
                 String productType = productContent.getTabProductType();
+
+                String subProductType = productContent.getSubTabProductType();
+                String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
+                String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
+
                 String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
                 String shipAmount =  productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
                 String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
@@ -155,9 +160,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 else {
                     markdownGroupMessage.addContent(productType + "计划出货数量：" + shipPlanQty + " K");
                     markdownGroupMessage.addContent(productType + "实际出货数量：" + shipQty + " K");
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
+                    }
                     markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
                     markdownGroupMessage.addContent(productType + "计划出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addContent(productType + "实际出货金额：" + shipAmount + " K");
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
+                    }
                     markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
 
                 }
