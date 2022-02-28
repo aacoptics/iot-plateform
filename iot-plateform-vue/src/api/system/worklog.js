@@ -15,6 +15,21 @@ export function getJiraIssue(boardId, startTime, endTime) {
     })
 }
 
+export function exportIssue(boardId, startTime, endTime) {
+    return request({
+        url: '/jira-server/jiraProvider/exportIssue',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/vnd.ms-excel'
+        },
+        params: {
+            boardId: boardId,
+            startTime: startTime,
+            endTime: endTime
+        }
+    })
+}
+
 export function getTop10JiraIssue(boardId, startTime, endTime) {
     return request({
         url: '/jira-server/jiraProvider/getTop10IssuesByTime',

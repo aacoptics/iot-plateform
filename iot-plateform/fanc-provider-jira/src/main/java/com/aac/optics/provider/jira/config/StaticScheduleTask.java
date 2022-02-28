@@ -29,7 +29,7 @@ public class StaticScheduleTask {
     }
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */120 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void initIssues()
     {
@@ -38,7 +38,7 @@ public class StaticScheduleTask {
     }
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void updateIssues()  {
         String resultMSG = null;
