@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -98,7 +100,7 @@ public class DingTalkApi {
      * @param message
      * @throws ApiException
      */
-    public void sendGroupRobotMessage(String serverUrl, String title, String message) throws ApiException {
+    public Map<String, String> sendGroupRobotMessage(String serverUrl, String title, String message) throws ApiException {
 
         DingTalkClient client = new DefaultDingTalkClient(serverUrl);
         OapiRobotSendRequest request = new OapiRobotSendRequest();
@@ -117,6 +119,12 @@ public class DingTalkApi {
 
         OapiRobotSendResponse response = client.execute(request);
         log.info(response.getBody());
+
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("result", response.isSuccess()+"");
+        resultMap.put("message", response.getMessage());
+
+        return resultMap;
     }
 
 }

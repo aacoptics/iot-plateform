@@ -39,6 +39,16 @@ public interface SendSalesDataMapper extends BaseMapper<Content> {
     String getUrlByTabType(@Param("tabType") String tabType);
 
     @DS("jiraDB")
-    List<String> getRobotUrlByTabType(@Param("tabType") String tabType);
+    List<Map<String, Object>> getRobotUrlByTabType(@Param("tabType") String tabType);
+
+
+    @DS("jiraDB")
+    List<Map<String, String>> getSendHistoryByBatchAndRobot(@Param("batchId") String batchId, @Param("robotId") Integer robotId);
+
+    @DS("jiraDB")
+    void saveSendHistory(@Param("batchId") String batchId,
+                         @Param("robotId") Integer robotId,
+                         @Param("result") String result,
+                         @Param("message") String message);
 
 }

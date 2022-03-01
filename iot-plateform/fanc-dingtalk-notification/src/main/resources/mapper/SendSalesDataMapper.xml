@@ -62,11 +62,23 @@
             AND TAB_STATUS = '1'
     </select>
 
-    <select id="getRobotUrlByTabType" resultType="string">
-        SELECT A.ROBOT_URL
+    <select id="getRobotUrlByTabType" resultType="map">
+        SELECT A.ID, A.ROBOT_URL, A.SEND_TIME
             FROM tab_04_robot A
             WHERE A.TAB_TYPE = #{tabType}
             AND TAB_STATUS = '1'
     </select>
+
+    <select id="getSendHistoryByBatchAndRobot" resultType="map">
+        SELECT A.ID
+            FROM TAB_05_ROBOT_SEND_HISTORY A
+            WHERE A.BATCH_ID = #{batchId}
+            AND A.ROBOT_ID = #{robotId}
+    </select>
+
+    <insert id="saveSendHistory">
+        insert into TAB_05_ROBOT_SEND_HISTORY (BATCH_ID,ROBOT_ID, RESULT, MESSAGE, CREATE_TIME,CREATED_BY,MODIFY_TIME,MODIFY_BY)
+        VALUES (#{batchId}, #{robotId}, #{result}, #{message}, GETDATE(), 'IOT', GETDATE(), 'IOT')
+    </insert>
 
 </mapper>
