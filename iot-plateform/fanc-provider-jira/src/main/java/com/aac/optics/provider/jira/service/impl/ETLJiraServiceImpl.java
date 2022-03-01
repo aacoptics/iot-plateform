@@ -319,8 +319,12 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 JSONObject resultJSON = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/issue/" + issueId, list, username, password);
 
                 String status = "";
-                if(resultJSON.getJSONObject("fields").getJSONObject("status") != null)
+                if(resultJSON.getJSONObject("fields") == null)
                 {
+                    continue;
+                }
+
+                if (resultJSON.getJSONObject("fields").getJSONObject("status") != null) {
                     status = resultJSON.getJSONObject("fields").getJSONObject("status").getString("name");
                 }
 
@@ -509,10 +513,6 @@ public class ETLJiraServiceImpl implements ETLJiraService {
     @Override
     public List<Map<String, Object>> findTOP10JIRA(String boardId, String startTime, String endTime)
     {
-
-        startTime += " 00:00:00";
-        endTime += " 23:59:59";
-
         Map<String, Object> queryParam = new HashMap<>();
         queryParam.put("boardId", Integer.parseInt(boardId));
         queryParam.put("startTime", startTime);
@@ -528,31 +528,5 @@ public class ETLJiraServiceImpl implements ETLJiraService {
             resultList = issueDataMapper.findTOP10DevelopJIRA(queryParam);
         }
         return resultList;
-    }
-
-    @Override
-    public Workbook exportList(String boardId, String startTime, String endTime) {
-        Map<String, Object> queryParam = new HashMap<>();
-        queryParam.put("boardId", boardId);
-        queryParam.put("startTime", startTime);
-        queryParam.put("endTime", endTime);
-
-        List<Map<String, Object>> dtls = issueDataMapper.filterIssuesByCondition(queryParam);
-        ExportParams exportParams = new ExportParams();
-        exportParams.setTitle("任务明细");
-
-        List<ExcelExportEntity> entityList = new ArrayList<>();
-        entityList.add(new ExcelExportEntity("看板", "dashboard", 15));
-        entityList.add(new ExcelExportEntity("任务", "issue", 15));
-        entityList.add(new ExcelExportEntity("IT应用申请单号", "ekpIssueNo", 20));
-        entityList.add(new ExcelExportEntity("状态", "status", 15));
-        entityList.add(new ExcelExportEntity("开始时间", "startTime", 20));
-        entityList.add(new ExcelExportEntity("结束时间", "endTime", 15));
-        entityList.add(new ExcelExportEntity("业务人员", "businessOwner", 20));
-        entityList.add(new ExcelExportEntity("业务用时", "businessCost", 20));
-        entityList.add(new ExcelExportEntity("开发人员", "developOwner", 20));
-        entityList.add(new ExcelExportEntity("开发用时", "developCost", 20));
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, dtls);
-        return workbook;
     }
 }

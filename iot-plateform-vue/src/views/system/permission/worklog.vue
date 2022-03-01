@@ -32,7 +32,7 @@
                 查询
               </el-button>
 
-              <el-button @click="exportIssues()" icon="el-icon-download" type="primary" >
+              <el-button @click="exportExcel('#issueList', 'IssueList.xlsx')" icon="el-icon-download" type="primary" >
                 导出
               </el-button>
             </el-form-item>
@@ -83,21 +83,22 @@
             <el-col :span="24">
               <h3 style="text-align: center">任务明细</h3>
               <el-table
-                  id="topIssues"
-                  style="width:100%;height:600px;font-size: xx-small;height:100%;"
+                  id="issueList" 
+                  style="width:100%;font-size: xx-small;"
                   row-key="issueKey"
                   border
-                  lazy
-                  :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" 
+                  lazy 
                   v-loading="tableLoading" 
                   :data="sprintIssues" 
+                  height="600px"
               >
-                <el-table-column prop="dashboard" label="看板" sortable width="230"/>
-                <el-table-column prop="issue" label="任务" sortable width="230"/>
-                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="180"/>
-                <el-table-column prop="status" label="状态" sortable width="100"/>
-                <el-table-column prop="startTime" label="开始时间" sortable width="160"/>
-                <el-table-column prop="endTime" label="结束时间" sortable width="160"/>
+                <el-table-column prop="dashboard" label="看板" sortable width="120"/>
+                <el-table-column prop="issue" label="任务" sortable width="180"/>
+                <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="150"/>
+                <el-table-column prop="status" label="状态" sortable width="80"/>
+                <el-table-column prop="startTime" label="开始时间" sortable width="130"/>
+                <el-table-column prop="endTime" label="结束时间" sortable width="130"/>
                 <el-table-column prop="businessOwner" label="业务人员" sortable width="100"/>
                 <el-table-column prop="businessCost" label="业务用时" sortable width="100"/>
                 <el-table-column prop="developOwner" label="开发人员" sortable width="100"/>
@@ -111,7 +112,9 @@
 </template>
 
 <script>
-import {getJiraIssue, getTop10JiraIssue, exportIssue} from "@/api/system/worklog";
+import XLSX from "xlsx";
+import FileSaver from 'file-saver';
+import {getJiraIssue, getTop10JiraIssue} from "@/api/system/worklog";
 import * as echarts from 'echarts';
 
 export default {
@@ -251,34 +254,15 @@ export default {
         this.topTimeTask = [];
       });
     },
-    exportIssues()
-    {
-      if (this.filters.code == null || this.filters.code.length == 0) {
-        this.$message({message: '请选择看板', type: 'error'})
-        return
+    exportExcel(tableId, excelFileName) {
+      const wb = XLSX.utils.table_to_book(document.querySelector(tableId));
+      const wbOut = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'});
+      try {
+        FileSaver.saveAs(new Blob([wbOut], {type: 'application/octet-stream'}), excelFileName)
+      } catch (e) {
+        if (typeof console !== 'undefined') console.log(e, wbOut)
       }
-      
-      var boardId = '';
-      for(var i=0;i<this.filters.code.length;i++)
-      {
-        if(i != this.filters.code.length -1)
-        {
-          boardId += this.filters.code[i] + ',';
-        }
-        else
-        {
-          boardId += this.filters.code[i]
-        }
-      }
-
-      const startTime = this.$moment(this.filters.dateRange[0]).format('YYYY-MM-DD');
-      const endTime = this.$moment(this.filters.dateRange[1]).format('YYYY-MM-DD');
-
-      exportIssue(boardId, startTime, endTime).then((res) => {
-        
-      }).catch(() => {
-      });
-
+      return wbOut
     },
     getUserStoryPoints(val) {
       val.forEach(item => {
