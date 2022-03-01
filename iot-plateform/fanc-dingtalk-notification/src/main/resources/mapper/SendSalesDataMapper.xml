@@ -39,6 +39,7 @@
         SELECT A.ID, A.BACH_ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE_TIME,
             A.TITLE, A.TAB_PRODUCT_SEQ, A.TAB_PRODUCT_TYPE, A.SHIP_QTY, A.SHIP_AMOUNT, A.FLAG,
             A.SHIP_PLAN_QTY, A.SHIP_PLAN_AMOUNT, A.SHIP_QTY_RATE, A.SHIP_AMOUNT_RATE,
+            A.SUB_TAB_PRODUCT_TYPE, A.SUB_SHIP_QTY, A.SUB_SHIP_AMOUNT,
             A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME
             FROM TAB_01_PRODUCT_CONTENT A
             WHERE A.FLAG = '0'
@@ -61,11 +62,23 @@
             AND TAB_STATUS = '1'
     </select>
 
-    <select id="getRobotUrlByTabType" resultType="string">
-        SELECT A.ROBOT_URL
+    <select id="getRobotUrlByTabType" resultType="map">
+        SELECT A.ID, A.ROBOT_URL, A.SEND_TIME
             FROM tab_04_robot A
             WHERE A.TAB_TYPE = #{tabType}
             AND TAB_STATUS = '1'
     </select>
+
+    <select id="getSendHistoryByBatchAndRobot" resultType="map">
+        SELECT A.ID
+            FROM TAB_05_ROBOT_SEND_HISTORY A
+            WHERE A.BATCH_ID = #{batchId}
+            AND A.ROBOT_ID = #{robotId}
+    </select>
+
+    <insert id="saveSendHistory">
+        insert into TAB_05_ROBOT_SEND_HISTORY (BATCH_ID,ROBOT_ID, RESULT, MESSAGE, CREATE_TIME,CREATED_BY,MODIFY_TIME,MODIFY_BY)
+        VALUES (#{batchId}, #{robotId}, #{result}, #{message}, GETDATE(), 'IOT', GETDATE(), 'IOT')
+    </insert>
 
 </mapper>

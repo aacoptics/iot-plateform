@@ -16,7 +16,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +113,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
     @Override
     public void sendSalesDataGroupMessage() throws ApiException {
+        LocalTime currentTime = LocalTime.now();
 
         List<Map<String, String>> batchList = sendSalesDataMapper.getSalesDataBatch();
         if(batchList == null || batchList.size() == 0)
@@ -117,7 +122,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             return;
         }
 
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0.0");
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0");
+        decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
 
         DecimalFormat percentDecimalFormat = new DecimalFormat("0.0%");
         for(Map<String, String> batchMap: batchList)
@@ -136,6 +142,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             for(ProductContent productContent : productContentList)
             {
                 String productType = productContent.getTabProductType();
+
+                String subProductType = productContent.getSubTabProductType();
+                String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
+                String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
+
                 String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
                 String shipAmount =  productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
                 String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
@@ -155,9 +166,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 else {
                     markdownGroupMessage.addContent(productType + "计划出货数量：" + shipPlanQty + " K");
                     markdownGroupMessage.addContent(productType + "实际出货数量：" + shipQty + " K");
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
+                    }
                     markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
                     markdownGroupMessage.addContent(productType + "计划出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addContent(productType + "实际出货金额：" + shipAmount + " K");
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
+                    }
                     markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
 
                 }
@@ -172,18 +191,50 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 markdownGroupMessage.addContent("[查看详情](" + tabUrl + ")");
             }
 
-            List<String> robotUrlList = sendSalesDataMapper.getRobotUrlByTabType(tabType);
-            if(robotUrlList == null || robotUrlList.size() == 0)
+            List<Map<String, Object>> robotMapList = sendSalesDataMapper.getRobotUrlByTabType(tabType);
+            if(robotMapList == null || robotMapList.size() == 0)
             {
                 log.error("类型{}机器人URL未配置，请确认");
                 return;
             }
 
-            for(String robotUrl : robotUrlList) {
-                dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+            int sendCount = 0; //发送记录数
+            for(Map<String, Object> robotMap : robotMapList) {
+                Integer robotId = Integer.valueOf(robotMap.get("ID")+"");
+                String robotUrl = robotMap.get("ROBOT_URL") != null ? robotMap.get("ROBOT_URL")+"" : "";
+                String sendTimeStr = robotMap.get("SEND_TIME") != null ? robotMap.get("SEND_TIME")+"" : "";
+                //校验是否已发送
+                List<Map<String, String>> sendHistoryList = sendSalesDataMapper.getSendHistoryByBatchAndRobot(batchId, robotId);
+                if(sendHistoryList != null && sendHistoryList.size() > 0)
+                {
+                    sendCount++;
+                    continue;
+                }
+
+                //校验当前时间是否在配置时间之后，如果是，则发送
+                if(!StringUtils.isEmpty(sendTimeStr))
+                {
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    LocalTime sendTime = LocalTime.parse(sendTimeStr, dateTimeFormatter);
+                    if(currentTime.isBefore(sendTime))
+                    {
+                        continue;
+                    }
+                }
+                Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+                String result = resultMap.get("result");
+                String message = resultMap.get("message");
+                if(!StringUtils.isEmpty(message) && message.length() > 1024)
+                {
+                    message = message.substring(1024);
+                }
+                sendSalesDataMapper.saveSendHistory(batchId, robotId, result, message);
+                sendCount++;
             }
-            //更新发送状态
-            sendSalesDataMapper.updateSalesProductContentSendFlag(batchId);
+            //如果所有已配置的群都已发送，更新发送状态
+            if(sendCount >= robotMapList.size()) {
+                sendSalesDataMapper.updateSalesProductContentSendFlag(batchId);
+            }
             log.info("销售数据【{}】推送到群", batchId);
         }
     }
