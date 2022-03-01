@@ -6,7 +6,6 @@ import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.provider.jira.service.ETLJiraService;
 import com.aac.optics.provider.jira.service.JiraService;
-import com.aac.optics.provider.jira.utils.Utils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
@@ -94,7 +93,7 @@ public class JiraProviderController {
         return Result.success(etlJiraService.filterIssuesByCondition(boardId, startTime, endTime));
     }
 
-    @ApiOperation(value="导出列表", notes="导出excel")
+    /*@ApiOperation(value="导出列表", notes="导出excel")
     @GetMapping("/exportIssue")
     public void exportIssue(@RequestParam("boardId") String boardId,
                             @RequestParam("startTime") String startTime,
@@ -107,7 +106,7 @@ public class JiraProviderController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
     @ApiOperation(value = "查询所有看板", notes = "查询所有看板")
     @GetMapping("/getBoards")

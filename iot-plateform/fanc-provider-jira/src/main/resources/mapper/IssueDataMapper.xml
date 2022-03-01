@@ -42,6 +42,7 @@
         		, ISNULL(PARENT_ID, 0) AS PARENT_ID
         FROM JIRA_00_ISSUE I
         WHERE I.FINISH_FLAG = 0
+        ORDER BY ID DESC
     </select>
 
 	<select id="getIssueByID" parameterType="java.lang.Integer" resultType="Map">
@@ -78,6 +79,7 @@
         		, I.ISSUE_ID  as issueId
         		, I.ISSUE_KEY as issueKey
         		, I.ISSUE_NAME as issue
+        		, I.ISSUE_TYPE AS issueType
         		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
         		, STATUS AS status
         		, DOMAIN AS territory
