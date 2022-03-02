@@ -100,7 +100,7 @@
     </select>
 
 	<select id="findTOP10BusinessJIRA" parameterType="Map" resultType="Map">
-        SELECT   TOP 10 I.ISSUE_KEY as issueKey
+        SELECT   TOP 10 * FROM (SELECT DISTINCT I.ISSUE_KEY as issueKey
         		, I.ISSUE_NAME as issueSummary
         		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
         		, STATUS AS status
@@ -113,12 +113,12 @@
         AND I.ISSUE_KEY = DI.ISSUE_KEY
         AND DI.DASHBOARD_ID = D.DASHBOARD_ID
         AND #{boardId} LIKE ('%' + convert(varchar(50),DI.DASHBOARD_ID) + '%')
-        AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime}
-        ORDER BY ISNULL(BUSINESS_COST, 0.0) DESC
+        AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime} ) AS A
+        ORDER BY estimateTime DESC
     </select>
 
 	<select id="findTOP10DevelopJIRA" parameterType="Map" resultType="Map">
-        SELECT    TOP 10 I.ISSUE_KEY as issueKey
+        SELECT    TOP 10  * FROM (SELECT DISTINCT I.ISSUE_KEY as issueKey
         		, I.ISSUE_NAME as issueSummary
         		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
         		, STATUS AS status
@@ -131,8 +131,8 @@
         AND I.ISSUE_KEY = DI.ISSUE_KEY
         AND DI.DASHBOARD_ID = D.DASHBOARD_ID
         AND #{boardId} LIKE ('%' + convert(varchar(50),DI.DASHBOARD_ID) + '%')
-        AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime}
-        ORDER BY ISNULL(DEVELOP_COST, 0.0) DESC
+        AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime} ) AS A
+        ORDER BY estimateTime DESC
     </select>
 
 </mapper>
