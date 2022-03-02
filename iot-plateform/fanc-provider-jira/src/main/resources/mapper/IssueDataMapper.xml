@@ -90,8 +90,7 @@
         		, ISNULL(BUSINESS_OWNER,'') AS businessOwner
         		, ISNULL(DEVELOP_OWNER,'') AS developOwner
         		, ISNULL(BUSINESS_COST, 0.0) AS businessCost
-        		, ISNULL(DEVELOP_COST, 0.0) AS developCost
-        		, SUM(WL.COST) AS
+        		, ISNULL(DEVELOP_COST, 0.0) AS developCost 
         FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI, JIRA_00_WORKLOG WL, JIRA_00_DASHBOARD D
         WHERE I.ISSUE_KEY = WL.ISSUE_KEY
         AND I.ISSUE_KEY = DI.ISSUE_KEY
