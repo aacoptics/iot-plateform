@@ -31,7 +31,7 @@
               <el-button @click="queryIssues()" icon="el-icon-search" type="primary" :loading="tableLoading">
                 查询
               </el-button>
-              <el-button @click="toggleJIRA()" icon="el-icon-search" type="operation">
+              <el-button @click="toggleJIRA()" icon="el-icon-operation" type="primary">
                 展开/隐藏 JIRA清单
               </el-button>
               <el-button @click="exportExcel('#issueList1', 'IssueList1.xlsx')" icon="el-icon-download" type="primary" >
