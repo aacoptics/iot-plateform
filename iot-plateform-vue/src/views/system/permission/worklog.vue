@@ -82,7 +82,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row 
+      <el-row> 
         <el-col :span="24">
           <el-row style="margin-right: 10px;margin-top: 10px">
             <el-col :span="24">
@@ -125,12 +125,12 @@
                   height="600px"
               >
                 <el-table-column prop="dashboard" label="看板" sortable width="120"/>
-                <el-table-column prop="issue" label="任务" sortable width="180"/>
+                <el-table-column prop="issue" label="任务" sortable width="160"/>
                 <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
-                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="150"/>
+                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="130"/>
                 <el-table-column prop="status" label="状态" sortable width="80"/>
-                <el-table-column prop="startTime" label="开始时间" sortable width="130"/>
-                <el-table-column prop="endTime" label="结束时间" sortable width="130"/>
+                <el-table-column prop="startTime" label="开始时间" sortable width="110"/>
+                <el-table-column prop="endTime" label="结束时间" sortable width="110"/>
                 <el-table-column prop="businessOwner" label="业务人员" sortable width="100"/>
                 <el-table-column prop="businessCost" label="业务用时" sortable width="100"/>
                 <el-table-column prop="developOwner" label="开发人员" sortable width="100"/>
@@ -159,7 +159,7 @@ export default {
   data() {
     return {
       size: 'small',
-      hideJIRA: true,
+      hideJIRA: false,
       filters: {
         code: [],
         dateRange: []
