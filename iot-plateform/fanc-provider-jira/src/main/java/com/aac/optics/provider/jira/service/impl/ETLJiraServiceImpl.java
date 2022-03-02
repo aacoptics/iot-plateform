@@ -364,7 +364,7 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                         String workLogDate = startTimeStr.substring(0,10);
                         String workLogDesc = workLogJson.getString("comment");
 
-                        String cost = numberFormat.format((float) estimateTime/hourF);
+                        String cost = numberFormat.format((float) workLogJson.getInteger("timeSpentSeconds")/hourF);
                         Map<String, Object> inertWorkLogParam = new HashMap<>();
                         inertWorkLogParam.put("issueKey", issueKey);
                         inertWorkLogParam.put("workLogDate", workLogDate);
@@ -507,6 +507,18 @@ public class ETLJiraServiceImpl implements ETLJiraService {
         queryParam.put("endTime", endTime);
 
         List<Map<String, Object>> resultList = issueDataMapper.filterIssuesByCondition(queryParam);
+        return resultList;
+    }
+
+    @Override
+    public List<Map<String, Object>> filterIssues(String boardId, String startTime, String endTime)
+    {
+        Map<String, Object> queryParam = new HashMap<>();
+        queryParam.put("boardId", boardId);
+        queryParam.put("startTime", startTime);
+        queryParam.put("endTime", endTime);
+
+        List<Map<String, Object>> resultList = issueDataMapper.filterIssues(queryParam);
         return resultList;
     }
 

@@ -31,9 +31,14 @@
               <el-button @click="queryIssues()" icon="el-icon-search" type="primary" :loading="tableLoading">
                 查询
               </el-button>
-
-              <el-button @click="exportExcel('#issueList', 'IssueList.xlsx')" icon="el-icon-download" type="primary" >
-                导出
+              <el-button @click="toggleJIRA()" icon="el-icon-operation" type="primary">
+                展开/隐藏 JIRA清单
+              </el-button>
+              <el-button @click="exportExcel('#issueList1', 'IssueList1.xlsx')" icon="el-icon-download" type="primary" >
+                导出任务明细
+              </el-button>
+              <el-button @click="exportExcel('#issueList2', 'IssueList2.xlsx')" icon="el-icon-download" type="primary" >
+                导出JIRA清单
               </el-button>
             </el-form-item>
           </el-form>
@@ -77,13 +82,40 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row 
         <el-col :span="24">
           <el-row style="margin-right: 10px;margin-top: 10px">
             <el-col :span="24">
               <h3 style="text-align: center">任务明细</h3>
               <el-table
-                  id="issueList" 
+                  id="issueList1" 
+                  style="width:100%;font-size: xx-small;"
+                  row-key="issueKey"
+                  border
+                  lazy 
+                  v-loading="tableLoading" 
+                  :data="worklogIssues" 
+                  height="600px"
+              >
+                <el-table-column prop="dashboard" label="看板" sortable width="120"/>
+                <el-table-column prop="issue" label="任务" sortable width="180"/>
+                <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
+                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="150"/>
+                <el-table-column prop="status" label="状态" sortable width="80"/>
+                <el-table-column prop="owner" label="人员" sortable width="100"/>
+                <el-table-column prop="cost" label="用时" sortable width="100"/>
+              </el-table>
+            </el-col>
+          </el-row>
+        </el-col>
+      </el-row>
+      <el-row v-if="!hideJIRA">
+        <el-col :span="24">
+          <el-row style="margin-right: 10px;margin-top: 10px">
+            <el-col :span="24">
+              <h3 style="text-align: center">JIRA清单</h3>
+              <el-table
+                  id="issueList2" 
                   style="width:100%;font-size: xx-small;"
                   row-key="issueKey"
                   border
@@ -114,7 +146,7 @@
 <script>
 import XLSX from "xlsx";
 import FileSaver from 'file-saver';
-import {getJiraIssue, getTop10JiraIssue} from "@/api/system/worklog";
+import {getJiraIssue, getTop10JiraIssue, filterIssues} from "@/api/system/worklog";
 import * as echarts from 'echarts';
 
 export default {
@@ -127,6 +159,7 @@ export default {
   data() {
     return {
       size: 'small',
+      hideJIRA: true,
       filters: {
         code: [],
         dateRange: []
@@ -174,6 +207,7 @@ export default {
       tableLoading1: false,
 
       sprintIssues: [],
+      worklogIssues: [],
       pieData: [],
       territoryPieData: [],
       barData: {value: [], name: []},
@@ -187,6 +221,10 @@ export default {
   },
 
   methods: {
+    toggleJIRA()
+    {
+        this.hideJIRA = !this.hideJIRA;
+    },
     queryIssues()
     {
       if (this.filters.code == null || this.filters.code.length == 0) {
@@ -211,6 +249,9 @@ export default {
       const startTime = this.$moment(this.filters.dateRange[0]).format('YYYY-MM-DD');
       const endTime = this.$moment(this.filters.dateRange[1]).format('YYYY-MM-DD');
 
+      this.sprintIssues = [];
+      this.worklogIssues = [];
+
       this.barData = {value: [], name: []};
       this.pieData = [];
       this.territoryPieData = [];
@@ -222,23 +263,6 @@ export default {
         const responseData = res.data
         if (responseData.code === '000000') {
           this.sprintIssues = responseData.data;
-
-          this.getUserStoryPoints(this.sprintIssues);
-          this.getTerritoryStoryPoints(this.sprintIssues);
-
-          for (const p in this.userStoryPoints) {
-            this.pieData.push({value: this.userStoryPoints[p], name: p})
-            this.barData.name.push(p)
-            this.barData.value.push(this.userStoryPoints[p])
-          }
-          for (const p in this.territoryStoryPoints) {
-            this.territoryPieData.push({value: this.territoryStoryPoints[p], name: p})
-          }
-
-          this.drawPieChart();
-          this.drawBarChart();
-          this.drawTerritoryPieChart();
-
         }
         this.tableLoading = false;
       }).catch(() => {
@@ -256,6 +280,34 @@ export default {
         this.tableLoading1 = false;
         this.topTimeTask = [];
       });
+
+      filterIssues(boardId, startTime, endTime).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+
+          this.worklogIssues = responseData.data;
+
+          this.getUserStoryPoints(this.worklogIssues);
+          this.getTerritoryStoryPoints(this.worklogIssues);
+
+          for (const p in this.userStoryPoints) {
+            this.pieData.push({value: this.userStoryPoints[p], name: p})
+            this.barData.name.push(p)
+            this.barData.value.push(this.userStoryPoints[p])
+          }
+          for (const p in this.territoryStoryPoints) {
+            this.territoryPieData.push({value: this.territoryStoryPoints[p], name: p})
+          }
+
+          this.drawPieChart();
+          this.drawBarChart();
+          this.drawTerritoryPieChart();
+        }
+        this.tableLoading = false;
+      }).catch(() => {
+        this.tableLoading = false;
+        this.worklogIssues = [];
+      });
     },
     exportExcel(tableId, excelFileName) {
       const wb = XLSX.utils.table_to_book(document.querySelector(tableId));
@@ -269,10 +321,10 @@ export default {
     },
     getUserStoryPoints(val) {
       val.forEach(item => {
-        var issueKey = item.issueKey + '';
         var username = '';
         var estimateTime = 0.0;
-        if(issueKey.indexOf('DEV-') > -1)
+        
+        /**if(issueKey.indexOf('DEV-') > -1)
         {
           username = item.developOwner;
           estimateTime = parseFloat(item.developCost + '');
@@ -281,7 +333,10 @@ export default {
         {
           username = item.businessOwner;
           estimateTime = parseFloat(item.businessCost + '');
-        }
+        }**/
+
+        username = item.owner;
+        estimateTime = parseFloat(item.cost + '');
 
         if (!this.userStoryPoints[username]) {
           this.userStoryPoints[username] = 0
@@ -295,17 +350,9 @@ export default {
         if (!this.territoryStoryPoints[item.territory]) {
           this.territoryStoryPoints[item.territory] = 0
         }
-
-        var issueKey = item.issueKey + '';
         var estimateTime = 0.0;
-        if(issueKey.indexOf('DEV-') > -1)
-        {
-          estimateTime = parseFloat(item.developCost + '');
-        }
-        else
-        {
-          estimateTime = parseFloat(item.businessCost + '');
-        }
+
+        estimateTime = parseFloat(item.cost + '');
 
         this.territoryStoryPoints[item.territory] += estimateTime;
       })

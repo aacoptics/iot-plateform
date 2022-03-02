@@ -90,7 +90,7 @@
         		, ISNULL(BUSINESS_OWNER,'') AS businessOwner
         		, ISNULL(DEVELOP_OWNER,'') AS developOwner
         		, ISNULL(BUSINESS_COST, 0.0) AS businessCost
-        		, ISNULL(DEVELOP_COST, 0.0) AS developCost
+        		, ISNULL(DEVELOP_COST, 0.0) AS developCost 
         FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI, JIRA_00_WORKLOG WL, JIRA_00_DASHBOARD D
         WHERE I.ISSUE_KEY = WL.ISSUE_KEY
         AND I.ISSUE_KEY = DI.ISSUE_KEY
@@ -98,6 +98,47 @@
         AND #{boardId} LIKE ('%' + convert(varchar(50),DI.DASHBOARD_ID) + '%')
     	AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime}
     </select>
+
+	<select id="filterIssues" parameterType="Map" resultType="Map">
+        (SELECT   D.DASHBOARD_NAME as dashboard
+        		, I.ISSUE_ID  as issueId
+        		, I.ISSUE_KEY as issueKey
+        		, I.ISSUE_NAME as issue
+        		, I.ISSUE_TYPE AS issueType
+        		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
+        		, STATUS AS status
+        		, DOMAIN AS territory
+        		, ISNULL(BUSINESS_OWNER,'') AS owner
+        		, SUM(WL.COST) AS cost
+        FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI, JIRA_00_WORKLOG WL, JIRA_00_DASHBOARD D
+        WHERE I.ISSUE_KEY = WL.ISSUE_KEY
+        AND I.ISSUE_KEY = DI.ISSUE_KEY
+        AND DI.DASHBOARD_ID = D.DASHBOARD_ID
+        AND DI.DASHBOARD_ID != 3285
+        AND #{boardId} LIKE ('%' + convert(varchar(50),DI.DASHBOARD_ID) + '%')
+    	AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime}
+    	GROUP BY D.DASHBOARD_NAME, I.ISSUE_ID, I.ISSUE_KEY, I.ISSUE_NAME, I.ISSUE_TYPE, ISNULL(I.EKP_ISSUE_NO, ''), STATUS, DOMAIN, ISNULL(BUSINESS_OWNER, ''))
+    	UNION
+    	(SELECT   D.DASHBOARD_NAME as dashboard
+        		, I.ISSUE_ID  as issueId
+        		, I.ISSUE_KEY as issueKey
+        		, I.ISSUE_NAME as issue
+        		, I.ISSUE_TYPE AS issueType
+        		, ISNULL(I.EKP_ISSUE_NO, '') AS ekpIssueNo
+        		, STATUS AS status
+        		, DOMAIN AS territory
+        		, ISNULL(DEVELOP_OWNER, '') AS owner
+        		, SUM(WL.COST) AS cost
+        FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI, JIRA_00_WORKLOG WL, JIRA_00_DASHBOARD D
+        WHERE I.ISSUE_KEY = WL.ISSUE_KEY
+        AND I.ISSUE_KEY = DI.ISSUE_KEY
+        AND DI.DASHBOARD_ID = D.DASHBOARD_ID
+        AND DI.DASHBOARD_ID = 3285
+        AND #{boardId} LIKE ('%' + convert(varchar(50),DI.DASHBOARD_ID) + '%')
+    	AND WL.WORKLOG_DATE  between  #{startTime} and #{endTime}
+    	GROUP BY D.DASHBOARD_NAME, I.ISSUE_ID, I.ISSUE_KEY, I.ISSUE_NAME, I.ISSUE_TYPE, ISNULL(I.EKP_ISSUE_NO, ''), STATUS, DOMAIN, ISNULL(DEVELOP_OWNER, ''))
+    </select>
+
 
 	<select id="findTOP10BusinessJIRA" parameterType="Map" resultType="Map">
         SELECT   TOP 10 * FROM (SELECT DISTINCT I.ISSUE_KEY as issueKey

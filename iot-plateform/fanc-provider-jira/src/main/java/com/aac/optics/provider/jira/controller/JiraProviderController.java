@@ -93,6 +93,15 @@ public class JiraProviderController {
         return Result.success(etlJiraService.filterIssuesByCondition(boardId, startTime, endTime));
     }
 
+    @ApiOperation(value = "按看板查询任务清单", notes = "按看板查询任务清单")
+    @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
+    @GetMapping("/filterIssues")
+    public Result filterIssues(@RequestParam("boardId") String boardId,
+                               @RequestParam("startTime") String startTime,
+                               @RequestParam("endTime") String endTime) {
+        return Result.success(etlJiraService.filterIssues(boardId, startTime, endTime));
+    }
+
     /*@ApiOperation(value="导出列表", notes="导出excel")
     @GetMapping("/exportIssue")
     public void exportIssue(@RequestParam("boardId") String boardId,

@@ -22,6 +22,8 @@ public interface ETLJiraService {
 
     List<Map<String, Object>> filterIssuesByCondition(String boardId, String startTime, String endTime);
 
+    List<Map<String, Object>> filterIssues(String boardId, String startTime, String endTime);
+
     /*Workbook exportList(String boardId, String startTime, String endTime);*/
 
     List<Map<String, Object>> findTOP10JIRA(String boardId, String startTime, String endTime);
