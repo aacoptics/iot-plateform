@@ -215,6 +215,9 @@ export default {
       this.pieData = [];
       this.territoryPieData = [];
 
+      this.userStoryPoints = {};
+      this.territoryStoryPoints = {};
+
       getJiraIssue(boardId, startTime, endTime).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
