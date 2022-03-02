@@ -42,6 +42,9 @@ public interface IssueDataMapper extends BaseMapper<IssueData> {
     List<Map<String, Object>> filterIssuesByCondition(Map<String, Object> param);
 
     @DS("jiraDB")
+    List<Map<String, Object>> filterIssues(Map<String, Object> param);
+
+    @DS("jiraDB")
     List<Map<String, Object>> findTOP10BusinessJIRA(Map<String, Object> param);
 
     @DS("jiraDB")
