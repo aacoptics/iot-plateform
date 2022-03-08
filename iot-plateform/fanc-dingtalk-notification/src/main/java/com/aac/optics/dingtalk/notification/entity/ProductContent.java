@@ -54,7 +54,7 @@ public class ProductContent implements Serializable {
 
     private BigDecimal dayShipQty;
 
-    private BigDecimal dayShipAmount;
+    private BigDecimal dayShipPlanQty;
 
     private BigDecimal dayShipQtyRate;
 

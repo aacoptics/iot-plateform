@@ -146,7 +146,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
                 String dayTabProductType = productContent.getDayTabProductType();
                 String dayShipQty = productContent.getDayShipQty() != null ? decimalFormat.format(productContent.getDayShipQty()) : "-";
-                String dayShipAmount = productContent.getDayShipAmount() != null ? decimalFormat.format(productContent.getDayShipAmount()) : "-";
+                String dayShipPlanQty = productContent.getDayShipPlanQty() != null ? decimalFormat.format(productContent.getDayShipPlanQty()) : "-";
                 String dayShipRate = productContent.getDayShipQtyRate() != null ? percentDecimalFormat.format(productContent.getDayShipQtyRate()) : "-";
 
                 String subProductType = productContent.getSubTabProductType();
@@ -163,9 +163,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 if("汇总".equals(productType)) {
                     markdownGroupMessage.addBlobContent(productType);
                     if(!StringUtils.isEmpty(dayTabProductType)) {
-                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipQty + " K");
-                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipAmount + " K");
-                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipRate);
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "实际出货数量：" + dayShipQty + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
 
@@ -179,9 +179,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 else {
                     markdownGroupMessage.addContent(productType);
                     if(!StringUtils.isEmpty(dayTabProductType)) {
-                        markdownGroupMessage.addContent(dayTabProductType + "：" + dayShipQty + " K");
-                        markdownGroupMessage.addContent(dayTabProductType + "：" + dayShipAmount + " K");
-                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipRate);
+                        markdownGroupMessage.addContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
+                        markdownGroupMessage.addContent(dayTabProductType + "实际出货数量：" + dayShipQty + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
 
