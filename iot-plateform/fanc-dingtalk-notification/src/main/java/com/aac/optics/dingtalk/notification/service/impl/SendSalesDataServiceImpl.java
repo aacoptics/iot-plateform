@@ -143,6 +143,12 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             {
                 String productType = productContent.getTabProductType();
 
+
+                String dayTabProductType = productContent.getDayTabProductType();
+                String dayShipQty = productContent.getDayShipQty() != null ? decimalFormat.format(productContent.getDayShipQty()) : "-";
+                String dayShipAmount = productContent.getDayShipAmount() != null ? decimalFormat.format(productContent.getDayShipAmount()) : "-";
+                String dayShipRate = productContent.getDayShipQtyRate() != null ? percentDecimalFormat.format(productContent.getDayShipQtyRate()) : "-";
+
                 String subProductType = productContent.getSubTabProductType();
                 String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
                 String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
@@ -155,30 +161,45 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 String shipAmountRate = productContent.getShipAmountRate() != null ? percentDecimalFormat.format(productContent.getShipAmountRate()) : "-";
 
                 if("汇总".equals(productType)) {
-                    markdownGroupMessage.addBlankLine();
-                    markdownGroupMessage.addBlobContent(productType + "计划出货数量：" + shipPlanQty + " K");
-                    markdownGroupMessage.addBlobContent(productType + "实际出货数量：" + shipQty + " K");
-                    markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addBlobContent(productType + "计划出货金额：" + shipPlanAmount + " K");
-                    markdownGroupMessage.addBlobContent(productType + "实际出货金额：" + shipAmount + " K");
-                    markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent(productType);
+                    if(!StringUtils.isEmpty(dayTabProductType)) {
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipQty + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipAmount + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipRate);
+                        markdownGroupMessage.addBlankLine();
+                    }
+
+                    markdownGroupMessage.addBlobContent("当月计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
+                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent("当月计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
                 }
                 else {
-                    markdownGroupMessage.addContent(productType + "计划出货数量：" + shipPlanQty + " K");
-                    markdownGroupMessage.addContent(productType + "实际出货数量：" + shipQty + " K");
+                    markdownGroupMessage.addContent(productType);
+                    if(!StringUtils.isEmpty(dayTabProductType)) {
+                        markdownGroupMessage.addContent(dayTabProductType + "：" + dayShipQty + " K");
+                        markdownGroupMessage.addContent(dayTabProductType + "：" + dayShipAmount + " K");
+                        markdownGroupMessage.addBlobContent(dayTabProductType + "：" + dayShipRate);
+                        markdownGroupMessage.addBlankLine();
+                    }
+
+                    markdownGroupMessage.addContent("当月计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addContent("当月实际出货数量：" + shipQty + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
-                    markdownGroupMessage.addBlobContent(productType + "出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addContent(productType + "计划出货金额：" + shipPlanAmount + " K");
-                    markdownGroupMessage.addContent(productType + "实际出货金额：" + shipAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addContent("当月计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent(productType + "出货金额达成：" + shipAmountRate);
-
+                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlankLine();
                 }
             }
             //获取详情URL
