@@ -12,10 +12,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import springfox.documentation.spring.web.json.Json;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +92,30 @@ public class JiraProviderController {
         // return Result.success(jiraService.getJiraIssue(boardId, startTime, endTime));
         return Result.success(etlJiraService.filterIssuesByCondition(boardId, startTime, endTime));
     }
+
+    @ApiOperation(value = "按看板查询任务清单", notes = "按看板查询任务清单")
+    @ApiImplicitParam(name = "boardId", value = "boardId", required = true, dataType = "String")
+    @GetMapping("/filterIssues")
+    public Result filterIssues(@RequestParam("boardId") String boardId,
+                               @RequestParam("startTime") String startTime,
+                               @RequestParam("endTime") String endTime) {
+        return Result.success(etlJiraService.filterIssues(boardId, startTime, endTime));
+    }
+
+    /*@ApiOperation(value="导出列表", notes="导出excel")
+    @GetMapping("/exportIssue")
+    public void exportIssue(@RequestParam("boardId") String boardId,
+                            @RequestParam("startTime") String startTime,
+                            @RequestParam("endTime") String endTime) {
+        HttpServletResponse response =((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+
+        Workbook workbook = etlJiraService.exportList(boardId, startTime, endTime);
+        try {
+            Utils.export(response, workbook, "任务明细");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }*/
 
     @ApiOperation(value = "查询所有看板", notes = "查询所有看板")
     @GetMapping("/getBoards")
