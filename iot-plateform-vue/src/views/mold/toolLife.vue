@@ -141,6 +141,11 @@
             <span :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.actualLife }}</span>
           </template>
         </el-table-column>
+        <el-table-column :width=100 fixed="left" prop="leftLife" label="剩余寿命">
+          <template v-slot="scope">
+            <span :style="getFontColor(scope.row.isCheck)">{{ scope.row.matInfo.leftLife }}</span>
+          </template>
+        </el-table-column>
         <el-table-column :width=200 prop="createDateTime" label="创建时间"></el-table-column>
       </el-table>
     </div>
