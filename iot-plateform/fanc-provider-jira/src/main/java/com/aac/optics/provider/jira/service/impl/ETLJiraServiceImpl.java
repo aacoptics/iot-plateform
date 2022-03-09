@@ -1,5 +1,8 @@
 package com.aac.optics.provider.jira.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
@@ -20,6 +23,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -211,6 +215,15 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                     }
                 }
 
+                /*JSONArray subtasks = issueJson.getJSONObject("fields").getJSONArray("subtasks");
+                if(subtasks != null && subtasks.size() > 0)
+                {
+                    for (Object subtask : subtasks) {
+                        JSONObject subtaskJson = (JSONObject) subtask;
+
+                    }
+                }*/
+
                 String businessCost = null;
                 String businessOwner = null;
                 String developCost = null;
@@ -296,6 +309,7 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 String issueKey = issueMap.get("ISSUE_KEY") + "";
                 String ekpIssueNo = issueMap.get("EKP_ISSUE_NO") + "";
                 String createTime = issueMap.get("CREATE_TIME") + "";
+                String parentIdDB = issueMap.get("PARENT_ID") + "";
                 Date createDate = sdf.parse(createTime);
 
                 List<NameValuePair> list = new LinkedList<>();
@@ -303,13 +317,40 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 list.add(param1);
 
                 JSONObject resultJSON = HttpClientUtil.doGet(baseUrl + "/rest/agile/1.0/issue/" + issueId, list, username, password);
-                String status = resultJSON.getJSONObject("fields").getJSONObject("status").getString("name");
+
+                String status = "";
+                if(resultJSON.getJSONObject("fields") == null)
+                {
+                    continue;
+                }
+
+                if (resultJSON.getJSONObject("fields").getJSONObject("status") != null) {
+                    status = resultJSON.getJSONObject("fields").getJSONObject("status").getString("name");
+                }
+
                 String updateTimeStr = resultJSON.getJSONObject("fields").getString("updated");
                 LocalDateTime updateTime = LocalDateTime.parse(updateTimeStr, pattern);
 
                 Integer estimateTime = resultJSON.getJSONObject("fields").getJSONObject("timetracking")
                         .getInteger("originalEstimateSeconds");
                 JSONArray workLogs = resultJSON.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
+
+                Integer parentId = Integer.parseInt(parentIdDB);
+                if(resultJSON.getJSONObject("fields").getJSONObject("parent") != null)
+                {
+                    String parentIDTxt = resultJSON.getJSONObject("fields").getJSONObject("parent").getString("id");
+                    parentId = Integer.parseInt(parentIDTxt);
+                }
+                if(parentId != 0 && "".equals(ekpIssueNo))
+                {
+                    List<Map<String,Object>> parentIssue = issueDataMapper.getIssueByID(parentId);
+                    if(parentIssue != null && parentIssue.size() > 0)
+                    {
+                        ekpIssueNo = parentIssue.get(0).get("EKP_ISSUE_NO") + "";
+                    }
+                }
+                issueDataMapper.deleteWorkLog(issueKey);
+
                 if(workLogs.size() > 0)
                 {
                     estimateTime = 0;
@@ -318,6 +359,19 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                         JSONObject workLogJson = (JSONObject) workLog;
                         LocalDateTime workLogTime = DateUtil.parse(workLogJson.getString("created"), "yyyy-MM-dd'T'hh:mm:ss.SSS'+0800'").toTimestamp().toLocalDateTime();
                         estimateTime += workLogJson.getInteger("timeSpentSeconds");
+
+                        String startTimeStr = workLogJson.getString("started");
+                        String workLogDate = startTimeStr.substring(0,10);
+                        String workLogDesc = workLogJson.getString("comment");
+
+                        String cost = numberFormat.format((float) workLogJson.getInteger("timeSpentSeconds")/hourF);
+                        Map<String, Object> inertWorkLogParam = new HashMap<>();
+                        inertWorkLogParam.put("issueKey", issueKey);
+                        inertWorkLogParam.put("workLogDate", workLogDate);
+                        inertWorkLogParam.put("workLogDesc", workLogDesc);
+                        inertWorkLogParam.put("cost", Double.parseDouble(cost));
+
+                        issueDataMapper.insertWorkLog(inertWorkLogParam);
                     }
                 }
 
@@ -359,6 +413,8 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                     {
                         Date startDate = addDateByDay(createDate, -60);
                         String startTime1 = formatter.format(startDate);
+
+                        String destBoardId = "";
 
                         res = getIssuesAfterTime("3302", startTime1, startAt);
                         issureArray = res.getJSONArray("issues");
@@ -432,6 +488,8 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 updateParam.put("businessOwner", !"".equals(businessOwner)?businessOwner:null);
                 updateParam.put("developCost", developCost != null?Double.parseDouble(developCost):null);
                 updateParam.put("developOwner", !"".equals(developOwner)?developOwner:null);
+                updateParam.put("parentId", parentId !=0?parentId:null);
+                updateParam.put("ekpIssueNo", ekpIssueNo);
 
                 issueDataMapper.updateIssueLog(updateParam);
 
@@ -443,12 +501,8 @@ public class ETLJiraServiceImpl implements ETLJiraService {
     @Override
     public List<Map<String, Object>> filterIssuesByCondition(String boardId, String startTime, String endTime)
     {
-
-        startTime += " 00:00:00";
-        endTime += " 23:59:59";
-
         Map<String, Object> queryParam = new HashMap<>();
-        queryParam.put("boardId", Integer.parseInt(boardId));
+        queryParam.put("boardId", boardId);
         queryParam.put("startTime", startTime);
         queryParam.put("endTime", endTime);
 
@@ -457,19 +511,27 @@ public class ETLJiraServiceImpl implements ETLJiraService {
     }
 
     @Override
+    public List<Map<String, Object>> filterIssues(String boardId, String startTime, String endTime)
+    {
+        Map<String, Object> queryParam = new HashMap<>();
+        queryParam.put("boardId", boardId);
+        queryParam.put("startTime", startTime);
+        queryParam.put("endTime", endTime);
+
+        List<Map<String, Object>> resultList = issueDataMapper.filterIssues(queryParam);
+        return resultList;
+    }
+
+    @Override
     public List<Map<String, Object>> findTOP10JIRA(String boardId, String startTime, String endTime)
     {
-
-        startTime += " 00:00:00";
-        endTime += " 23:59:59";
-
         Map<String, Object> queryParam = new HashMap<>();
         queryParam.put("boardId", Integer.parseInt(boardId));
         queryParam.put("startTime", startTime);
         queryParam.put("endTime", endTime);
 
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-        if(!"3285".equals(boardId))
+        if(boardId.indexOf("3285") != 0)
         {
             resultList = issueDataMapper.findTOP10BusinessJIRA(queryParam);
         }
@@ -479,5 +541,4 @@ public class ETLJiraServiceImpl implements ETLJiraService {
         }
         return resultList;
     }
-
 }

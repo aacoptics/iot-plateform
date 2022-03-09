@@ -24,13 +24,25 @@ public interface IssueDataMapper extends BaseMapper<IssueData> {
     void insertDashboardIssue(Map<String, Object> param);
 
     @DS("jiraDB")
+    void insertWorkLog(Map<String, Object> param);
+
+    @DS("jiraDB")
+    void deleteWorkLog(String issueKey);
+
+    @DS("jiraDB")
     List<Map<String, Object>> getIssuesToUpdate(Map<String, Object> param);
+
+    @DS("jiraDB")
+    List<Map<String, Object>> getIssueByID(int parentId);
 
     @DS("jiraDB")
     void updateIssueLog(Map<String, Object> param);
 
     @DS("jiraDB")
     List<Map<String, Object>> filterIssuesByCondition(Map<String, Object> param);
+
+    @DS("jiraDB")
+    List<Map<String, Object>> filterIssues(Map<String, Object> param);
 
     @DS("jiraDB")
     List<Map<String, Object>> findTOP10BusinessJIRA(Map<String, Object> param);
