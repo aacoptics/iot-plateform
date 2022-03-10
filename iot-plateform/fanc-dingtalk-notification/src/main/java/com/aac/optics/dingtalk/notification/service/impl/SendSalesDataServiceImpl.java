@@ -212,14 +212,18 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                             markdownGroupMessage.addBlobContent(mtdTabProductType + "实际出货数量：" + mtdShipQty + " K");
                         }
 
-                        markdownGroupMessage.addBlobContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
+
                     }
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
+                    if(!StringUtils.isEmpty(mtdTabProductType))
+                    {
+                        markdownGroupMessage.addBlobContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
+                    }
 //                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
-//                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
                     markdownGroupMessage.addBlobContent("当月计划出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
@@ -229,7 +233,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
                 }
                 else {
-                    markdownGroupMessage.addContent(productType);
+                    markdownGroupMessage.addBlobContent(productType);
                     if(!StringUtils.isEmpty(dayTabProductType)) {
                         if("-".equals(dayShipPlanQty))
                         {
@@ -272,8 +276,6 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         {
                             markdownGroupMessage.addContent(mtdTabProductType + "实际出货数量：" + mtdShipQty + " K");
                         }
-
-                        markdownGroupMessage.addContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
                     }
 
 
@@ -282,7 +284,12 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
-//                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
+                    if(!StringUtils.isEmpty(mtdTabProductType))
+                    {
+                        markdownGroupMessage.addContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
+                    }
+
+                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
                     markdownGroupMessage.addContent("当月计划出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
