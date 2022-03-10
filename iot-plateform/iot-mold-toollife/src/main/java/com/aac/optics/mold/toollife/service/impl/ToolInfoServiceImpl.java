@@ -124,8 +124,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 } else {
                     toolInfo.setActualLife(actualLifeNumber + "");
                 }
-                int leftLifeNumber = Integer.parseInt(toolInfo.getLifeSalvage()) - actualLifeNumber;
-                toolInfo.setLeftLife(leftLifeNumber + "");
+                if(StringUtils.isNotBlank(toolInfo.getLifeSalvage())) {
+                    int leftLifeNumber = Integer.parseInt(toolInfo.getLifeSalvage()) - actualLifeNumber;
+                    toolInfo.setLeftLife(leftLifeNumber + "");
+                }
+
 
             }
             toolInfo.SetMoldMatInfo();
