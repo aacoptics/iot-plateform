@@ -1,14 +1,7 @@
 package com.aac.optics.provider.jira.service;
 
 
-import cn.hutool.core.lang.tree.Tree;
-import com.aac.optics.provider.jira.entity.JiraIssue;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import org.apache.poi.ss.usermodel.Workbook;
-
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 

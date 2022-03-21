@@ -2,27 +2,18 @@ package com.aac.optics.provider.jira.controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
-import com.aac.optics.common.core.exception.SystemErrorType;
 import com.aac.optics.common.core.vo.Result;
 import com.aac.optics.provider.jira.service.ETLJiraService;
 import com.aac.optics.provider.jira.service.JiraService;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import springfox.documentation.spring.web.json.Json;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
