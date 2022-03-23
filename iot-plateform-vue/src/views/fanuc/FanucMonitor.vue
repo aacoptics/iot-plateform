@@ -574,7 +574,7 @@ export default {
       _this.getEquipList()
       const position = _this.$route.query.position
       _this.floorInfo = position.substring(2, position.length)
-      console.log(_this.floorInfo)
+      _this.siteInfo = _this.$route.query.site
       _this.initConnect()
     }, 100);
 
@@ -584,20 +584,25 @@ export default {
     fanucTopic() {
       return [
         {
-          topic: 'Fanuc/monitData/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/monitData/' + this.floorInfo + '/+',
           qos: 0
         },
         {
-          topic: 'Fanuc/condData/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/condData/' + this.floorInfo + '/+',
           qos: 0
         },
         {
-          topic: 'Fanuc/moldData/' + this.floorInfo + '/+',
+          topic: 'Fanuc/' + this.siteInfo + '/moldData/' + this.floorInfo + '/+',
           qos: 0
         }
       ]
     },
     fanucMachineInfo() {
+      return this.getFanucMachineInfo()
+    }
+  },
+  methods: {
+    getFanucMachineInfo(){
       const pages = {}
       const position = this.$route.query.position;
       if (this.$route.params.status) {
@@ -629,9 +634,7 @@ export default {
         }
       }
       return this.sortObjByKey(pages)
-    }
-  },
-  methods: {
+    },
     sortObjByKey(obj) {
       const keys = Object.keys(obj).sort();
       const newObj = {};
@@ -977,6 +980,7 @@ export default {
   data() {
     return {
       floorInfo: '',
+      siteInfo: '',
       client: {
         connected: false,
       },

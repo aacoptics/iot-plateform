@@ -2,10 +2,7 @@ package com.aac.optics.lenspacker.dashboard.service.impl;
 
 import com.aac.optics.lenspacker.dashboard.dao.LensInfoMapper;
 import com.aac.optics.lenspacker.dashboard.dao.LensPackerOneHourCapacityMapper;
-import com.aac.optics.lenspacker.dashboard.entity.AlarmData;
-import com.aac.optics.lenspacker.dashboard.entity.LensInfo;
-import com.aac.optics.lenspacker.dashboard.entity.LensPackerOneHourCapacity;
-import com.aac.optics.lenspacker.dashboard.entity.StatusData;
+import com.aac.optics.lenspacker.dashboard.entity.*;
 import com.aac.optics.lenspacker.dashboard.service.LensInfoService;
 import com.aac.optics.lenspacker.dashboard.service.LensPackerDashboardService;
 import com.aac.optics.lenspacker.dashboard.service.LensPackerOneHourCapacityService;
@@ -40,5 +37,10 @@ public class LensPackerOneHourCapacityServiceImpl extends ServiceImpl<LensPacker
         }
         String startTime = df.format(currentTime);
         return lensPackerOneHourCapacityMapper.getTotalUph(startTime);
+    }
+
+    @Override
+    public List<LensPackerOneHourCapacity> getMachineCapacity(String startTime, String endTime){
+        return lensPackerOneHourCapacityMapper.getMachineCapacity(startTime, endTime);
     }
 }

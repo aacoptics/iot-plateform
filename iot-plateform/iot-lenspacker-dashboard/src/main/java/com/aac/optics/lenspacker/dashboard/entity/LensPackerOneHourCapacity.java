@@ -1,5 +1,6 @@
 package com.aac.optics.lenspacker.dashboard.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,4 +24,10 @@ public class LensPackerOneHourCapacity implements Serializable {
     private LocalDateTime endTime;
 
     private Integer output;
+
+    @TableField(exist = false)
+    private String machineName;
+
+    @TableField(exist = false)
+    private Integer capacity;
 }

@@ -38,7 +38,8 @@ public class MqttConfig {
 
     public static final String INPUT_CHANNEL = "mqttInputChannel";
 
-    public static final String SUB_TOPICS = "Fanuc/#";
+    @Value("${mqtt.subTopic}")
+    public String SUB_TOPICS;
 
     public static Map<String, FanucDataEntity> FanucMachineDataMap = new TreeMap<>();
 

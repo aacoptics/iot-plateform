@@ -1,5 +1,6 @@
 package com.aac.optics.mold.toollife.service.impl;
 
+import com.aac.optics.mold.toollife.consumer.MoldConsumer;
 import com.aac.optics.mold.toollife.dao.ToolInfoMapper;
 import com.aac.optics.mold.toollife.entity.ToolInfo;
 import com.aac.optics.mold.toollife.entity.ToolInfoHistory;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -121,6 +124,11 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 } else {
                     toolInfo.setActualLife(actualLifeNumber + "");
                 }
+                if(StringUtils.isNotBlank(toolInfo.getLifeSalvage())) {
+                    int leftLifeNumber = Integer.parseInt(toolInfo.getLifeSalvage()) - actualLifeNumber;
+                    toolInfo.setLeftLife(leftLifeNumber + "");
+                }
+
 
             }
             toolInfo.SetMoldMatInfo();
@@ -142,6 +150,8 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
                 } else {
                     toolInfo.setActualLife(actualLifeNumber + "");
                 }
+                int leftLifeNumber = Integer.parseInt(toolInfo.getLifeSalvage()) - actualLifeNumber;
+                toolInfo.setLeftLife(leftLifeNumber + "");
             }
             toolInfo.SetMoldMatInfo();
         }
@@ -283,5 +293,40 @@ public class ToolInfoServiceImpl extends ServiceImpl<ToolInfoMapper, ToolInfo> i
             }
         }
         return res;
+    }
+
+    public Map<String, Object> getAbnormalToolLifeRatio() {
+        List<Map<String, Object>> abnormalToolLifeRatioList = new ArrayList<>();
+        abnormalToolLifeRatioList = toolInfoMapper.getAbnormalToolLifeRatio();
+        List<String> matCode = new ArrayList<>();
+        List<Double> ratio = new ArrayList<>();
+        for(Map<String, Object> abnormalToolLifeRatio : abnormalToolLifeRatioList) {
+            matCode.add(abnormalToolLifeRatio.get("mat_code").toString());
+            ratio.add(Double.parseDouble(abnormalToolLifeRatio.get("lifeRatio").toString()));
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("matCode", matCode);
+        result.put("ratio", ratio);
+        return result;
+    }
+
+    public List<Map<String, Object>> getAbnormalQty() {
+        List<Map<String, Object>> abnormalQtyMapList = toolInfoMapper.getAbnormalQty();
+        int totalQty = 0;
+        for(Map<String, Object> abnormalQtyMap : abnormalQtyMapList) {
+            totalQty = totalQty + (int) abnormalQtyMap.get("abnormal_qty");
+        }
+        for(Map<String, Object> abnormalQtyMap : abnormalQtyMapList) {
+            double ratio = (((int) abnormalQtyMap.get("abnormal_qty")*1.0) / totalQty) * 100;
+            BigDecimal bd = new BigDecimal(ratio);
+            double ratioNew = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            String ratioString = ratioNew + "%";
+            abnormalQtyMap.put("ratio", ratioString);
+        }
+        return abnormalQtyMapList;
+    }
+
+    public List<Map<String, Object>> getMachineStatus() {
+        return MoldConsumer.machineStatus;
     }
 }

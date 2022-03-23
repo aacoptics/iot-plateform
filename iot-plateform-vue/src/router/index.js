@@ -7,6 +7,8 @@ import {getMenuByUsername} from "@/api/system/user";
 import {saveRefreshTime} from "@/api";
 import worklog from "@/views/system/permission/worklog";
 
+import roomDetail from "@/views/czech/RoomDetail";
+
 const routes = [
     {
         path: '/',
@@ -51,6 +53,7 @@ const formatMenus = function (menuData, menuItems, levelInfo = '') {
         const menuItem = {
             icon: menu.icon,
             index: menu.path ? menu.path.replace("/", "") : menu.name,
+            name: menu.name,
             title: menu.title,
             levelInfo: newParent
         }
@@ -93,6 +96,14 @@ const formatRoutes = function (routes, routeData) {
                         title: '没有权限'
                     },
                     component: routeMap['NoAuth']
+                },
+                {
+                    path: "/roomDetail",
+                    name: "roomDetail",
+                    meta: {
+                        title: 'Room Detail',
+                    },
+                    component: roomDetail
                 }
             ]
         };

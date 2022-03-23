@@ -78,6 +78,9 @@ public class ToolInfo implements Serializable {
     private String actualLife;
 
     @TableField(exist = false)
+    private String leftLife;
+
+    @TableField(exist = false)
     private MatInfo matInfo;
 
     public void SetMoldMatInfo(){
@@ -87,7 +90,8 @@ public class ToolInfo implements Serializable {
                 .setMatCode(this.matCode)
                 .setMatName(this.matName)
                 .setLifeSalvage(this.lifeSalvage)
-                .setActualLife(this.actualLife);
+                .setActualLife(this.actualLife)
+                .setLeftLife(this.leftLife);
     }
 
 

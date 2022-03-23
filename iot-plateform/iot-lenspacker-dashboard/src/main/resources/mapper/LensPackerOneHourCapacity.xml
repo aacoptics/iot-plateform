@@ -10,4 +10,12 @@
           and output is not null
         group by start_time, end_time
     </select>
+    <select id="getMachineCapacity" resultType="com.aac.optics.lenspacker.dashboard.entity.LensPackerOneHourCapacity">
+        select machine_no as machineName,
+        sum(output) as capacity
+        from z_lenspacker_one_hour_capacity
+        where end_time &gt; CONVERT(varchar(100), #{startTime}, 21)
+        and end_time &lt; CONVERT(varchar(100), #{endTime}, 21)
+        group by machine_no
+    </select>
 </mapper>

@@ -70,7 +70,7 @@ public class LensPackerDashboardController {
     @ApiImplicitParam(name = "params", value = "参数", required = true, dataType = "Map")
     @GetMapping("/getMachineCapacity")
     public Result getMachineCapacity(@RequestParam Map<String, String> params) {
-        return Result.success(valueStreamService.getMachineCapacity(params.get("startTime"), params.get("endTime")));
+        return Result.success(lensPackerOneHourCapacityService.getMachineCapacity(params.get("startTime"), params.get("endTime")));
     }
 
     @ApiOperation(value = "查询机台实时状态", notes = "查询机台实时状态")

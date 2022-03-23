@@ -9,4 +9,6 @@ import java.util.List;
 public interface LensPackerOneHourCapacityService extends IService<LensPackerOneHourCapacity> {
 
     List<LensPackerOneHourCapacity> getTotalUph();
+
+    List<LensPackerOneHourCapacity> getMachineCapacity(String startTime, String endTime);
 }
