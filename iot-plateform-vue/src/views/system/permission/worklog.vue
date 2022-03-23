@@ -173,6 +173,12 @@ export default {
           "type": "scrum"
         },
         {
+          "name": "IT infra Scrum2",
+          "self": "https://project.aacoptics.com/rest/agile/1.0/board/3402",
+          "id": 3402,
+          "type": "scrum"
+        },
+        {
           "name": "IT-开发敏捷看板",
           "self": "https://project.aacoptics.com/rest/agile/1.0/board/3285",
           "id": 3285,
