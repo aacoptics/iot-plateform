@@ -259,20 +259,21 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
                 if (robotUrl.contains("feishu")) {
                     String message = feishuApi.SendGroupMessage(robotUrl, markdownGroupMessage.toString());
+                    JSONObject messageJson = new JSONObject();
                     try {
-                        JSONObject messageJson = JSONObject.parseObject(message);
-                        if (messageJson.containsKey("StatusCode") && messageJson.getInteger("StatusCode") == 0) {
-                            sendSalesDataMapper.saveSendHistory(batchId, robotId, "true", null);
-                        } else {
-                            String errorMsg = null;
-                            if (messageJson.containsKey("msg") && !StringUtils.isEmpty(messageJson.getString("msg"))) {
-                                errorMsg = messageJson.getString("msg");
-                            }
-                            sendSalesDataMapper.saveSendHistory(batchId, robotId, "false", errorMsg);
-                        }
-                        sendCount++;
+                        messageJson = JSONObject.parseObject(message);
                     } catch (Exception err) {
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "false", null);
                         log.error("解析返回值失败！{}", err.getMessage());
+                    }
+                    if (messageJson.containsKey("StatusCode") && messageJson.getInteger("StatusCode") == 0) {
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "true", null);
+                    } else {
+                        String errorMsg = null;
+                        if (messageJson.containsKey("msg") && !StringUtils.isEmpty(messageJson.getString("msg"))) {
+                            errorMsg = messageJson.getString("msg");
+                        }
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "false", errorMsg);
                     }
                 } else {
                     Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
@@ -282,8 +283,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         message = message.substring(1024);
                     }
                     sendSalesDataMapper.saveSendHistory(batchId, robotId, result, message);
-                    sendCount++;
                 }
+                sendCount++;
             }
             //如果所有已配置的群都已发送，更新发送状态
             if (sendCount >= robotMapList.size()) {
