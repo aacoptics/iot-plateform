@@ -44,7 +44,7 @@ class SendSalesUserServiceImplTest {
     void sendDataGroupMessage()
     {
         try {
-            String asd = feishuApi.SendGroupMessage("https://open.feishu.cn/open-apis/bot/v2/hook/5260a48e-c8ba-4cd1-8dc6-93157054264a", "测试", "### **【诚瑞光学销售出货数据】**  \n" +
+            String asd = feishuApi.SendGroupMessage("https://open.feishu.cn/open-apis/bot/v2/hook/5260a48e-c8ba-4cd1-8dc6-93157054264a", "### **【诚瑞光学销售出货数据】**  \n" +
                     "日期：2022-03-24  \n" +
                     "Lens  \n" +
                     "日计划出货数量：3,018 K  \n" +

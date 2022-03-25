@@ -16,7 +16,7 @@ public class FeishuApi {
     private OkHttpCli okHttpCli;
 
 
-    public String SendGroupMessage(String robotWebhook, String title, String content){
+    public String SendGroupMessage(String robotWebhook, String content){
         JSONObject text = new JSONObject();
         text.put("content", content);
         text.put("tag", "lark_md");
@@ -38,6 +38,6 @@ public class FeishuApi {
         jsonBody.put("msg_type", "interactive");
         jsonBody.put("card", card);
 
-        return okHttpCli.doPostJson("https://open.feishu.cn/open-apis/bot/v2/hook/5260a48e-c8ba-4cd1-8dc6-93157054264a", jsonBody);
+        return okHttpCli.doPostJson(robotWebhook, jsonBody);
     }
 }
