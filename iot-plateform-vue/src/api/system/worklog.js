@@ -30,6 +30,21 @@ export function getTop10JiraIssue(boardId, startTime, endTime) {
     })
 }
 
+export function filterIssues(boardId, startTime, endTime) {
+    return request({
+        url: '/jira-server/jiraProvider/filterIssues',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            boardId: boardId,
+            startTime: startTime,
+            endTime: endTime
+        }
+    })
+}
+
 export function getAllBoards() {
     return request({
         url: '/jira-server/jiraProvider/getBoards',

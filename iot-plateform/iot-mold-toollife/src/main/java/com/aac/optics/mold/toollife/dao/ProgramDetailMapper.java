@@ -19,4 +19,6 @@ public interface ProgramDetailMapper extends BaseMapper<ProgramDetail> {
     ProgramDetail getAbnormalTotalTime(@Param("toolCode") String toolCode);
 
     List<ProgramDetail> getToolHisList(@Param("toolCode") String toolCode);
+
+    String getLastDayOEEByType(@Param("startTime") String startTime, @Param("type") String type);
 }
