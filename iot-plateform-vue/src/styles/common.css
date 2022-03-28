@@ -210,22 +210,3 @@
     font-weight: bold;
     color: white;
 }
-
-.cz_floor_plan {
-    border:1px solid cornflowerblue;
-    height: 140px;
-    margin-top: 10px;
-}
-.grid-content {
-    margin-left: 1px;
-    height: 140px;
-    text-align: center;
-    line-height: 140px;
-}
-.bg-blue {
-    background: #2d8cf0;
-}
-
-.cz_floor_type{
-
-}

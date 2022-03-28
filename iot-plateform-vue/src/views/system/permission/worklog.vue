@@ -7,7 +7,7 @@
 
           <el-form :inline="true" :size="size">
             <el-form-item>
-              <el-select v-model="filters.code" placeholder="请选择看板" multiple>
+              <el-select v-model="filters.code" placeholder="请选择看板">
                 <el-option
                     v-for="item in jiraBoards"
                     :key="item.id"
@@ -30,15 +30,6 @@
             <el-form-item>
               <el-button @click="queryIssues()" icon="el-icon-search" type="primary" :loading="tableLoading">
                 查询
-              </el-button>
-              <el-button @click="toggleJIRA()" icon="el-icon-operation" type="primary">
-                展开/隐藏 JIRA清单
-              </el-button>
-              <el-button @click="exportExcel('#issueList1', 'IssueList1.xlsx')" icon="el-icon-download" type="primary" >
-                导出任务明细
-              </el-button>
-              <el-button @click="exportExcel('#issueList2', 'IssueList2.xlsx')" icon="el-icon-download" type="primary" >
-                导出JIRA清单
               </el-button>
             </el-form-item>
           </el-form>
@@ -82,55 +73,26 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row> 
+      <el-row>
         <el-col :span="24">
           <el-row style="margin-right: 10px;margin-top: 10px">
             <el-col :span="24">
               <h3 style="text-align: center">任务明细</h3>
               <el-table
-                  id="issueList1" 
-                  style="width:100%;font-size: xx-small;"
+                  id="topIssues"
+                  style="width:100%;height:600px;font-size: xx-small;height:100%;"
                   row-key="issueKey"
                   border
-                  lazy 
-                  v-loading="tableLoading" 
-                  :data="worklogIssues" 
-                  height="600px"
-              >
-                <el-table-column prop="dashboard" label="看板" sortable width="120"/>
-                <el-table-column prop="issue" label="任务" sortable width="180"/>
-                <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
-                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="150"/>
-                <el-table-column prop="status" label="状态" sortable width="80"/>
-                <el-table-column prop="owner" label="人员" sortable width="100"/>
-                <el-table-column prop="cost" label="用时" sortable width="100"/>
-              </el-table>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
-      <el-row v-if="!hideJIRA">
-        <el-col :span="24">
-          <el-row style="margin-right: 10px;margin-top: 10px">
-            <el-col :span="24">
-              <h3 style="text-align: center">JIRA清单</h3>
-              <el-table
-                  id="issueList2" 
-                  style="width:100%;font-size: xx-small;"
-                  row-key="issueKey"
-                  border
-                  lazy 
+                  lazy
+                  :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" 
                   v-loading="tableLoading" 
                   :data="sprintIssues" 
-                  height="600px"
               >
-                <el-table-column prop="dashboard" label="看板" sortable width="120"/>
-                <el-table-column prop="issue" label="任务" sortable width="160"/>
-                <el-table-column prop="issueType" label="需求类型" sortable width="180"/>
-                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="130"/>
-                <el-table-column prop="status" label="状态" sortable width="80"/>
-                <el-table-column prop="startTime" label="开始时间" sortable width="110"/>
-                <el-table-column prop="endTime" label="结束时间" sortable width="110"/>
+                <el-table-column prop="issue" label="任务" sortable width="230"/>
+                <el-table-column prop="ekpIssueNo" label="IT应用需求申请单号" sortable width="180"/>
+                <el-table-column prop="status" label="状态" sortable width="100"/>
+                <el-table-column prop="startTime" label="开始时间" sortable width="160"/>
+                <el-table-column prop="endTime" label="结束时间" sortable width="160"/>
                 <el-table-column prop="businessOwner" label="业务人员" sortable width="100"/>
                 <el-table-column prop="businessCost" label="业务用时" sortable width="100"/>
                 <el-table-column prop="developOwner" label="开发人员" sortable width="100"/>
@@ -144,9 +106,7 @@
 </template>
 
 <script>
-import XLSX from "xlsx";
-import FileSaver from 'file-saver';
-import {getJiraIssue, getTop10JiraIssue, filterIssues} from "@/api/system/worklog";
+import {getJiraIssue, getTop10JiraIssue} from "@/api/system/worklog";
 import * as echarts from 'echarts';
 
 export default {
@@ -159,9 +119,8 @@ export default {
   data() {
     return {
       size: 'small',
-      hideJIRA: false,
       filters: {
-        code: [],
+        code: '',
         dateRange: []
       },
 
@@ -170,12 +129,6 @@ export default {
           "name": "IT Infra Scrum",
           "self": "https://project.aacoptics.com/rest/agile/1.0/board/3183",
           "id": 3183,
-          "type": "scrum"
-        },
-        {
-          "name": "IT infra Scrum2",
-          "self": "https://project.aacoptics.com/rest/agile/1.0/board/3402",
-          "id": 3402,
           "type": "scrum"
         },
         {
@@ -213,7 +166,6 @@ export default {
       tableLoading1: false,
 
       sprintIssues: [],
-      worklogIssues: [],
       pieData: [],
       territoryPieData: [],
       barData: {value: [], name: []},
@@ -227,74 +179,29 @@ export default {
   },
 
   methods: {
-    toggleJIRA()
-    {
-        this.hideJIRA = !this.hideJIRA;
-    },
     queryIssues()
     {
-      if (this.filters.code == null || this.filters.code.length == 0) {
+      if (!this.filters.code) {
         this.$message({message: '请选择看板', type: 'error'})
         return
       }
-      
-      var boardId = '';
-      for(var i=0;i<this.filters.code.length;i++)
-      {
-        if(i != this.filters.code.length -1)
-        {
-          boardId += this.filters.code[i] + ',';
-        }
-        else
-        {
-          boardId += this.filters.code[i]
-        }
-      }
+
       this.tableLoading = true;
 
       const startTime = this.$moment(this.filters.dateRange[0]).format('YYYY-MM-DD');
       const endTime = this.$moment(this.filters.dateRange[1]).format('YYYY-MM-DD');
 
-      this.sprintIssues = [];
-      this.worklogIssues = [];
-
       this.barData = {value: [], name: []};
       this.pieData = [];
       this.territoryPieData = [];
 
-      this.userStoryPoints = {};
-      this.territoryStoryPoints = {};
-
-      getJiraIssue(boardId, startTime, endTime).then((res) => {
+      getJiraIssue(this.filters.code, startTime, endTime).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
           this.sprintIssues = responseData.data;
-        }
-        this.tableLoading = false;
-      }).catch(() => {
-        this.tableLoading = false;
-        this.sprintIssues = [];
-      });
 
-      getTop10JiraIssue(boardId, startTime, endTime).then((res) => {
-        const responseData = res.data
-        if (responseData.code === '000000') {
-          this.topTimeTask = responseData.data;
-        }
-        this.tableLoading1 = false;
-      }).catch(() => {
-        this.tableLoading1 = false;
-        this.topTimeTask = [];
-      });
-
-      filterIssues(boardId, startTime, endTime).then((res) => {
-        const responseData = res.data
-        if (responseData.code === '000000') {
-
-          this.worklogIssues = responseData.data;
-
-          this.getUserStoryPoints(this.worklogIssues);
-          this.getTerritoryStoryPoints(this.worklogIssues);
+          this.getUserStoryPoints(this.sprintIssues);
+          this.getTerritoryStoryPoints(this.sprintIssues);
 
           for (const p in this.userStoryPoints) {
             this.pieData.push({value: this.userStoryPoints[p], name: p})
@@ -308,29 +215,31 @@ export default {
           this.drawPieChart();
           this.drawBarChart();
           this.drawTerritoryPieChart();
+
         }
         this.tableLoading = false;
       }).catch(() => {
         this.tableLoading = false;
-        this.worklogIssues = [];
+        this.sprintIssues = [];
       });
-    },
-    exportExcel(tableId, excelFileName) {
-      const wb = XLSX.utils.table_to_book(document.querySelector(tableId));
-      const wbOut = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'});
-      try {
-        FileSaver.saveAs(new Blob([wbOut], {type: 'application/octet-stream'}), excelFileName)
-      } catch (e) {
-        if (typeof console !== 'undefined') console.log(e, wbOut)
-      }
-      return wbOut
+
+      getTop10JiraIssue(this.filters.code, startTime, endTime).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.topTimeTask = responseData.data;
+        }
+        this.tableLoading1 = false;
+      }).catch(() => {
+        this.tableLoading1 = false;
+        this.topTimeTask = [];
+      });
     },
     getUserStoryPoints(val) {
       val.forEach(item => {
+        var issueKey = item.issueKey + '';
         var username = '';
         var estimateTime = 0.0;
-        
-        /**if(issueKey.indexOf('DEV-') > -1)
+        if(issueKey.indexOf('DEV-') > -1)
         {
           username = item.developOwner;
           estimateTime = parseFloat(item.developCost + '');
@@ -339,10 +248,7 @@ export default {
         {
           username = item.businessOwner;
           estimateTime = parseFloat(item.businessCost + '');
-        }**/
-
-        username = item.owner;
-        estimateTime = parseFloat(item.cost + '');
+        }
 
         if (!this.userStoryPoints[username]) {
           this.userStoryPoints[username] = 0
@@ -356,9 +262,17 @@ export default {
         if (!this.territoryStoryPoints[item.territory]) {
           this.territoryStoryPoints[item.territory] = 0
         }
-        var estimateTime = 0.0;
 
-        estimateTime = parseFloat(item.cost + '');
+        var issueKey = item.issueKey + '';
+        var estimateTime = 0.0;
+        if(issueKey.indexOf('DEV-') > -1)
+        {
+          estimateTime = parseFloat(item.developCost + '');
+        }
+        else
+        {
+          estimateTime = parseFloat(item.businessCost + '');
+        }
 
         this.territoryStoryPoints[item.territory] += estimateTime;
       })

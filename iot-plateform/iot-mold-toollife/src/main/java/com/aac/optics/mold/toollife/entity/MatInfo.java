@@ -34,7 +34,4 @@ public class MatInfo implements Serializable {
 
     @TableField(exist = false)
     private String actualLife;
-
-    @TableField(exist = false)
-    private String leftLife;
 }

@@ -30,6 +30,4 @@ public interface ToolInfoService extends IService<ToolInfo> {
     Map<String, Object> getAbnormalToolLifeRatio();
 
     List<Map<String, Object>> getAbnormalQty();
-
-    List<Map<String, Object>> getMachineStatus();
 }

@@ -20,7 +20,7 @@ public class StaticScheduleTask {
     public ETLJiraService etlJiraService;
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */120 * * * ?")
+    @Scheduled(cron = "0 */60 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void refreshDashboards()
     {
@@ -29,7 +29,7 @@ public class StaticScheduleTask {
     }
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */60 * * * ?")
+    @Scheduled(cron = "0 */120 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void initIssues()
     {
@@ -38,7 +38,7 @@ public class StaticScheduleTask {
     }
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */20 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void updateIssues()  {
         String resultMSG = null;
