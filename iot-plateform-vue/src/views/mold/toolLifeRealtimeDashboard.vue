@@ -47,6 +47,7 @@
         </template>
         <el-row :gutter="10">
           <el-col :span="6">
+            <div style="text-align: center"><b>加工组设备OEE</b></div>
             <div v-for="(area, index) of areaCode" :key="index">
               <div :id="'oee'+area" style="height: 200px"></div>
             </div>
@@ -807,13 +808,22 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            left: 'left'
+            left: 'right',
           },
           series: [
             {
               type: 'pie',
               radius: '50%',
-              data: this.abnormalQty
+              data: this.abnormalQty,
+              itemStyle: {
+                normal: {
+                  label: {
+                    show: true,
+                    formatter: '{c} ({d}%)'
+                  },
+                  labelLine: {show: true}
+                }
+              }
             }
           ],
           emphasis: {

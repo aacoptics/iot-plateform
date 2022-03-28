@@ -14,6 +14,16 @@
         group by area
     </select>
 
+    <select id="getLastDayOEEByType" resultType="java.lang.String">
+        SELECT CAST(CAST (((sum(datediff(second, start_time, end_time))*1.0/(count(distinct machine_no) * 24 * 60 * 60)) * 100) as decimal(10,2)) as varchar(50)) as oee
+        FROM [MDIoT].[dbo].[tb_mold_program_detail] a
+            left join tb_mold_machine_area_config b
+            on a.machine_no = b.machine_name
+        where start_time between #{startTime} and DATEADD(dd, 1, #{startTime})
+          and end_time is not null
+          and area = #{type}
+    </select>
+
     <select id="getAbnormalTotalTime" resultType="com.aac.optics.mold.toollife.entity.ProgramDetail">
         select top 1 a.machine_no,
                      c.area                                                              as program_name,
