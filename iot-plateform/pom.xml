@@ -23,6 +23,7 @@
         <module>fanc-provider-jira</module>
         <module>fanc-dingtalk-sync</module>
         <module>fanc-dingtalk-notification</module>
+        <module>iot-wlg-report</module>
     </modules>
 
     <packaging>pom</packaging>
