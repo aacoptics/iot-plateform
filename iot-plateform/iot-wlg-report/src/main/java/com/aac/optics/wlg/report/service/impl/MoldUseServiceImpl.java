@@ -50,6 +50,10 @@ public class MoldUseServiceImpl extends ServiceImpl<MoldUseMapper, MoldUse> impl
 
         for (int i = 1; i < excelDataList.size(); i++) {
             String[] dataArray = excelDataList.get(i);
+            if(dataArray == null || dataArray.length == 0)
+            {
+                break;
+            }
             String status = dataArray[0]; //状态
             String code = dataArray[1]; //条件代码
             String projectName = dataArray[2]; //项目
@@ -66,37 +70,45 @@ public class MoldUseServiceImpl extends ServiceImpl<MoldUseMapper, MoldUse> impl
 
 
             for (int j = 4; j < dataArray.length; j++) {
-                String moldDateStr = titleArray[j];//日期
-                String moldQtyStr = dataArray[j]; //数量
-                if (StringUtils.isEmpty(moldQtyStr)) {
-                    break;
-                }
-                Long moldQty = Long.valueOf(moldQtyStr);
 
-                LocalDate moldDate = null;
                 try {
-                    moldDate = LocalDate.parse(moldDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                } catch (Exception e) {
-                    log.error("日期格式错误", e);
-                    throw new BusinessException("日期格式错误" + e.getMessage());
-                }
-
-                MoldUse moldUse = this.queryMoldUseByCodeAndProjectAndDate(code, projectName, moldDate);
-                if (moldUse == null) {
-                    moldUse = new MoldUse();
-                } else {
-                    if (currentLocalDate.isAfter(moldDate)) {
+                    String moldDateStr = titleArray[j];//日期
+                    String moldQtyStr = dataArray[j]; //数量
+                    if (StringUtils.isEmpty(moldQtyStr)) {
                         continue;
                     }
+                    Long moldQty = Long.valueOf(moldQtyStr);
+
+                    LocalDate moldDate = null;
+                    try {
+                        moldDate = LocalDate.parse(moldDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    } catch (Exception e) {
+                        log.error("日期格式错误", e);
+                        throw new BusinessException("日期格式错误" + e.getMessage());
+                    }
+
+                    MoldUse moldUse = this.queryMoldUseByCodeAndProjectAndDate(code, projectName, moldDate);
+                    if (moldUse == null) {
+                        moldUse = new MoldUse();
+                    } else {
+                        if (currentLocalDate.isAfter(moldDate)) {
+                            continue;
+                        }
+                    }
+
+                    moldUse.setCode(code);
+                    moldUse.setStatus(status);
+                    moldUse.setProjectName(projectName);
+                    moldUse.setMoldDate(moldDate);
+                    moldUse.setMoldQty(moldQty);
+
+                    this.saveOrUpdate(moldUse);
+                }catch (Exception exception)
+                {
+                    log.error("第{}数据异常：{}", i, excelDataList.get(i));
+                    log.error("异常信息", exception);
+                    throw new BusinessException("第【" + (i+1) + "】行数据异常，" + exception.getClass().getSimpleName() + "，"+ exception.getMessage());
                 }
-
-                moldUse.setCode(code);
-                moldUse.setStatus(status);
-                moldUse.setProjectName(projectName);
-                moldUse.setMoldDate(moldDate);
-                moldUse.setMoldQty(moldQty);
-
-                this.saveOrUpdate(moldUse);
             }
         }
     }

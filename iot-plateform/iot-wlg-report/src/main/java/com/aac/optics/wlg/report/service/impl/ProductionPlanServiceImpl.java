@@ -38,8 +38,13 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
     @Transactional
     public void importProductionPlanExcel(String fileName, InputStream in) throws IOException, InvalidFormatException {
         LocalDate currentLocalDate = LocalDate.now();
-        String[] fileNameArray = fileName.split("-");
+
+        String[] fileNameArray = fileName.split("计划");
         String projectName = fileNameArray[0];
+        if (projectName.contains("-")) {
+            fileNameArray = fileName.split("-");
+            projectName = fileNameArray[0];
+        }
 
         List<String[]> excelDataList = ExcelUtil.read(in).get(0);
 
@@ -53,6 +58,11 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
 
         for (int i = 2; i < excelDataList.size(); i++) {
             String[] dataArray = excelDataList.get(i);
+            if(dataArray == null || dataArray.length == 0)
+            {
+                break;
+            }
+
             String mold = dataArray[1]; //模具
             String cycle = dataArray[2]; //周期
             String name = dataArray[4]; //项目2

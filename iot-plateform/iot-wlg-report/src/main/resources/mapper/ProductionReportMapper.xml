@@ -148,7 +148,8 @@
 
     <select id="findProductionDayReportByCondition" resultType="map">
         SELECT ROW_NUMBER() OVER ( ORDER BY productionDate, projectName, mold, cycle ) AS seq,
-        productionDate, projectName, mold, cycle, JHXUESHU, JHHDCHANCHU,JHCHANCHU ,estimateHoleQty
+            productionDate, projectName, mold, cycle, JHXUESHU, JHHDCHANCHU,JHCHANCHU ,
+            estimateHoleQty, afterOutputQty, fpy
         from (
             select
             case when c.actual_date is not null then c.actual_date else b.plan_date end productionDate,
@@ -158,38 +159,50 @@
             b.JHXUESHU,
             b.JHHDCHANCHU,
             b.JHCHANCHU,
-            c.estimate_hole_qty                                                              estimateHoleQty
-            FROM (SELECT plan_date, project_name, mold, cycle, code, plan_value
-            FROM production_plan
-            where 1 = 1
-                <if test="projectName != '' and projectName != null">
-                    AND project_name = #{projectName}
-                </if>
-                <if test="dateStart != null">
-                    AND plan_date >= #{dateStart}
-                </if>
-                <if test="dateEnd != null">
-                    AND plan_date &lt;= #{dateEnd}
-                </if>
-            ) AS a
-            PIVOT (max(plan_value) FOR code IN ([JHXUESHU], [JHHDCHANCHU], [JHCHANCHU])) AS b
-            FULL JOIN (select actual_date, project_name, mold, cycle, sum(ISNULL(estimate_hole_qty, 0)) estimate_hole_qty
-            from production_actual
-            where 1=1
-                <if test="projectName != '' and projectName != null">
-                    AND project_name = #{projectName}
-                </if>
-                <if test="dateStart != null">
-                    AND actual_date >= #{dateStart}
-                </if>
-                <if test="dateEnd != null">
-                    AND actual_date &lt;= #{dateEnd}
-                </if>
-            group by actual_date, project_name, mold, cycle) c
+            c.estimate_hole_qty                                                              estimateHoleQty,
+            c.after_output_qty                                                               afterOutputQty,
+            d.fpy                                     fpy
+            FROM (
+                SELECT plan_date, project_name, mold, cycle, code, plan_value
+                FROM production_plan
+                where 1 = 1
+                    <if test="projectName != '' and projectName != null">
+                        AND project_name = #{projectName}
+                    </if>
+                    <if test="dateStart != null">
+                        AND plan_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND plan_date &lt;= #{dateEnd}
+                    </if>
+                ) AS a
+                PIVOT (max(plan_value) FOR code IN ([JHXUESHU], [JHHDCHANCHU], [JHCHANCHU])) AS b
+                FULL JOIN (
+                select actual_date, project_name, mold, cycle,
+                    sum(ISNULL(estimate_hole_qty, 0)) estimate_hole_qty,
+                    sum(ISNULL(after_output_qty, 0)) after_output_qty
+                from production_actual
+                where 1=1
+                    <if test="projectName != '' and projectName != null">
+                        AND project_name = #{projectName}
+                    </if>
+                    <if test="dateStart != null">
+                        AND actual_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND actual_date &lt;= #{dateEnd}
+                    </if>
+                group by actual_date, project_name, mold, cycle) c
             ON c.project_name = b.project_name
             and c.mold = b.mold
             and c.cycle = b.cycle
-            and c.actual_date = b.plan_date) as t
+            and c.actual_date = b.plan_date
+            LEFT join estimate_fpy d
+            ON c.project_name = d.project_name
+            AND c.mold = d.mold
+            AND c.cycle = d.cycle
+            AND c.actual_date = d.fpy_date
+            ) as t
         order by productionDate, projectName, mold, cycle
 
     </select>

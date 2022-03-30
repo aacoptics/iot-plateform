@@ -60,6 +60,11 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
         for (int i = 2; i < excelDataList.size(); i++) {
             try {
                 String[] dataArray = excelDataList.get(i);
+                if(dataArray == null || dataArray.length == 0)
+                {
+                    break;
+                }
+
                 String actualDateStr = dataArray[0]; //日期
                 if ("合计".equals(actualDateStr)) {
                     continue;
