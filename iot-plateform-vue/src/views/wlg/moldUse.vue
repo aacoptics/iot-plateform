@@ -22,6 +22,7 @@
           <el-form :inline="true" :size="size">
             <el-form-item>
               <el-button icon="el-icon-search" type="primary"
+                        :loading="queryLoading"
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
@@ -30,7 +31,6 @@
                         @click="handleOpenExcelUpload">Excel导入
               </el-button>
             </el-form-item>
-
           </el-form>
       </div>
       <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
@@ -39,7 +39,8 @@
                 @findPage="findPage" >
       </QueryAllTable>
 
-      <el-dialog :title="'模具使用情况Excel导入'" width="25%" v-model="excelUploadDialogVisible"
+      <el-dialog :title="'模具使用情况Excel导入'" width="400px" v-model="excelUploadDialogVisible"
+                  
                  :close-on-click-modal="false">
           <el-upload
               class="upload-demo"
@@ -53,8 +54,20 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
+
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
+            <el-progress
+            style="width:350px"
+              :percentage="progressPercentage"
+              :text-inside="true"
+              :indeterminate="true"
+              :stroke-width="20"
+              :duration="pregressDuration"
+              :status="progressStatus"
+            >
+              <span>{{progressContent}}</span>
+            </el-progress>
             <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
           </slot>
         </div>
@@ -75,6 +88,13 @@ export default {
   data() {
     return {
       size: 'small',
+      queryLoading: false,
+
+      progressPercentage: 0,
+      progressContent:"",
+      pregressDuration: 6,
+      progressStatus: "",
+
       filters: {
         projectName: '',
         moldDateStart:'',
@@ -101,6 +121,7 @@ export default {
       this.pageRequest.moldDateStart = this.filters.moldDateStart;
       this.pageRequest.moldDateEnd = this.filters.moldDateEnd;
 
+      this.queryLoading = true;
       queryMoldUseTitleByMonth(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
@@ -119,22 +140,41 @@ export default {
           this.pageResult.records = [];
           this.$message.error(responseData.msg + "," + responseData.data);
         }
+        this.queryLoading = false;
       }).then(data != null ? data.callback : '')
     },
 
     handleOpenExcelUpload:function()
     {
-      this.excelUploadDialogVisible = true
+      this.excelUploadDialogVisible = true;
+
+      this.progressPercentage = 0;
+      this.progressContent = "";
+      this.progressStatus = "";
+      this.pregressDuration = 6;
     },
 
     submitExcelUpload(params) {
+      this.progressPercentage = 50;
+      this.progressContent = "Excel导入中，请稍等...";
+      this.progressStatus = "";
+      this.pregressDuration = 6;
+
       uploadExcel(params).then((response) => {
         const responseData = response.data
+
+        this.progressPercentage = 100;
+        this.pregressDuration = 0;
         if (responseData.code === '000000') {
           this.$message.success('上传成功！')
-          this.excelUploadDialogVisible = false;
+          
+          this.progressContent = "导入成功";
+          this.progressStatus = "success"
         } else {
           this.$message.error('上传失败！' + responseData.msg + "," + responseData.data)
+
+          this.progressContent = "导入失败";  
+          this.progressStatus = "exception";
         }
       }).catch((err) => {
         this.$message.error(err)
@@ -147,7 +187,6 @@ export default {
         return false
       }
     },
-
 
     cancelExcelUpload()
     {

@@ -50,6 +50,7 @@
           <el-form :inline="true" :size="size">
             <el-form-item>
               <el-button icon="el-icon-search" type="primary"
+              :loading="queryLoading"
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
@@ -67,7 +68,7 @@
                 @findPage="findPage" >
       </QueryTable>
 
-      <el-dialog :title="'预估直通率Excel导入'" width="25%" v-model="excelUploadDialogVisible"
+      <el-dialog :title="'生产报表Excel导入'" width="400px" v-model="excelUploadDialogVisible"
                  :close-on-click-modal="false">
           <el-upload
               class="upload-demo"
@@ -83,6 +84,17 @@
           </el-upload>
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
+            <el-progress
+              :percentage="progressPercentage"
+              :text-inside="true"
+              :indeterminate="true"
+              :stroke-width="20"
+              width="350px"
+              :duration="pregressDuration"
+              :status="progressStatus"
+            >
+              <span>{{progressContent}}</span>
+            </el-progress>
             <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
           </slot>
         </div>
@@ -103,6 +115,13 @@ export default {
   data() {
     return {
       size: 'small',
+      queryLoading: false,
+
+      progressPercentage: 0,
+      progressContent:"",
+      pregressDuration: 6,
+      progressStatus: "",
+
       filters: {
         projectName: '',
         product: '',
@@ -146,6 +165,7 @@ export default {
       this.pageRequest.actualDateStart = this.filters.actualDateStart;
       this.pageRequest.actualDateEnd = this.filters.actualDateEnd;
 
+      this.queryLoading = true;
       findProductionActualPage(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
@@ -156,22 +176,41 @@ export default {
           this.pageResult = [];
           this.$message.error(responseData.msg + "," + responseData.data);
         }
+        this.queryLoading = false;
       }).then(data != null ? data.callback : '')
     },
 
     handleOpenExcelUpload:function()
     {
-      this.excelUploadDialogVisible = true
+      this.excelUploadDialogVisible = true;
+      this.progressPercentage = 0;
+      this.progressContent = "";
+      this.progressStatus = "";
+      this.pregressDuration = 6;
     },
 
     submitExcelUpload(params) {
+      this.progressPercentage = 50;
+      this.progressContent = "Excel导入中，请稍等...";
+      this.progressStatus = "";
+      this.pregressDuration = 6;
+
       uploadExcel(params).then((response) => {
         const responseData = response.data
+
+        this.progressPercentage = 100;
+        this.pregressDuration = 0;
+
         if (responseData.code === '000000') {
-          this.$message.success('上传成功！')
-          this.excelUploadDialogVisible = false;
+          this.$message.success('导入成功')
+
+          this.progressContent = "导入成功";
+          this.progressStatus = "success"
         } else {
-          this.$message.error('上传失败！' + responseData.msg + "," + responseData.data)
+          this.$message.error('导入失败！' + responseData.msg + "," + responseData.data);
+
+          this.progressContent = "导入失败";
+          this.progressStatus = "exception";
         }
       }).catch((err) => {
         this.$message.error(err)
