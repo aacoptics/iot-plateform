@@ -15,6 +15,8 @@ import java.util.Map;
 public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
 
     List<String> findProductionReportDateByCondition(@Param("projectName") String projectName,
+                                                     @Param("mold") String mold,
+                                                     @Param("cycle") String cycle,
                                                      @Param("dateStart") LocalDate dateStart,
                                                      @Param("dateEnd") LocalDate dateEnd);
 
@@ -27,6 +29,15 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                    @Param("dateEnd") LocalDate dateEnd);
 
     List<Map<String, Object>> findProductionDayReportByCondition(@Param("projectName") String projectName,
-                                                                   @Param("dateStart") LocalDate dateStart,
-                                                                   @Param("dateEnd") LocalDate dateEnd);
+                                                                 @Param("dateStart") LocalDate dateStart,
+                                                                 @Param("dateEnd") LocalDate dateEnd);
+
+    List<Map<String, Object>> findProductionProjectReportByCondition(@Param("projectName") String projectName,
+                                                                     @Param("mold") String mold,
+                                                                     @Param("cycle") String cycle,
+                                                                     @Param("selectDateColumn") String selectDateColumn,
+                                                                     @Param("selectColumn") String selectColumn,
+                                                                     @Param("pivotIn") String pivotIn,
+                                                                     @Param("dateStart") LocalDate dateStart,
+                                                                     @Param("dateEnd") LocalDate dateEnd);
 }

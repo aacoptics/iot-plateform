@@ -95,7 +95,10 @@
             >
               <span>{{progressContent}}</span>
             </el-progress>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
+            <div style="padding-top: 20px;">
+              <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
+              <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
+            </div>
           </slot>
         </div>
       </el-dialog>
@@ -107,7 +110,7 @@
 <script>
 
 import QueryTable from "@/components/QueryTable";
-import {uploadExcel, findProductionActualPage} from "@/api/wlg/productionActual";
+import {uploadExcel, findProductionActualPage, downloadTemplate} from "@/api/wlg/productionActual";
 
 export default {
   name: "productionActual",
@@ -116,6 +119,7 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      downloadTemplateLoading:false,
 
       progressPercentage: 0,
       progressContent:"",
@@ -224,7 +228,22 @@ export default {
       }
     },
 
+    downloadTemplate()
+    {
+      this.downloadTemplateLoading = true;
+      downloadTemplate().then(res => {
 
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', '生产报表模板' + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+
+          this.downloadTemplateLoading = false;
+      });
+    },
     cancelExcelUpload()
     {
       this.excelUploadDialogVisible = false;

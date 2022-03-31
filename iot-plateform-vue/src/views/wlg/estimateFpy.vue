@@ -86,7 +86,10 @@
             >
               <span>{{progressContent}}</span>
             </el-progress>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
+            <div style="padding-top: 20px;">
+            <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
+            <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
+            </div>
           </slot>
         </div>
       </el-dialog>
@@ -98,7 +101,7 @@
 <script>
 
 import QueryTable from "@/components/QueryTable";
-import {uploadExcel, findEstimateFpyPage} from "@/api/wlg/estimateFpy";
+import {uploadExcel, findEstimateFpyPage, downloadTemplate} from "@/api/wlg/estimateFpy";
 
 export default {
   name: "estimateFpy",
@@ -107,6 +110,7 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      downloadTemplateLoading:false,
 
       progressPercentage: 0,
       progressContent:"",
@@ -202,11 +206,25 @@ export default {
         return false
       }
     },
-
-
     cancelExcelUpload()
     {
       this.excelUploadDialogVisible = false;
+    },
+    downloadTemplate()
+    {
+      this.downloadTemplateLoading = true;
+      downloadTemplate().then(res => {
+
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', '预估直通率' + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+
+          this.downloadTemplateLoading = false;
+      });
     },
     // 时间格式化
     dateTimeFormat: function (row, column) {

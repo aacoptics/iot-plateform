@@ -23,6 +23,18 @@ export function exportExcel(conditions) {
     })
 }
 
+
+export function downloadTemplate() {
+    return request({
+        url: '/wlg-report/productionPlan/downloadTemplate',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        responseType: 'blob',
+    })
+}
+
 export function queryProductionPlanTitleByMonth(conditions) {
     return request({
         url: '/wlg-report/productionPlan/queryProductionPlanTitleByMonth',

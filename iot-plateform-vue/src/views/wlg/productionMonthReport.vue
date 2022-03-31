@@ -78,8 +78,8 @@ export default {
         this.pageRequest = data.pageRequest
       }
       this.pageRequest.projectName = this.filters.projectName;
-      this.pageRequest.mold = this.filters.mold;
-      this.pageRequest.cycle = this.filters.cycle;
+      // this.pageRequest.mold = this.filters.mold;
+      // this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.producitonDateStart;
       this.pageRequest.dateEnd = this.filters.producitonDateEnd;
 

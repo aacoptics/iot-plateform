@@ -11,6 +11,17 @@ export function uploadExcel(param) {
     })
 }
 
+export function downloadTemplate() {
+    return request({
+        url: '/wlg-report/estimateFpy/downloadTemplate',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        responseType: 'blob',
+    })
+}
+
 export function exportExcel(conditions) {
     return request({
         url: '/wlg-report/estimateFpy/exportExcel',

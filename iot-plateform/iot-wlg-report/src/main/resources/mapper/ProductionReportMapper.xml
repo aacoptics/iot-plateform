@@ -20,45 +20,31 @@
             </if>
             ) as sumQty,
         ${selectColumn}
-        from (select code, name, project_name, plan_value, plan_date from production_plan
-        where 1=1
-        <if test="projectName != '' and projectName != null">
-            AND project_name = #{projectName}
-        </if>
-        <if test="dateStart != null">
-            AND plan_date >= #{dateStart}
-        </if>
-        <if test="dateEnd != null">
-            AND plan_date &lt;= #{dateEnd}
-        </if>
-        ) as a
-        pivot(sum(plan_value) for plan_date in (${pivotIn})) as b
-        group by b.project_name, b.code, b.name),
-
-        TEMP_PRODUCTION_ACTUAL_VALUE AS (
-            SELECT project_name, actual_date, code, sum(actual_value) actual_value
-            FROM production_actual
-            UNPIVOT (actual_value
-            FOR code IN ( performance_yield, after_yield
-            )) as a
+        from (
+            select code, name, project_name, plan_value, plan_date from production_plan
             where 1=1
+            AND code not in ('JHXNLIANGLV', 'JHHDLIANGLV', 'MBLIANGLV', 'JHZHITONGLV')
             <if test="projectName != '' and projectName != null">
                 AND project_name = #{projectName}
             </if>
             <if test="dateStart != null">
-                AND actual_date >= #{dateStart}
+                AND plan_date >= #{dateStart}
             </if>
             <if test="dateEnd != null">
-                AND actual_date &lt;= #{dateEnd}
+                AND plan_date &lt;= #{dateEnd}
             </if>
-            group by project_name, actual_date, code
-            union all
+            ) as a
+            pivot(sum(plan_value) for plan_date in (${pivotIn})) as b
+            group by b.project_name, b.code, b.name),
+
+        TEMP_PRODUCTION_ACTUAL_VALUE AS (
             SELECT project_name, actual_date, code, sum(actual_value) actual_value
             FROM production_actual
             UNPIVOT (actual_value
             FOR code IN ( estimate_hole_qty, mold_press_input_qty, mold_press_output_qty, after_acquisition_qty, after_input_qty, after_output_qty
             )) as b
             where 1=1
+            AND code not in ('JHXNLIANGLV', 'JHHDLIANGLV', 'MBLIANGLV', 'JHZHITONGLV')
             <if test="projectName != '' and projectName != null">
                 AND project_name = #{projectName}
             </if>
@@ -79,8 +65,6 @@
                     WHEN d.code = 'estimate_hole_qty' THEN '实际预估收穴数'
                     WHEN d.code = 'mold_press_input_qty' THEN '实际模压投入片数（PCS)'
                     WHEN d.code = 'mold_press_output_qty' THEN '实际模压产出片数(PCS)'
-                    WHEN d.code = 'performance_yield' THEN '实际性能良率'
-                    WHEN d.code = 'after_yield' THEN '实际后道良率'
                     ELSE d.code END as name,
                     (select sum(TEMP_PRODUCTION_ACTUAL_VALUE.actual_value)
                     from TEMP_PRODUCTION_ACTUAL_VALUE
@@ -122,6 +106,12 @@
         <if test="projectName != '' and projectName != null">
             AND project_name = #{projectName}
         </if>
+        <if test="mold != '' and mold != null">
+            AND mold = #{mold}
+        </if>
+        <if test="cycle != '' and cycle != null">
+            AND cycle = #{cycle}
+        </if>
         <if test="dateStart != null">
             AND plan_date >= #{dateStart}
         </if>
@@ -134,6 +124,12 @@
         where 1=1
         <if test="projectName != '' and projectName != null">
             AND project_name = #{projectName}
+        </if>
+        <if test="mold != '' and mold != null">
+            AND mold = #{mold}
+        </if>
+        <if test="cycle != '' and cycle != null">
+            AND cycle = #{cycle}
         </if>
         <if test="dateStart != null">
             AND actual_date >= #{dateStart}
@@ -204,7 +200,141 @@
             AND c.actual_date = d.fpy_date
             ) as t
         order by productionDate, projectName, mold, cycle
-
     </select>
 
+
+    <select id="findProductionProjectReportByCondition" resultType="map">
+        WITH TEMP_PRODUCTION_PLAN AS (
+            select
+            b.code as code,
+            b.name as name,
+            b.project_name    as     projectName,
+            b.mold as mold,
+            b.cycle as cycle,
+            (select max(c.plan_value) from production_plan c
+                where c.code = b.code
+                and c.project_name = b.project_name
+                and c.mold = b.mold
+                and c.cycle = b.cycle
+                <if test="dateStart != null">
+                    AND c.plan_date >= #{dateStart}
+                </if>
+                <if test="dateEnd != null">
+                    AND c.plan_date &lt;= #{dateEnd}
+                </if>
+            ) as maxQty,
+            ${selectColumn}
+            from (
+                select code, name, project_name, mold, cycle, plan_value, plan_date
+                from production_plan
+                where 1=1
+                <if test="projectName != '' and projectName != null">
+                    AND project_name = #{projectName}
+                </if>
+                <if test="mold != '' and mold != null">
+                    AND mold = #{mold}
+                </if>
+                <if test="cycle != '' and cycle != null">
+                    AND cycle = #{cycle}
+                </if>
+                <if test="dateStart != null">
+                    AND plan_date >= #{dateStart}
+                </if>
+                <if test="dateEnd != null">
+                    AND plan_date &lt;= #{dateEnd}
+                </if>
+            ) as a
+            pivot(sum(plan_value) for plan_date in (${pivotIn})) as b
+            group by b.project_name, b.code, b.name, b.mold, b.cycle),
+
+        TEMP_PRODUCTION_ACTUAL_VALUE AS (
+            SELECT project_name, actual_date, code, mold, cycle, sum(actual_value) actual_value
+            FROM production_actual
+            UNPIVOT (actual_value
+            FOR code IN ( performance_yield, after_yield )) as a
+                where 1=1
+                <if test="projectName != '' and projectName != null">
+                    AND project_name = #{projectName}
+                </if>
+                <if test="mold != '' and mold != null">
+                    AND mold = #{mold}
+                </if>
+                <if test="cycle != '' and cycle != null">
+                    AND cycle = #{cycle}
+                </if>
+                <if test="dateStart != null">
+                    AND actual_date >= #{dateStart}
+                </if>
+                <if test="dateEnd != null">
+                    AND actual_date &lt;= #{dateEnd}
+                </if>
+                group by project_name, actual_date, code, mold, cycle
+            union all
+            SELECT project_name, actual_date, code, mold, cycle, sum(actual_value) actual_value
+                FROM production_actual
+                UNPIVOT (actual_value
+                FOR code IN ( estimate_hole_qty, mold_press_input_qty, mold_press_output_qty, after_acquisition_qty, after_input_qty, after_output_qty
+                )) as b
+                where 1=1
+                <if test="projectName != '' and projectName != null">
+                    AND project_name = #{projectName}
+                </if>
+                <if test="mold != '' and mold != null">
+                    AND mold = #{mold}
+                </if>
+                <if test="cycle != '' and cycle != null">
+                    AND cycle = #{cycle}
+                </if>
+                <if test="dateStart != null">
+                    AND actual_date >= #{dateStart}
+                </if>
+                <if test="dateEnd != null">
+                    AND actual_date &lt;= #{dateEnd}
+                </if>
+                group by project_name, actual_date, code, mold, cycle
+        ),
+        TEMP_PRODUCTION_ACTUAL AS (
+            select d.project_name projectName, d.mold, d.cycle, d.code,
+                CASE WHEN d.code = 'after_acquisition_qty' THEN '实际后道领料(PCS)'
+                WHEN d.code = 'after_input_qty' THEN '后道实际投料(PCS)'
+                WHEN d.code = 'after_output_qty' THEN '实际后道产出（颗)'
+                WHEN d.code = 'estimate_hole_qty' THEN '实际预估收穴数'
+                WHEN d.code = 'mold_press_input_qty' THEN '实际模压投入片数（PCS)'
+                WHEN d.code = 'mold_press_output_qty' THEN '实际模压产出片数(PCS)'
+                WHEN d.code = 'performance_yield' THEN '实际性能良率'
+                WHEN d.code = 'after_yield' THEN '实际后道良率'
+                ELSE d.code END as name,
+                (select max(TEMP_PRODUCTION_ACTUAL_VALUE.actual_value)
+                    from TEMP_PRODUCTION_ACTUAL_VALUE
+                    where TEMP_PRODUCTION_ACTUAL_VALUE.code = d.code
+                    and TEMP_PRODUCTION_ACTUAL_VALUE.project_name = d.project_name
+                    and TEMP_PRODUCTION_ACTUAL_VALUE.mold = d.mold
+                    and TEMP_PRODUCTION_ACTUAL_VALUE.cycle = d.cycle
+                    <if test="dateStart != null">
+                        AND TEMP_PRODUCTION_ACTUAL_VALUE.actual_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND TEMP_PRODUCTION_ACTUAL_VALUE.actual_date &lt;= #{dateEnd}
+                    </if>
+                ) maxQty,
+                ${selectColumn}
+            from (SELECT * FROM TEMP_PRODUCTION_ACTUAL_VALUE
+            ) as c
+            pivot (max(actual_value) for actual_date in (${pivotIn})) as d
+            group by d.project_name, d.code, d.mold, d.cycle
+        ),
+        TEMP_PRODUCTION_REPORT AS (
+        SELECT projectName, code, name, mold, cycle, maxQty, ${selectDateColumn}  from TEMP_PRODUCTION_PLAN
+        UNION ALL
+        SELECT '汇总' projectName, code, name, '' mold, '' cycle, sum(maxQty) maxQty, ${selectColumn} from TEMP_PRODUCTION_PLAN
+        group by code, name
+        UNION ALL
+        SELECT projectName, code, name, mold, cycle, maxQty, ${selectDateColumn} from TEMP_PRODUCTION_ACTUAL
+        UNION ALL
+        SELECT '汇总' projectName, code, name, '' mold, '' cycle, sum(maxQty) maxQty, ${selectColumn} from TEMP_PRODUCTION_ACTUAL
+        group by code, name
+        )
+        SELECT ROW_NUMBER() OVER ( ORDER BY projectName, mold, cycle, code ) AS seq, * FROM TEMP_PRODUCTION_REPORT
+        ORDER BY projectName, mold, cycle, code
+    </select>
 </mapper>

@@ -68,7 +68,10 @@
             >
               <span>{{progressContent}}</span>
             </el-progress>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
+            <div style="padding-top: 20px;">
+              <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
+              <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
+            </div>
           </slot>
         </div>
       </el-dialog>
@@ -80,7 +83,7 @@
 <script>
 
 import QueryAllTable from "@/components/QueryAllTable";
-import {uploadExcel, findMoldUsePage, queryMoldUseTitleByMonth} from "@/api/wlg/moldUse";
+import {uploadExcel, findMoldUsePage, queryMoldUseTitleByMonth, downloadTemplate} from "@/api/wlg/moldUse";
 
 export default {
   name: "moldUse",
@@ -89,6 +92,7 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      downloadTemplateLoading:false,
 
       progressPercentage: 0,
       progressContent:"",
@@ -187,7 +191,22 @@ export default {
         return false
       }
     },
+    downloadTemplate()
+    {
+      this.downloadTemplateLoading = true;
+      downloadTemplate().then(res => {
 
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', '模具使用情况模板' + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+
+          this.downloadTemplateLoading = false;
+      });
+    },
     cancelExcelUpload()
     {
       this.excelUploadDialogVisible = false;

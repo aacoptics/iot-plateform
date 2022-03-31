@@ -10,7 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 
 @RestController
 @RequestMapping("/productionActual")
@@ -52,4 +57,33 @@ public class ProductionActualController {
                 productionActualQueryForm.toParam(ProductionActualQueryParam.class)));
     }
 
+    /**
+     * Excel模板下载
+     * @param response
+     */
+    @GetMapping("/downloadTemplate")
+    public void downloadWorkHourRecordTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("excelTemplate/productionActual.xlsx");
+            //强制下载不打开
+            response.setContentType("application/force-download");
+            OutputStream out = response.getOutputStream();
+            //使用URLEncoder来防止文件名乱码或者读取错误
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("生产报表模板", "UTF-8"));
+            int b = 0;
+            byte[] buffer = new byte[1000000];
+            while (b != -1) {
+                b = inputStream.read(buffer);
+                if (b != -1) {
+                    out.write(buffer, 0, b);
+                }
+            }
+            inputStream.close();
+            out.close();
+            out.flush();
+        } catch (IOException e) {
+            log.error("模板下载异常", e);
+            throw e;
+        }
+    }
 }
