@@ -2,6 +2,7 @@ package com.aac.optics.wlg.report.service.impl;
 
 import com.aac.optics.wlg.report.entity.param.ProductionDayReportQueryParam;
 import com.aac.optics.wlg.report.entity.param.ProductionMonthReportQueryParam;
+import com.aac.optics.wlg.report.entity.param.ProductionProjectReportQueryParam;
 import com.aac.optics.wlg.report.exception.BusinessException;
 import com.aac.optics.wlg.report.mapper.ProductionReportMapper;
 import com.aac.optics.wlg.report.service.ProductionReportService;
@@ -30,24 +31,37 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         LocalDate dateStart = productionMonthReportQueryParam.getDateStart();
         LocalDate dateEnd = productionMonthReportQueryParam.getDateEnd();
         //获取行转列表头
-        List<String> reportDateList = productionReportMapper.findProductionReportDateByCondition(projectName,
+        List<String> reportDateList = productionReportMapper.findProductionReportDateByCondition(projectName, null, null,
                 dateStart, dateEnd);
         if (reportDateList == null || reportDateList.size() == 0) {
             throw new BusinessException("所选条件不存在数据，请确认");
         }
 
-        StringBuffer selectDateColumn = new StringBuffer();
-        StringBuffer selectColumn = new StringBuffer();
-        StringBuffer pivotIn = new StringBuffer();
+        StringBuffer selectDateColumn = new StringBuffer(); // 例：[2022-03-01] as '2022-03-01'
+        StringBuffer selectColumn = new StringBuffer(); // 例：sum([2022-03-01]) as '2022-03-01'
+        StringBuffer selectVarcharColumn = new StringBuffer(); //例：cast(floor([2022-03-01]) as varchar(50)) as '2022-03-01'
+        StringBuffer selectSumVarcharColumn = new StringBuffer(); //例：cast(floor(sum([2022-03-01])) as varchar(50)) as '2022-03-01'
+        StringBuffer pivotIn = new StringBuffer(); //例 [2022-03-01]
+        StringBuffer selectRateColumn = new StringBuffer(); //例 cast(ISNULL(TA.[2022-03-01], 0) / TP.[2022-03-01] *100 as varchar(50)) +'%' as '2022-03-01'
+        StringBuffer selectSumRateColumn = new StringBuffer(); //例 cast(ISNULL(sum(TA.[2022-03-01]), 0) / sum(TP.[2022-03-01]) *100 as varchar(50)) +'%' as '2022-03-01'
+
         for (int i = 0; i < reportDateList.size(); i++) {
             String reportDate = reportDateList.get(i);
             if (i == 0) {
                 selectDateColumn.append("[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append("sum([" + reportDate + "]) as '" + reportDate + "'");
+                selectVarcharColumn.append("cast(floor([" + reportDate + "]) as varchar(50)) as '" + reportDate + "'");
+                selectSumVarcharColumn.append("cast(floor(sum([" + reportDate + "])) as varchar(50)) as '" + reportDate + "'");
+                selectRateColumn.append("cast(cast(ISNULL(TA.[" + reportDate + "], 0) / TP.[" + reportDate + "] *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
+                selectSumRateColumn.append("cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append("[" + reportDate + "]");
             } else {
                 selectDateColumn.append(",[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append(", sum([" + reportDate + "]) as '" + reportDate + "'");
+                selectVarcharColumn.append(", cast(floor([" + reportDate + "]) as varchar(50)) as '" + reportDate + "'");
+                selectSumVarcharColumn.append(", cast(floor(sum([" + reportDate + "])) as varchar(50)) as '" + reportDate + "'");
+                selectRateColumn.append(", cast(cast(ISNULL(TA.[" + reportDate + "], 0) / TP.[" + reportDate + "] *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
+                selectSumRateColumn.append(", cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append(", [" + reportDate + "]");
             }
         }
@@ -56,6 +70,10 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectDateColumn.toString(),
                 selectColumn.toString(),
                 pivotIn.toString(),
+                selectVarcharColumn.toString(),
+                selectSumVarcharColumn.toString(),
+                selectRateColumn.toString(),
+                selectSumRateColumn.toString(),
                 dateStart,
                 dateEnd);
 
@@ -72,7 +90,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         LocalDate dateStart = productionMonthReportQueryParam.getDateStart();
         LocalDate dateEnd = productionMonthReportQueryParam.getDateEnd();
         //获取行转列表头
-        List<String> planDateList = productionReportMapper.findProductionReportDateByCondition(projectName,
+        List<String> planDateList = productionReportMapper.findProductionReportDateByCondition(projectName, null, null,
                 dateStart, dateEnd);
 
         JSONArray tableColumnJsonArray = new JSONArray();
@@ -81,7 +99,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         seqJsonObject.put("prop", "seq");
         seqJsonObject.put("label", "序号");
         seqJsonObject.put("fixed", "left");
-        seqJsonObject.put("minWidth", "80");
+        seqJsonObject.put("minWidth", "70");
         tableColumnJsonArray.add(seqJsonObject);
 
         JSONObject projectNameJsonObject = new JSONObject();
@@ -138,5 +156,133 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 dateEnd);
 
         return productionDayList;
+    }
+
+
+    @Override
+    public List<Map<String, Object>> queryProductionProjectReportByCondition(ProductionProjectReportQueryParam productionProjectReportQueryParam) {
+
+        String projectName = productionProjectReportQueryParam.getProjectName();
+
+        String cycle = productionProjectReportQueryParam.getCycle();
+
+        String mold = productionProjectReportQueryParam.getMold();
+
+        LocalDate dateStart = productionProjectReportQueryParam.getDateStart();
+        LocalDate dateEnd = productionProjectReportQueryParam.getDateEnd();
+
+        //获取表头
+        List<String> reportDateList = productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
+                dateStart, dateEnd);
+        if (reportDateList == null || reportDateList.size() == 0) {
+            throw new BusinessException("所选条件不存在数据，请确认");
+        }
+
+        StringBuffer selectDateColumn = new StringBuffer();
+        StringBuffer selectColumn = new StringBuffer();
+        StringBuffer pivotIn = new StringBuffer();
+        for (int i = 0; i < reportDateList.size(); i++) {
+            String reportDate = reportDateList.get(i);
+            if (i == 0) {
+                selectDateColumn.append("[" + reportDate + "] as '" + reportDate + "'");
+                selectColumn.append("sum([" + reportDate + "]) as '" + reportDate + "'");
+                pivotIn.append("[" + reportDate + "]");
+            } else {
+                selectDateColumn.append(",[" + reportDate + "] as '" + reportDate + "'");
+                selectColumn.append(", sum([" + reportDate + "]) as '" + reportDate + "'");
+                pivotIn.append(", [" + reportDate + "]");
+            }
+        }
+
+        List<Map<String, Object>> productionDayList = productionReportMapper.findProductionProjectReportByCondition(
+                projectName,
+                mold,
+                cycle,
+                selectDateColumn.toString(),
+                selectColumn.toString(),
+                pivotIn.toString(),
+                dateStart,
+                dateEnd);
+
+        return productionDayList;
+    }
+
+
+
+    @Override
+    public JSONArray queryProductionProjectReportTitleByCondition(ProductionProjectReportQueryParam productionProjectReportQueryParam) {
+
+        String projectName = productionProjectReportQueryParam.getProjectName();
+        String cycle = productionProjectReportQueryParam.getCycle();
+
+        String mold = productionProjectReportQueryParam.getMold();
+
+        LocalDate dateStart = productionProjectReportQueryParam.getDateStart();
+        LocalDate dateEnd = productionProjectReportQueryParam.getDateEnd();
+        //获取行转列表头
+        List<String> planDateList = productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
+                dateStart, dateEnd);
+
+        JSONArray tableColumnJsonArray = new JSONArray();
+
+        JSONObject seqJsonObject = new JSONObject();
+        seqJsonObject.put("prop", "seq");
+        seqJsonObject.put("label", "序号");
+        seqJsonObject.put("fixed", "left");
+        seqJsonObject.put("minWidth", "70");
+        tableColumnJsonArray.add(seqJsonObject);
+
+        JSONObject projectNameJsonObject = new JSONObject();
+        projectNameJsonObject.put("prop", "projectName");
+        projectNameJsonObject.put("label", "项目");
+        projectNameJsonObject.put("fixed", "left");
+        projectNameJsonObject.put("minWidth", "80");
+        tableColumnJsonArray.add(projectNameJsonObject);
+
+        JSONObject moldJsonObject = new JSONObject();
+        moldJsonObject.put("prop", "mold");
+        moldJsonObject.put("label", "模具");
+        moldJsonObject.put("fixed", "left");
+        moldJsonObject.put("minWidth", "70");
+        tableColumnJsonArray.add(moldJsonObject);
+
+        JSONObject cycleJsonObject = new JSONObject();
+        cycleJsonObject.put("prop", "cycle");
+        cycleJsonObject.put("label", "周期");
+        cycleJsonObject.put("fixed", "left");
+        cycleJsonObject.put("minWidth", "70");
+        tableColumnJsonArray.add(cycleJsonObject);
+
+        JSONObject codeJsonObject = new JSONObject();
+        codeJsonObject.put("prop", "code");
+        codeJsonObject.put("label", "条件代码");
+        codeJsonObject.put("fixed", "left");
+        codeJsonObject.put("minWidth", "150");
+        tableColumnJsonArray.add(codeJsonObject);
+
+        JSONObject statusJsonObject = new JSONObject();
+        statusJsonObject.put("prop", "name");
+        statusJsonObject.put("label", "项目2");
+        statusJsonObject.put("fixed", "left");
+        statusJsonObject.put("minWidth", "160");
+        tableColumnJsonArray.add(statusJsonObject);
+
+
+        JSONObject maxQtyJsonObject = new JSONObject();
+        maxQtyJsonObject.put("prop", "maxQty");
+        maxQtyJsonObject.put("label", "最大值");
+        maxQtyJsonObject.put("fixed", "left");
+        maxQtyJsonObject.put("minWidth", "100");
+        tableColumnJsonArray.add(maxQtyJsonObject);
+
+        for (String planDate : planDateList) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("prop", planDate);
+            jsonObject.put("label", planDate);
+            jsonObject.put("minWidth", "110");
+            tableColumnJsonArray.add(jsonObject);
+        }
+
+        return tableColumnJsonArray;
     }
 }

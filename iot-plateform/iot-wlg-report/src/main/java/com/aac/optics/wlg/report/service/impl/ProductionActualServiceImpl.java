@@ -36,6 +36,8 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
     @Override
     @Transactional
     public void importProductionActualExcel(String fileName, InputStream in) throws IOException, InvalidFormatException {
+        LocalDate currentLocalDate = LocalDate.now();
+
 
         log.info("开始导入生产报表：" + fileName);
         String[] fileNameArray = fileName.split("生产");
@@ -55,9 +57,14 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
             throw new BusinessException("Excel模板错误，请确认");
         }
 
-        for (int i = 3; i < excelDataList.size(); i++) {
+        for (int i = 2; i < excelDataList.size(); i++) {
             try {
                 String[] dataArray = excelDataList.get(i);
+                if(dataArray == null || dataArray.length == 0)
+                {
+                    break;
+                }
+
                 String actualDateStr = dataArray[0]; //日期
                 if ("合计".equals(actualDateStr)) {
                     continue;
@@ -133,6 +140,11 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 ProductionActual productionActual = this.queryProductionActual(projectName, product, mold, cycle, actualDate);
                 if (productionActual == null) {
                     productionActual = new ProductionActual();
+                }else
+                {
+                    if (currentLocalDate.minusDays(7).isAfter(actualDate)) {
+                        continue;
+                    }
                 }
 
                 productionActual.setMold(mold);
@@ -153,7 +165,7 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
             } catch (Exception e) {
                 log.error("第{}数据异常：{}", i, excelDataList.get(i));
                 log.error("异常信息", e);
-                throw new BusinessException("第【" + (i+1) + "】行数据异常，" + e.getMessage());
+                throw new BusinessException("第【" + (i+1) + "】行数据异常，" + e.getClass().getSimpleName() + "，"+ e.getMessage());
             }
         }
 

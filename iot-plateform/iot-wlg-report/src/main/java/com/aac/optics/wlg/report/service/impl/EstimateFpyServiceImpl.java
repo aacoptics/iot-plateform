@@ -49,6 +49,11 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
 
         for (int i = 1; i < excelDataList.size(); i++) {
             String[] dataArray = excelDataList.get(i);
+            if(dataArray == null || dataArray.length == 0)
+            {
+                break;
+            }
+
             String fpyDateStr = dataArray[0]; //日期
             String projectName = dataArray[1]; //项目
             String mold = dataArray[2]; //模具

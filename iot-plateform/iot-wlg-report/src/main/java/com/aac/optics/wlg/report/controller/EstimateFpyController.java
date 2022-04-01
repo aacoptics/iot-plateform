@@ -7,10 +7,15 @@ import com.aac.optics.wlg.report.service.EstimateFpyService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.*;
+import java.net.URLEncoder;
 
 @RestController
 @RequestMapping("/estimateFpy")
@@ -50,4 +55,34 @@ public class EstimateFpyController {
         return Result.success(estimateFpyService.queryEstimateFpyByCondition(estimateFpyQueryForm.getPage(), estimateFpyQueryForm.toParam(EstimateFpyQueryParam.class)));
     }
 
+
+    /**
+     * Excel模板下载
+     * @param response
+     */
+    @GetMapping("/downloadTemplate")
+    public void downloadWorkHourRecordTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("excelTemplate/estimateFpy.xlsx");
+            //强制下载不打开
+            response.setContentType("application/force-download");
+            OutputStream out = response.getOutputStream();
+            //使用URLEncoder来防止文件名乱码或者读取错误
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("预估直通率模板", "UTF-8"));
+            int b = 0;
+            byte[] buffer = new byte[1000000];
+            while (b != -1) {
+                b = inputStream.read(buffer);
+                if (b != -1) {
+                    out.write(buffer, 0, b);
+                }
+            }
+            inputStream.close();
+            out.close();
+            out.flush();
+        } catch (IOException e) {
+            log.error("模板下载异常", e);
+            throw e;
+        }
+    }
 }
