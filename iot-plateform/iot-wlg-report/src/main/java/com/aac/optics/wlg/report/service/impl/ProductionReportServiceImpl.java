@@ -243,14 +243,14 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         moldJsonObject.put("prop", "mold");
         moldJsonObject.put("label", "模具");
         moldJsonObject.put("fixed", "left");
-        moldJsonObject.put("minWidth", "60");
+        moldJsonObject.put("minWidth", "70");
         tableColumnJsonArray.add(moldJsonObject);
 
         JSONObject cycleJsonObject = new JSONObject();
         cycleJsonObject.put("prop", "cycle");
         cycleJsonObject.put("label", "周期");
         cycleJsonObject.put("fixed", "left");
-        cycleJsonObject.put("minWidth", "60");
+        cycleJsonObject.put("minWidth", "70");
         tableColumnJsonArray.add(cycleJsonObject);
 
         JSONObject codeJsonObject = new JSONObject();
