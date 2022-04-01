@@ -171,9 +171,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     markdownGroupMessage.addBlobContent(productType);
                     if (!StringUtils.isEmpty(dayTabProductType)) {
                         if ("-".equals(dayShipPlanQty)) {
-                            markdownGroupMessage.addBlobContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty);
+                            markdownGroupMessage.addBlobContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty);
                         } else {
-                            markdownGroupMessage.addBlobContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
+                            markdownGroupMessage.addBlobContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty + " K");
                         }
 
                         if ("-".equals(dayShipQty)) {
@@ -187,17 +187,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlankLine();
                     }
 
-                    markdownGroupMessage.addBlobContent("当月计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量：" + shipPlanQty + " K");
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         if("-".equals(mtdShipPlanQty))
                         {
-                            markdownGroupMessage.addBlobContent(mtdTabProductType + "计划出货数量：" + mtdShipPlanQty);
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty);
                         }
                         else
                         {
-                            markdownGroupMessage.addBlobContent(mtdTabProductType + "计划出货数量：" + mtdShipPlanQty + " K");
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty + " K");
                         }
                         if("-".equals(mtdShipQty))
                         {
@@ -216,11 +216,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
-                        markdownGroupMessage.addBlobContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
+                        markdownGroupMessage.addBlobContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 //                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
-                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addBlobContent("当月计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
@@ -234,9 +234,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         if("-".equals(dayShipPlanQty))
                         {
 
-                            markdownGroupMessage.addContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty);
+                            markdownGroupMessage.addContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty);
                         } else {
-                            markdownGroupMessage.addContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
+                            markdownGroupMessage.addContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty + " K");
                         }
                         if ("-".equals(dayShipQty)) {
                             markdownGroupMessage.addContent(dayTabProductType + "实际出货数量：" + dayShipQty);
@@ -248,17 +248,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
-                    markdownGroupMessage.addContent("当月计划出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addContent("当月军令状目标出货数量：" + shipPlanQty + " K");
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         if("-".equals(mtdShipPlanQty))
                         {
-                            markdownGroupMessage.addContent(mtdTabProductType + "计划出货数量：" + mtdShipPlanQty);
+                            markdownGroupMessage.addContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty);
                         }
                         else
                         {
-                            markdownGroupMessage.addContent(mtdTabProductType + "计划出货数量：" + mtdShipPlanQty + " K");
+                            markdownGroupMessage.addContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty + " K");
                         }
                         if("-".equals(mtdShipQty))
                         {
@@ -278,11 +278,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
-                        markdownGroupMessage.addContent(mtdTabProductType + "出货数量达成：" + mtdShipRate);
+                        markdownGroupMessage.addContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 
-                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addContent("当月计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
