@@ -25,6 +25,10 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                    @Param("selectDateColumn") String selectDateColumn,
                                                                    @Param("selectColumn") String selectColumn,
                                                                    @Param("pivotIn") String pivotIn,
+                                                                   @Param("selectVarcharColumn") String selectVarcharColumn,
+                                                                   @Param("selectSumVarcharColumn") String selectSumVarcharColumn,
+                                                                   @Param("selectRateColumn") String selectRateColumn,
+                                                                   @Param("selectSumRateColumn") String selectSumRateColumn,
                                                                    @Param("dateStart") LocalDate dateStart,
                                                                    @Param("dateEnd") LocalDate dateEnd);
 
