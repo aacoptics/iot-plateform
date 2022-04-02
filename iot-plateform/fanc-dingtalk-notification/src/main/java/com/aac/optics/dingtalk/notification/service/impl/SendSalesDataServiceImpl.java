@@ -226,7 +226,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                 }
                 else {
                     markdownGroupMessage.addBlobContent(productType);
@@ -287,7 +287,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                     markdownGroupMessage.addBlankLine();
                 }
             }
