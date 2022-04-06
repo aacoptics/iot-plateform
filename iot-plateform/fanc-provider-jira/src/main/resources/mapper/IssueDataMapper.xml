@@ -4,11 +4,11 @@
 
     <insert id="insertIssueData" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
   		INSERT INTO JIRA_00_ISSUE([ISSUE_ID], [ISSUE_KEY], [ISSUE_NAME], [EKP_ISSUE_NO], [ISSUE_TYPE], [DOMAIN]
-  		                         ,[STATUS], [START_TIME], [END_TIME], [BUSINESS_OWNER], [BUSINESS_COST]
-  		                         ,[DEVELOP_OWNER], [DEVELOP_COST], CREATE_TIME, UPDATE_TIME, FINISH_FLAG)
+  		                         ,[STATUS], [START_TIME], [END_TIME], [BUSINESS_OWNER], [BUSINESS_USERNO], [BUSINESS_COST]
+  		                         ,[DEVELOP_OWNER], [DEVELOP_USERNO], [DEVELOP_COST], CREATE_TIME, UPDATE_TIME, FINISH_FLAG)
   		VALUES(#{ISSUE_ID}, #{ISSUE_KEY}, #{ISSUE_NAME}, #{EKP_ISSUE_NO}, #{ISSUE_TYPE}, #{DOMAIN}
   		       , #{STATUS}, convert(datetime, #{START_TIME}, 120), convert(datetime, #{END_TIME}, 120)
-  		       , #{BUSINESS_OWNER}, #{BUSINESS_COST}, #{DEVELOP_OWNER},#{DEVELOP_COST}, GETDATE(), NULL, 0)
+  		       , #{BUSINESS_OWNER}, #{BUSINESS_USERNO}, #{BUSINESS_COST}, #{DEVELOP_OWNER}, #{DEVELOP_USERNO},#{DEVELOP_COST}, GETDATE(), NULL, 0)
 	</insert>
 
     <select id="getIssueByKey" parameterType="java.lang.String" resultType="com.aac.optics.provider.jira.entity.IssueData">
@@ -37,6 +37,8 @@
         		, CONVERT(varchar(100), I.START_TIME, 120) AS CREATE_TIME
         		, ISNULL(BUSINESS_OWNER,'') AS BUSINESS_OWNER
         		, ISNULL(DEVELOP_OWNER,'') AS DEVELOP_OWNER
+        		, ISNULL(BUSINESS_USERNO,'') AS BUSINESS_USERNO
+        		, ISNULL(DEVELOP_USERNO,'') AS DEVELOP_USERNO
         		, ISNULL(BUSINESS_COST, 0.0) AS BUSINESS_COST
         		, ISNULL(DEVELOP_COST, 0.0) AS DEVELOP_COST
         		, ISNULL(PARENT_ID, 0) AS PARENT_ID
@@ -64,8 +66,10 @@
 		    ,FINISH_FLAG = #{finishFlag}
 		    ,BUSINESS_COST = #{businessCost}
 		    ,BUSINESS_OWNER = #{businessOwner}
+		    ,BUSINESS_USERNO = #{businessOwnerNo}
 		    ,DEVELOP_COST = #{developCost}
 		    ,DEVELOP_OWNER = #{developOwner}
+		    ,DEVELOP_USERNO = #{developOwnerNo}
 		    ,PARENT_ID = #{parentId}
 		    ,EKP_ISSUE_NO = #{ekpIssueNo}
 		    ,UPDATE_TIME = GETDATE()
@@ -90,7 +94,7 @@
         		, ISNULL(BUSINESS_OWNER,'') AS businessOwner
         		, ISNULL(DEVELOP_OWNER,'') AS developOwner
         		, ISNULL(BUSINESS_COST, 0.0) AS businessCost
-        		, ISNULL(DEVELOP_COST, 0.0) AS developCost 
+        		, ISNULL(DEVELOP_COST, 0.0) AS developCost
         FROM JIRA_00_ISSUE I, JIRA_00_DASHBOARD_ISSUE DI, JIRA_00_WORKLOG WL, JIRA_00_DASHBOARD D
         WHERE I.ISSUE_KEY = WL.ISSUE_KEY
         AND I.ISSUE_KEY = DI.ISSUE_KEY

@@ -1,20 +1,11 @@
 package com.aac.optics.provider.jira.service.impl;
 
-import cn.afterturn.easypoi.excel.ExcelExportUtil;
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.lang.tree.TreeNodeConfig;
-import cn.hutool.core.lang.tree.TreeUtil;
 import com.aac.optics.provider.jira.entity.DashboardData;
 import com.aac.optics.provider.jira.entity.IssueData;
-import com.aac.optics.provider.jira.entity.IssueInfo;
-import com.aac.optics.provider.jira.entity.JiraIssue;
 import com.aac.optics.provider.jira.mapper.DashboardDataMapper;
 import com.aac.optics.provider.jira.mapper.IssueDataMapper;
 import com.aac.optics.provider.jira.service.ETLJiraService;
-import com.aac.optics.provider.jira.service.JiraService;
 import com.aac.optics.provider.jira.service.ProcessInfoService;
 import com.aac.optics.provider.jira.utils.HttpClientUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -23,19 +14,16 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -134,16 +122,18 @@ public class ETLJiraServiceImpl implements ETLJiraService {
         String startTime = sdf.format(new Date());
 
         List<IssueData> existIssueList = issueDataMapper.getIssueByKey("");
-        if(existIssueList == null || existIssueList.isEmpty())
+        /*if(existIssueList == null || existIssueList.isEmpty())
         {
             startTime = "1900-01-01";
-        }
+        }*/
+        startTime = "2022-01-01";
 
         for(Map<String,Object> dashBoard: boardList)
         {
             Integer startAt = 0;
 
             String boardId = dashBoard.get("DASHBOARD_ID") + "";
+
             JSONObject res = getIssuesAfterTime(boardId, startTime, startAt);
             JSONArray issues = res.getJSONArray("issues");
 
@@ -202,6 +192,13 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 {
                     username = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
                 }
+
+                String userno = null;
+                if(issueJson.getJSONObject("fields").getJSONObject("assignee") != null)
+                {
+                    userno = issueJson.getJSONObject("fields").getJSONObject("assignee").getString("name");
+                }
+
                 Integer estimateTime = issueJson.getJSONObject("fields").getJSONObject("timetracking")
                         .getInteger("originalEstimateSeconds");
                 JSONArray workLogs = issueJson.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
@@ -215,19 +212,13 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                     }
                 }
 
-                /*JSONArray subtasks = issueJson.getJSONObject("fields").getJSONArray("subtasks");
-                if(subtasks != null && subtasks.size() > 0)
-                {
-                    for (Object subtask : subtasks) {
-                        JSONObject subtaskJson = (JSONObject) subtask;
-
-                    }
-                }*/
-
                 String businessCost = null;
                 String businessOwner = null;
+                String businessOwnerNo = null;
+
                 String developCost = null;
                 String developOwner = null;
+                String developOwnerNo = null;
 
                 float estimateTimeF = 0.0f;
                 if(estimateTime != null)
@@ -239,11 +230,13 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 {
                     developCost = numberFormat.format(estimateTimeF/hourF);
                     developOwner = username;
+                    developOwnerNo = userno;
                 }
                 else
                 {
                     businessCost = numberFormat.format(estimateTimeF/hourF);
                     businessOwner = username;
+                    businessOwnerNo = userno;
                 }
 
                 issueStartTime = df.format(createTime);
@@ -270,8 +263,10 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                     insertIssueParam.put("START_TIME", issueStartTime);
                     insertIssueParam.put("END_TIME", issueEndTime);
                     insertIssueParam.put("BUSINESS_OWNER", businessOwner);
+                    insertIssueParam.put("BUSINESS_USERNO", businessOwnerNo);
                     insertIssueParam.put("BUSINESS_COST",  businessCost != null?Double.parseDouble(businessCost):null);
                     insertIssueParam.put("DEVELOP_OWNER", developOwner);
+                    insertIssueParam.put("DEVELOP_USERNO", developOwnerNo);
                     insertIssueParam.put("DEVELOP_COST",  developCost != null?Double.parseDouble(developCost):null);
 
                     issueDataMapper.insertIssueData(insertIssueParam);
@@ -386,8 +381,11 @@ public class ETLJiraServiceImpl implements ETLJiraService {
 
                 String businessCost = issueMap.get("BUSINESS_COST") + "";
                 String businessOwner = issueMap.get("BUSINESS_OWNER") + "";
+                String businessOwnerNo = issueMap.get("BUSINESS_USERNO") + "";
+
                 String developCost = issueMap.get("DEVELOP_COST") + "";
                 String developOwner = issueMap.get("DEVELOP_OWNER") + "";
+                String developOwnerNo = issueMap.get("DEVELOP_USERNO") + "";
 
                 float estimateTimeF = 0.0f;
                 if(estimateTime != null)
@@ -444,6 +442,8 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                             else
                             {
                                 String owner = issueBeanJson.getJSONObject("fields").getJSONObject("assignee").getString("displayName");
+                                String ownerNo = issueBeanJson.getJSONObject("fields").getJSONObject("assignee").getString("name");
+
                                 Integer estimateTime1 = issueBeanJson.getJSONObject("fields").getJSONObject("timetracking")
                                         .getInteger("originalEstimateSeconds");
                                 JSONArray workLogs1 = issueBeanJson.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
@@ -466,11 +466,13 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                                 if(issueKey.indexOf("DEV-") > -1)
                                 {
                                     businessOwner = owner;
+                                    businessOwnerNo = ownerNo;
                                     businessCost = numberFormat.format(estimateTimeF1/hourF);
                                 }
                                 else
                                 {
                                     developOwner = owner;
+                                    developOwnerNo = ownerNo;
                                     developCost = numberFormat.format(estimateTimeF1/hourF);
                                 }
                             }
@@ -484,10 +486,15 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 updateParam.put("status", status);
                 updateParam.put("endTime", !"".equals(issueEndTime)?issueEndTime:null);
                 updateParam.put("finishFlag", "完成".equals(status)?1:0);
+
                 updateParam.put("businessCost", businessCost != null?Double.parseDouble(businessCost):null);
                 updateParam.put("businessOwner", !"".equals(businessOwner)?businessOwner:null);
+                updateParam.put("businessOwnerNo", !"".equals(businessOwnerNo)?businessOwnerNo:null);
+
                 updateParam.put("developCost", developCost != null?Double.parseDouble(developCost):null);
                 updateParam.put("developOwner", !"".equals(developOwner)?developOwner:null);
+                updateParam.put("developOwnerNo", !"".equals(developOwnerNo)?developOwnerNo:null);
+
                 updateParam.put("parentId", parentId !=0?parentId:null);
                 updateParam.put("ekpIssueNo", ekpIssueNo);
 
