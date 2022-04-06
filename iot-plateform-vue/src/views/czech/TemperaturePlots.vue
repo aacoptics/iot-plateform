@@ -43,7 +43,6 @@ export default {
     //   this.airShowerPlot.resize();
     //   this.co2Plot.resize();
     // });
-
   },
   methods: {
     handleClick() {
@@ -76,10 +75,16 @@ export default {
 
       option = {
         title: {
-          text: machineName + ' Air Shower'
+          text: machineName + ' Air Shower',
+          textAlign: 'center',
+          x: 'center',
+          y: 'top'
         },
         tooltip: {
-          trigger: 'axis'
+          trigger: 'none',
+          axisPointer: {
+            type: 'cross'
+          }
         },
         legend: {
           data: []
@@ -112,18 +117,22 @@ export default {
             interval: 100000,
             showMinLabel: true,
             showMaxLabel: true,
-          }
+          },
         },
         yAxis: {
           type: 'value',
           min: 21.375,
-          max: 21.425
+          max: 21.425,
+          interval: 0.002
         },
         series: [
           {
             name: 'Air Shower',
             type: 'line',
-           // stack: 'Total',
+            smooth: true,
+            emphasis: {
+              focus: 'series'
+            },
             data: [21.40336,
               21.40334,
               21.40329,
@@ -144,7 +153,10 @@ export default {
       var option;
       option = {
         title: {
-          text: machineName + ' CO2'
+          text: machineName + ' CO2',
+          textAlign: 'center',
+          x: 'center',
+          y: 'top'
         },
         tooltip: {
           trigger: 'axis'
@@ -185,7 +197,8 @@ export default {
         yAxis: {
           type: 'value',
           min: 20.985,
-          max: 21.015
+          max: 21.015,
+          interval: 0.002
         },
         series: [
           {
@@ -212,7 +225,10 @@ export default {
       var option;
       option = {
         title: {
-          text: machineName + ' C Axis'
+          text: machineName + ' C Axis',
+          textAlign: 'center',
+          x: 'center',
+          y: 'top'
         },
         tooltip: {
           trigger: 'axis'
@@ -253,7 +269,8 @@ export default {
         yAxis: {
           type: 'value',
           min: 20.985,
-          max: 21.015
+          max: 21.015,
+          interval: 0.002
         },
         series: [
           {
@@ -280,7 +297,10 @@ export default {
       var option;
       option = {
         title: {
-          text: machineName + ' Temperature Overview'
+          text: machineName + ' Temperature Overview',
+          textAlign: 'center',
+          x: 'center',
+          y: 'top'
         },
         tooltip: {
           trigger: 'axis'
@@ -321,7 +341,8 @@ export default {
         yAxis: {
           type: 'value',
           min: 20.985,
-          max: 21.015
+          max: 21.015,
+          interval: 0.002
         },
         series: [
           {
