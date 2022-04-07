@@ -87,12 +87,16 @@ public class MoldUseServiceImpl extends ServiceImpl<MoldUseMapper, MoldUse> impl
                         throw new BusinessException("日期格式错误" + e.getMessage());
                     }
 
-                    MoldUse moldUse = this.queryMoldUseByCodeAndProjectAndDate(code, projectName, moldDate);
-                    if (moldUse == null) {
-                        moldUse = new MoldUse();
-                    } else {
-                        if (currentLocalDate.isAfter(moldDate)) {
-                            continue;
+                    // 模具使用情况只可覆盖前一天、当日和将来数值，其它日期不能修改或删除
+                    MoldUse moldUse = null;
+                    if (currentLocalDate.minusDays(1).isAfter(moldDate)) {
+                        continue;
+                    }
+                    else
+                    {
+                        moldUse = this.queryMoldUseByCodeAndProjectAndDate(code, projectName, moldDate);
+                        if (moldUse == null) {
+                            moldUse = new MoldUse();
                         }
                     }
 

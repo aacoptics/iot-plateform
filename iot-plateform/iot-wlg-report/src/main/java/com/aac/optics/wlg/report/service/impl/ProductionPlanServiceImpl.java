@@ -108,6 +108,10 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                     if (currentLocalDate.isAfter(planDate)) {
                         continue;
                     }
+                    else
+                    {
+                        productionPlan = new ProductionPlan();
+                    }
                 }
 
                 productionPlan.setMold(mold);
@@ -161,14 +165,33 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
 
         StringBuffer selectColumn = new StringBuffer();
         StringBuffer pivotIn = new StringBuffer();
+        StringBuffer selectVarcharColumn = new StringBuffer();
+        StringBuffer selectJHCHANCHUColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOColumn = new StringBuffer(); //计划后道领料(PCS)
+        StringBuffer selectJHHDCHANCHUColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHZHITONGLVColumn = new StringBuffer(); //计划后道直通率
         for (int i = 0; i < planDateList.size(); i++) {
             String planDate = planDateList.get(i);
             if (i == 0) {
                 selectColumn.append("max([" + planDate + "]) as '" + planDate + "'");
                 pivotIn.append("[" + planDate + "]");
+                selectVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
+                        "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor([" + planDate + "]) as varchar(50)) end '" + planDate + "'");
+                selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHHDCHANCHUColumn.append("TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHZHITONGLVColumn.append("TEMP_JHXNLIANGLV.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
             } else {
                 selectColumn.append(", max([" + planDate + "]) as '" + planDate + "'");
                 pivotIn.append(", [" + planDate + "]");
+                selectVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
+                        "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor([" + planDate + "]) as varchar(50)) end '" + planDate + "'");
+                selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHZHITONGLVColumn.append(", TEMP_JHXNLIANGLV.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
             }
         }
 //        page.addOrder(OrderItem.asc("cycle")).addOrder(OrderItem.asc("code"));
@@ -178,6 +201,11 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 cycle,
                 selectColumn.toString(),
                 pivotIn.toString(),
+                selectVarcharColumn.toString(),
+                selectJHCHANCHUColumn.toString(),
+                selectJHLINGLIAOColumn.toString(),
+                selectJHHDCHANCHUColumn.toString(),
+                selectJHZHITONGLVColumn.toString(),
                 planDateStart,
                 planDateEnd);
 
