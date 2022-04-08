@@ -186,7 +186,7 @@
             b.JHCHANCHU,
             c.estimate_hole_qty                                                              estimateHoleQty,
             c.after_output_qty                                                               afterOutputQty,
-            d.fpy                                     fpy
+            cast(cast(d.fpy * 100 as decimal(18, 2)) as varchar(50)) + '%'                                     fpy
             FROM (
                 SELECT plan_date, project_name, mold, cycle, code, plan_value
                 FROM production_plan

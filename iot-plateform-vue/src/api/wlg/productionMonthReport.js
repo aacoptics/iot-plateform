@@ -2,9 +2,9 @@ import request from '@/utils/request'
 
 
 
-export function exportExcel(conditions) {
+export function exportProductionMonthExcel(conditions) {
     return request({
-        url: '/wlg-report/productionReport/exportExcel',
+        url: '/wlg-report/productionReport/exportProductionMonthExcel',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'

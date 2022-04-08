@@ -44,6 +44,11 @@
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
+            <!-- <el-form-item>
+              <el-button type="success" icon="el-icon-download" size="small" :loading="exportLoading"
+                         @click="exportExcelData('每日产出报表')">导出
+              </el-button>
+            </el-form-item> -->
           </el-form>
       </div>
       <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
@@ -59,7 +64,7 @@
 <script>
 
 import QueryAllTable from "@/components/QueryAllTable";
-import {findProductionDayReportPage} from "@/api/wlg/productionDayReport";
+import {findProductionDayReportPage, exportProductionDayExcel} from "@/api/wlg/productionDayReport";
 
 export default {
   name: "productionDayReport",
@@ -82,7 +87,7 @@ export default {
         {prop: "mold", label: "模具", minWidth: 110},
         {prop: "cycle", label: "周期", minWidth: 100},        
         {prop: "JHXUESHU", label: "计划收料穴", minWidth: 120},
-        {prop: "SJXUESHU", label: "实际收料穴", minWidth: 120},
+        {prop: "estimateHoleQty", label: "实际收料穴", minWidth: 120},
         {prop: "JHHDCHANCHU", label: "计划产出", minWidth: 120},
         {prop: "fpy", label: "预估直通率", minWidth: 120},
         {prop: "estimateHoleQty", label: "预估模压产出", minWidth: 120},
@@ -120,6 +125,26 @@ export default {
         this.queryLoading = false;
       }).then(data != null ? data.callback : '')
     },
+
+    exportExcelData(excelFileName) {
+      this.pageRequest.projectName = this.filters.projectName;
+
+      this.pageRequest.dateStart = this.filters.productionDateStart;
+      this.pageRequest.dateEnd = this.filters.productionDateEnd;
+
+      this.exportLoading = true;
+      exportProductionDayExcel(this.pageRequest).then(res => {
+          this.exportLoading = false;
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', excelFileName + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+      });
+    },
+
     objectSpanMethod: function({ row, column, rowIndex, columnIndex }) {
         console.log(row[column]);
        if (columnIndex == 2) {
