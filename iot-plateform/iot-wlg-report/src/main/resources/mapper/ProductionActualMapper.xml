@@ -15,6 +15,7 @@
             CONVERT(varchar(20),CONVERT(decimal(18,2), performance_yield * 100)) + '%' performanceYield,
             after_input_qty       afterInputQty,
             after_output_qty      afterOutputQty,
+            inventory_qty         inventoryQty,
             CONVERT(varchar(20),CONVERT(decimal(18,2), after_yield * 100)) + '%' afterYield
         from production_actual
         where 1=1

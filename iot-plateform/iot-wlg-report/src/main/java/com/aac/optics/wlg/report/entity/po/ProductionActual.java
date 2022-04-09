@@ -83,4 +83,9 @@ public class ProductionActual extends BasePo {
      */
     private BigDecimal afterYield;
 
+    /**
+     * 实际入库（转镀膜）
+     */
+    private Long inventoryQty;
+
 }

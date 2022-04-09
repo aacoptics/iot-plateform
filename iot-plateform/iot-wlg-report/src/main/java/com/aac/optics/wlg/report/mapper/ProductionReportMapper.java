@@ -44,4 +44,7 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                      @Param("pivotIn") String pivotIn,
                                                                      @Param("dateStart") LocalDate dateStart,
                                                                      @Param("dateEnd") LocalDate dateEnd);
+
+    List<Map<String, Object>> findProductionDayDataByDate(@Param("productionDate") LocalDate dateEnd);
+
 }

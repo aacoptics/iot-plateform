@@ -6,6 +6,7 @@ import com.aac.optics.wlg.report.entity.param.ProductionMonthReportQueryParam;
 import com.aac.optics.wlg.report.entity.param.ProductionProjectReportQueryParam;
 import com.alibaba.fastjson.JSONArray;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -49,5 +50,14 @@ public interface ProductionReportService {
      * @return
      */
     List<Map<String, Object>> queryProductionProjectReportByCondition(ProductionProjectReportQueryParam productionProjectReportQueryParam);
+
+
+    /**
+     * 查询需要推送到钉钉的生产数据
+     *
+     * @return
+     */
+    List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate);
+
 
 }

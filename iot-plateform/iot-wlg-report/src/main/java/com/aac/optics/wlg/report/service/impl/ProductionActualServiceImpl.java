@@ -81,6 +81,7 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 String performanceYieldStr = dataArray[34];// 实际性能良率
                 String afterInputQtyStr = dataArray[37];// 后道实际投料(PCS)
                 String afterOutputQtyStr = dataArray[47];// 实际后道产出（颗)
+                String inventoryQtyStr = dataArray[50];// 实际入库（转镀膜）
                 String afterYieldStr = dataArray[59];// 实际后道良率
 
                 if (StringUtils.isEmpty(actualDateStr)) {
@@ -124,6 +125,10 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 if (StringUtils.isNotEmpty(afterOutputQtyStr)) {
                     afterOutputQty = stringToLong(afterOutputQtyStr);
                 }
+                Long inventoryQty = null;
+                if (StringUtils.isNotEmpty(inventoryQtyStr)) {
+                    inventoryQty = stringToLong(inventoryQtyStr);
+                }
                 BigDecimal afterYield = null;
                 if (StringUtils.isNotEmpty(afterYieldStr)) {
                     afterYield = new BigDecimal(afterYieldStr);
@@ -159,6 +164,7 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 productionActual.setPerformanceYield(performanceYield);
                 productionActual.setAfterInputQty(afterInputQty);
                 productionActual.setAfterOutputQty(afterOutputQty);
+                productionActual.setInventoryQty(inventoryQty);
                 productionActual.setAfterYield(afterYield);
 
                 this.saveOrUpdate(productionActual);

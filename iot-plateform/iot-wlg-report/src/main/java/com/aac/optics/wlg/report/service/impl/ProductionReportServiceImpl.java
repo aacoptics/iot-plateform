@@ -208,7 +208,6 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     }
 
 
-
     @Override
     public JSONArray queryProductionProjectReportTitleByCondition(ProductionProjectReportQueryParam productionProjectReportQueryParam) {
 
@@ -284,5 +283,10 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         }
 
         return tableColumnJsonArray;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate) {
+        return  productionReportMapper.findProductionDayDataByDate(productionDate);
     }
 }
