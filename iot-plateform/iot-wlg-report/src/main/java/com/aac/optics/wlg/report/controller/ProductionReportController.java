@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -108,7 +109,7 @@ public class ProductionReportController {
         //创建工作簿
         XSSFWorkbook workbook = new XSSFWorkbook();
         //创建工作表
-        XSSFSheet wbSheet = workbook.createSheet();
+        XSSFSheet wbSheet = workbook.createSheet("每日产出报表");
 
         XSSFRow titleRow = wbSheet.createRow(0);
         titleRow.createCell(0).setCellValue("序号");
@@ -172,6 +173,9 @@ public class ProductionReportController {
                     }
                 }
             }
+
+            ExcelUtil.setSheetColumnWidth(wbSheet, new int[] {256*10, 256*15, 256*15, 256*10, 256*10, 256*15, 256*15, 256*15, 256*15, 256*15, 256*15});
+
         } catch (Exception exception)
         {
             log.error("导出每日产出异常", exception);
@@ -179,5 +183,206 @@ public class ProductionReportController {
         }
 
         ExcelUtil.exportXlsx(response, workbook, "每日产出报表.xlsx");
+    }
+
+
+
+
+    @ApiOperation(value = "导出单个项目报表Excel", notes = "导出单个项目报表Excel")
+    @PostMapping(value = "/exportProductionProjectExcel")
+    public void exportProductionProjectExcel(@Valid @RequestBody ProductionProjectReportQueryForm productionProjectReportQueryForm, HttpServletResponse response) throws Exception {
+        log.debug("query with name:{}", productionProjectReportQueryForm);
+        List<String> productionDateList = productionReportService.findProductionReportDateByCondition(productionProjectReportQueryForm.getProjectName(),
+                productionProjectReportQueryForm.getMold(),
+                productionProjectReportQueryForm.getCycle(),
+                productionProjectReportQueryForm.getDateStart(),
+                productionProjectReportQueryForm.getDateEnd());
+
+
+        List<Map<String, Object>> productionProjectList = productionReportService.queryProductionProjectReportByCondition(productionProjectReportQueryForm.toParam(ProductionProjectReportQueryParam.class));
+
+        //创建工作簿
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        //创建工作表
+        XSSFSheet wbSheet = workbook.createSheet("单个项目报表");
+
+        XSSFRow titleRow = wbSheet.createRow(0);
+        titleRow.createCell(0).setCellValue("序号");
+        titleRow.createCell(1).setCellValue("项目");
+        titleRow.createCell(2).setCellValue("模具");
+        titleRow.createCell(3).setCellValue("周期");
+        titleRow.createCell(4).setCellValue("条件代码");
+        titleRow.createCell(5).setCellValue("项目2");
+        titleRow.createCell(6).setCellValue("最大值");
+        if(productionDateList != null && productionDateList.size() > 0)
+        {
+            for(int i=0; i<productionDateList.size(); i++)
+            {
+                titleRow.createCell(7+i).setCellValue(productionDateList.get(i));
+            }
+        }
+
+        try {
+            if (productionProjectList != null && productionProjectList.size() > 0) {
+                for (int i = 0; i < productionProjectList.size(); i++) {
+                    Map<String, Object> productionDayMap = productionProjectList.get(i);
+                    XSSFRow dataRow = wbSheet.createRow(i + 1);
+                    dataRow.createCell(0).setCellValue(i + 1);
+                    dataRow.createCell(1).setCellValue(productionDayMap.get("projectName") != null ? productionDayMap.get("projectName") + "" : "");
+                    dataRow.createCell(2).setCellValue(productionDayMap.get("mold") != null ? productionDayMap.get("mold") + "" : "");
+                    dataRow.createCell(3).setCellValue(productionDayMap.get("cycle") != null ? productionDayMap.get("cycle") + "" : "");
+                    dataRow.createCell(4).setCellValue(productionDayMap.get("code") != null ? productionDayMap.get("code") + "" : "");
+                    dataRow.createCell(5).setCellValue(productionDayMap.get("name") != null ? productionDayMap.get("name") + "" : "");
+
+                    if(productionDayMap.get("maxQty") != null)
+                    {
+                        dataRow.createCell(6).setCellValue(Double.valueOf(productionDayMap.get("maxQty") + ""));
+                    }else
+                    {
+                        dataRow.createCell(6).setCellType(XSSFCell.CELL_TYPE_BLANK);
+                    }
+
+                    if(productionDateList != null && productionDateList.size() > 0)
+                    {
+                        for(int j=0; j<productionDateList.size(); j++)
+                        {
+                            String productionDate = productionDateList.get(j);
+                            if(productionDayMap.containsKey(productionDate) && productionDayMap.get(productionDate) != null) {
+                                dataRow.createCell(7+j).setCellValue(Double.valueOf(productionDayMap.get(productionDate) + ""));
+                            }else{
+                                dataRow.createCell(7+j).setCellType(XSSFCell.CELL_TYPE_BLANK);
+                            }
+                        }
+                    }
+                }
+            }
+            //调整列宽
+            List<Integer> columnWidthList = new ArrayList<>();
+            columnWidthList.add(256*10);
+            columnWidthList.add(256*15);
+            columnWidthList.add(256*10);
+            columnWidthList.add(256*10);
+            columnWidthList.add(256*15);
+            columnWidthList.add(256*25);
+            columnWidthList.add(256*10);
+            for(int i=0; i<productionDateList.size(); i++)
+            {
+                columnWidthList.add(256*15);
+            }
+
+            ExcelUtil.setSheetColumnWidth(wbSheet, columnWidthList);
+
+        } catch (Exception exception)
+        {
+            log.error("导出单个项目异常", exception);
+            throw exception;
+        }
+
+        ExcelUtil.exportXlsx(response, workbook, "单个项目报表.xlsx");
+    }
+
+
+
+
+    @ApiOperation(value = "导出月度汇总报表Excel", notes = "导出月度汇总报表Excel")
+    @PostMapping(value = "/exportProductionMonthExcel")
+    public void exportProductionMonthExcel(@Valid @RequestBody ProductionMonthReportQueryForm productionMonthReportQueryForm, HttpServletResponse response) throws Exception {
+        log.debug("query with name:{}", productionMonthReportQueryForm);
+        List<String> productionDateList = productionReportService.findProductionReportDateByCondition(productionMonthReportQueryForm.getProjectName(),
+                productionMonthReportQueryForm.getMold(),
+                productionMonthReportQueryForm.getCycle(),
+                productionMonthReportQueryForm.getDateStart(),
+                productionMonthReportQueryForm.getDateEnd());
+
+
+        List<Map<String, Object>> productionMonthList = productionReportService.queryProductionMonthReportByCondition(productionMonthReportQueryForm.toParam(ProductionMonthReportQueryParam.class));
+
+        //创建工作簿
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        //创建工作表
+        XSSFSheet wbSheet = workbook.createSheet("月度汇总报表");
+
+        XSSFRow titleRow = wbSheet.createRow(0);
+        titleRow.createCell(0).setCellValue("序号");
+        titleRow.createCell(1).setCellValue("项目");
+        titleRow.createCell(2).setCellValue("条件代码");
+        titleRow.createCell(3).setCellValue("项目2");
+        titleRow.createCell(4).setCellValue("汇总");
+        if(productionDateList != null && productionDateList.size() > 0)
+        {
+            for(int i=0; i<productionDateList.size(); i++)
+            {
+                titleRow.createCell(5+i).setCellValue(productionDateList.get(i));
+            }
+        }
+
+        try {
+            if (productionMonthList != null && productionMonthList.size() > 0) {
+                for (int i = 0; i < productionMonthList.size(); i++) {
+                    Map<String, Object> productionDayMap = productionMonthList.get(i);
+                    XSSFRow dataRow = wbSheet.createRow(i + 1);
+                    dataRow.createCell(0).setCellValue(i + 1);
+                    dataRow.createCell(1).setCellValue(productionDayMap.get("projectName") != null ? productionDayMap.get("projectName") + "" : "");
+                    dataRow.createCell(2).setCellValue(productionDayMap.get("code") != null ? productionDayMap.get("code") + "" : "");
+                    dataRow.createCell(3).setCellValue(productionDayMap.get("name") != null ? productionDayMap.get("name") + "" : "");
+
+                    if(productionDayMap.get("sumQty") != null){
+                        if("RUKUDCL".equals(productionDayMap.get("code"))) {
+                            dataRow.createCell(4).setCellValue(productionDayMap.get("sumQty") + "");
+                        }else
+                        {
+                            dataRow.createCell(4).setCellValue(Double.valueOf(productionDayMap.get("sumQty") + ""));
+                        }
+                    }else
+                    {
+                        dataRow.createCell(4).setCellType(XSSFCell.CELL_TYPE_BLANK);
+                    }
+
+
+                    if(productionDateList != null && productionDateList.size() > 0)
+                    {
+                        for(int j=0; j<productionDateList.size(); j++)
+                        {
+                            String productionDate = productionDateList.get(j);
+                            if("RUKUDCL".equals(productionDayMap.get("code")))
+                            {
+                                if(productionDayMap.containsKey(productionDate) && productionDayMap.get(productionDate) != null) {
+                                    dataRow.createCell(5+j).setCellValue(productionDayMap.get(productionDate) + "");
+                                }else{
+                                    dataRow.createCell(5+j).setCellType(XSSFCell.CELL_TYPE_BLANK);
+                                }
+                            }
+                            else
+                            {
+                                if(productionDayMap.containsKey(productionDate) && productionDayMap.get(productionDate) != null) {
+                                    dataRow.createCell(5+j).setCellValue(Double.valueOf(productionDayMap.get(productionDate) + ""));
+                                }else{
+                                    dataRow.createCell(5+j).setCellType(XSSFCell.CELL_TYPE_BLANK);
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            //调整列宽
+            List<Integer> columnWidthList = new ArrayList<>();
+            columnWidthList.add(256*10);
+            columnWidthList.add(256*15);
+            columnWidthList.add(256*15);
+            columnWidthList.add(256*25);
+            columnWidthList.add(256*15);
+            for(int i=0; i<productionDateList.size(); i++)
+            {
+                columnWidthList.add(256*15);
+            }
+            ExcelUtil.setSheetColumnWidth(wbSheet, columnWidthList);
+        } catch (Exception exception)
+        {
+            log.error("导出月度汇总异常", exception);
+            throw exception;
+        }
+
+        ExcelUtil.exportXlsx(response, workbook, "月度汇总报表.xlsx");
     }
 }

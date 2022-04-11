@@ -60,4 +60,10 @@ public interface ProductionReportService {
     List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate);
 
 
+    /**
+     * 获取区间日期
+     * @return
+     */
+    List<String> findProductionReportDateByCondition(String projectName, String mold, String cycle, LocalDate dateStart, LocalDate dateEnd);
+
 }

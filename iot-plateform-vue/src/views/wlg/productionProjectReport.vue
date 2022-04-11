@@ -45,6 +45,11 @@
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
+            <el-form-item>
+              <el-button type="success" icon="el-icon-download" size="small" :loading="exportLoading"
+                         @click="exportExcelData('单个项目报表')">导出
+              </el-button>
+            </el-form-item>
           </el-form>
       </div>
       <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
@@ -59,7 +64,7 @@
 <script>
 
 import QueryAllTable from "@/components/QueryAllTable";
-import {findProductionReportPage, queryProductionReportTitleByMonth} from "@/api/wlg/productionProjectReport";
+import {findProductionReportPage, queryProductionReportTitleByMonth, exportProductionProjectExcel} from "@/api/wlg/productionProjectReport";
 
 export default {
   name: "productionProjectReport",
@@ -68,6 +73,8 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      exportLoading: false,
+      
       filters: {
         projectName: '',
         mold: '',
@@ -126,7 +133,25 @@ export default {
         this.queryLoading = false;
       }).then(data != null ? data.callback : '')
     },
+    exportExcelData(excelFileName) {
+      this.pageRequest.projectName = this.filters.projectName;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.dateStart = this.filters.producitonDateStart;
+      this.pageRequest.dateEnd = this.filters.producitonDateEnd;
 
+      this.exportLoading = true;
+      exportProductionProjectExcel(this.pageRequest).then(res => {
+          this.exportLoading = false;
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', excelFileName + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+      });
+    },
     // 时间格式化
     dateTimeFormat: function (row, column) {
       return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm')

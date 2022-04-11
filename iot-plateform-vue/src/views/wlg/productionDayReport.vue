@@ -44,11 +44,11 @@
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
-            <!-- <el-form-item>
+            <el-form-item>
               <el-button type="success" icon="el-icon-download" size="small" :loading="exportLoading"
                          @click="exportExcelData('每日产出报表')">导出
               </el-button>
-            </el-form-item> -->
+            </el-form-item>
           </el-form>
       </div>
       <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
@@ -73,6 +73,7 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      exportLoading: false,
       filters: {
         projectName: '',
         // mold: '',

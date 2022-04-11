@@ -219,7 +219,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         LocalDate dateStart = productionProjectReportQueryParam.getDateStart();
         LocalDate dateEnd = productionProjectReportQueryParam.getDateEnd();
         //获取行转列表头
-        List<String> planDateList = productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
+        List<String> productionDateList = productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
                 dateStart, dateEnd);
 
         JSONArray tableColumnJsonArray = new JSONArray();
@@ -274,7 +274,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         maxQtyJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(maxQtyJsonObject);
 
-        for (String planDate : planDateList) {
+        for (String planDate : productionDateList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("prop", planDate);
             jsonObject.put("label", planDate);
@@ -288,5 +288,11 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     @Override
     public List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate) {
         return  productionReportMapper.findProductionDayDataByDate(productionDate);
+    }
+
+    @Override
+    public List<String> findProductionReportDateByCondition(String projectName, String mold, String cycle, LocalDate dateStart, LocalDate dateEnd) {
+       return productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
+                dateStart, dateEnd);
     }
 }

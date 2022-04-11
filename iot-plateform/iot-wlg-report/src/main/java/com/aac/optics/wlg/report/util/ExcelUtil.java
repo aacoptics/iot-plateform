@@ -8,6 +8,7 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -446,6 +447,34 @@ public class ExcelUtil {
             if (outStream != null) {
                 outStream.close();
             }
+        }
+    }
+
+    /**
+     * 设置表格列宽度
+     *
+     * @param sheet
+     * @param columnWidthArray
+     */
+    public static void setSheetColumnWidth(XSSFSheet sheet, int[] columnWidthArray)
+    {
+        for(int i=0; i<columnWidthArray.length; i++)
+        {
+            sheet.setColumnWidth(i, columnWidthArray[i]);
+        }
+    }
+
+    /**
+     * 设置表格列宽度
+     *
+     * @param sheet
+     * @param columnWidthList
+     */
+    public static void setSheetColumnWidth(XSSFSheet sheet, List<Integer> columnWidthList)
+    {
+        for(int i=0; i<columnWidthList.size(); i++)
+        {
+            sheet.setColumnWidth(i, columnWidthList.get(i));
         }
     }
 }
