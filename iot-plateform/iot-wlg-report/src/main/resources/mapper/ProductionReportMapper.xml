@@ -181,6 +181,12 @@
         <if test="projectName != '' and projectName != null">
             AND project_name = #{projectName}
         </if>
+        <if test="mold != '' and mold != null">
+            AND mold = #{mold}
+        </if>
+        <if test="cycle != '' and cycle != null">
+            AND cycle = #{cycle}
+        </if>
         <if test="dateStart != null">
             AND plan_date >= #{dateStart}
         </if>
@@ -215,6 +221,12 @@
                 where 1=1
                     <if test="projectName != '' and projectName != null">
                         AND project_name = #{projectName}
+                    </if>
+                    <if test="mold != '' and mold != null">
+                        AND mold = #{mold}
+                    </if>
+                    <if test="cycle != '' and cycle != null">
+                        AND cycle = #{cycle}
                     </if>
                     <if test="dateStart != null">
                         AND actual_date >= #{dateStart}

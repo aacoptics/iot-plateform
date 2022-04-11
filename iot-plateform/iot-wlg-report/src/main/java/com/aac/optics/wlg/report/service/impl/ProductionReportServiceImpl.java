@@ -109,12 +109,12 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         projectNameJsonObject.put("minWidth", "80");
         tableColumnJsonArray.add(projectNameJsonObject);
 
-        JSONObject codeJsonObject = new JSONObject();
-        codeJsonObject.put("prop", "code");
-        codeJsonObject.put("label", "条件代码");
-        codeJsonObject.put("fixed", "left");
-        codeJsonObject.put("minWidth", "150");
-        tableColumnJsonArray.add(codeJsonObject);
+//        JSONObject codeJsonObject = new JSONObject();
+//        codeJsonObject.put("prop", "code");
+//        codeJsonObject.put("label", "条件代码");
+//        codeJsonObject.put("fixed", "left");
+//        codeJsonObject.put("minWidth", "150");
+//        tableColumnJsonArray.add(codeJsonObject);
 
         JSONObject statusJsonObject = new JSONObject();
         statusJsonObject.put("prop", "name");
@@ -146,12 +146,16 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     public List<Map<String, Object>> queryProductionDayReportByCondition(ProductionDayReportQueryParam productionDayReportQueryParam) {
 
         String projectName = productionDayReportQueryParam.getProjectName();
+        String mold = productionDayReportQueryParam.getMold();
+        String cycle = productionDayReportQueryParam.getCycle();
 
         LocalDate dateStart = productionDayReportQueryParam.getDateStart();
         LocalDate dateEnd = productionDayReportQueryParam.getDateEnd();
 
         List<Map<String, Object>> productionDayList = productionReportMapper.findProductionDayReportByCondition(
                 projectName,
+                mold,
+                cycle,
                 dateStart,
                 dateEnd);
 
@@ -252,12 +256,12 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         cycleJsonObject.put("minWidth", "70");
         tableColumnJsonArray.add(cycleJsonObject);
 
-        JSONObject codeJsonObject = new JSONObject();
-        codeJsonObject.put("prop", "code");
-        codeJsonObject.put("label", "条件代码");
-        codeJsonObject.put("fixed", "left");
-        codeJsonObject.put("minWidth", "150");
-        tableColumnJsonArray.add(codeJsonObject);
+//        JSONObject codeJsonObject = new JSONObject();
+//        codeJsonObject.put("prop", "code");
+//        codeJsonObject.put("label", "条件代码");
+//        codeJsonObject.put("fixed", "left");
+//        codeJsonObject.put("minWidth", "150");
+//        tableColumnJsonArray.add(codeJsonObject);
 
         JSONObject statusJsonObject = new JSONObject();
         statusJsonObject.put("prop", "name");

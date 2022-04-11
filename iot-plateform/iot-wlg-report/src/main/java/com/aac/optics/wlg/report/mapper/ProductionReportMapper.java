@@ -33,6 +33,8 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                    @Param("dateEnd") LocalDate dateEnd);
 
     List<Map<String, Object>> findProductionDayReportByCondition(@Param("projectName") String projectName,
+                                                                 @Param("mold") String mold,
+                                                                 @Param("cycle") String cycle,
                                                                  @Param("dateStart") LocalDate dateStart,
                                                                  @Param("dateEnd") LocalDate dateEnd);
 

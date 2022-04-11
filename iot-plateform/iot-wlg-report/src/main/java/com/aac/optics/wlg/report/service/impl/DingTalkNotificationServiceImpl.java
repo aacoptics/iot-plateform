@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +27,6 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
     private static final String CURRENT_DATE_FORMAT = "M月d日";
 
-    /**
-     * 钉钉消息推送机器人
-     */
-    private static final String ROBOT_URL = "https://oapi.dingtalk.com/robot/send?access_token=ed170d9366fd1575df17b7d69cb05eb25ee8565bcc45288812f7e709aaeb3fe7";
-
     @Autowired
     ProductionReportService productionReportService;
 
@@ -41,6 +35,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
     @Resource
     DingTalkApi dingTalkApi;
+
 
     @Override
     public void sendProductionDayDataNotification() throws ApiException {
@@ -129,20 +124,22 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
         }
 
         //4 发送消息
+        DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
+
+        dingTalkMessageHistory.setProductionDate(currentTime.toLocalDate());
+
         for(Map<String, String> robotMap : robotList) {
             String robotId = robotMap.get("ROBOT_ID");
             String robotUrl = robotMap.get("ROBOT_URL");
+
             Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, "WLG项目汇总产出数据", markdownGroupMessage.toString());
             String result = resultMap.get("result");
             String message = resultMap.get("message");
+            //5 保存推送历史
             if (!StringUtils.isEmpty(message) && message.length() > 1024) {
                 message = message.substring(1024);
             }
-
-            //5 保存推送历史
-            DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
             dingTalkMessageHistory.setRobotId(robotId);
-            dingTalkMessageHistory.setProductionDate(currentTime.toLocalDate());
             dingTalkMessageHistory.setResult(result);
             dingTalkMessageHistory.setMessage(message);
 

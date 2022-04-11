@@ -12,7 +12,7 @@
                   size="small"
               />
             </el-form-item>
-            <!-- <el-form-item label="模具" prop="mold">
+            <el-form-item label="模具" prop="mold">
               <el-input
                   v-model="filters.mold"
                   placeholder="请输入模具"
@@ -27,9 +27,9 @@
                   clearable
                   size="small"
               />
-            </el-form-item> -->
-          <!-- </el-row>
-          <el-row> -->
+            </el-form-item>
+          </el-row>
+          <el-row>
           <el-form-item label="日期 从" prop="productionDate">
             <el-date-picker v-model="filters.productionDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
@@ -76,8 +76,8 @@ export default {
       exportLoading: false,
       filters: {
         projectName: '',
-        // mold: '',
-        // cycle: '',
+        mold: '',
+        cycle: '',
         productionDateStart:'',
         productionDateEnd:'',
       },
@@ -107,8 +107,8 @@ export default {
         this.pageRequest = data.pageRequest
       }
       this.pageRequest.projectName = this.filters.projectName;
-      // this.pageRequest.mold = this.filters.mold;
-      // this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.productionDateStart;
       this.pageRequest.dateEnd = this.filters.productionDateEnd;
 
@@ -129,7 +129,8 @@ export default {
 
     exportExcelData(excelFileName) {
       this.pageRequest.projectName = this.filters.projectName;
-
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.productionDateStart;
       this.pageRequest.dateEnd = this.filters.productionDateEnd;
 

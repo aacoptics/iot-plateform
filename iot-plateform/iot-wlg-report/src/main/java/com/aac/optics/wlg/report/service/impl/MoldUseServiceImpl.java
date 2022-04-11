@@ -190,12 +190,12 @@ public class MoldUseServiceImpl extends ServiceImpl<MoldUseMapper, MoldUse> impl
         seqJsonObject.put("minWidth", "80");
         tableColumnJsonArray.add(seqJsonObject);
 
-        JSONObject codeJsonObject = new JSONObject();
-        codeJsonObject.put("prop", "code");
-        codeJsonObject.put("label", "条件代码");
-        codeJsonObject.put("fixed", "left");
-        codeJsonObject.put("minWidth", "100");
-        tableColumnJsonArray.add(codeJsonObject);
+//        JSONObject codeJsonObject = new JSONObject();
+//        codeJsonObject.put("prop", "code");
+//        codeJsonObject.put("label", "条件代码");
+//        codeJsonObject.put("fixed", "left");
+//        codeJsonObject.put("minWidth", "100");
+//        tableColumnJsonArray.add(codeJsonObject);
 
         JSONObject statusJsonObject = new JSONObject();
         statusJsonObject.put("prop", "status");
