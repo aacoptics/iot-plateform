@@ -23,6 +23,7 @@
         <module>fanc-provider-jira</module>
         <module>fanc-dingtalk-sync</module>
         <module>fanc-dingtalk-notification</module>
+        <module>fanc-message-system</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -256,6 +257,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.5.20</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

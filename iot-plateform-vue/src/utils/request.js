@@ -10,7 +10,8 @@ import {ElMessage} from "element-plus";
 import {saveRefreshTime} from "@/api";
 
 const service = axios.create({
-    baseURL: 'http://iottest.aacoptics.com:8009'
+    //baseURL: 'http://iottest.aacoptics.com:8009'
+    baseURL: 'http://localhost:8056'
 });
 
 service.interceptors.request.use(

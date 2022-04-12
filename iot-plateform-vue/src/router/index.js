@@ -8,6 +8,8 @@ import {saveRefreshTime} from "@/api";
 import worklog from "@/views/system/permission/worklog";
 
 import roomDetail from "@/views/czech/RoomDetail";
+import sendMsgConfig from "@/views/message/sendMsgConfig";
+import sendMsgQuery from "@/views/message/sendMsgQuery";
 
 const routes = [
     {
@@ -39,6 +41,24 @@ const routes = [
             openView: true
         },
         component: worklog
+    },
+    {
+        path: "/sendMsgConfig",
+        name: "sendMsgConfig",
+        meta: {
+            title: '计划管理页面',
+            openView: true
+        },
+        component: sendMsgConfig
+    },
+    {
+        path: "/sendMsgQuery",
+        name: "sendMsgQuery",
+        meta: {
+            title: '记录执行页面',
+            openView: true
+        },
+        component: sendMsgQuery
     }
 ]
 
