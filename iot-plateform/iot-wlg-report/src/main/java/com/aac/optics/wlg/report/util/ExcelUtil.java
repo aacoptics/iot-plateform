@@ -8,6 +8,7 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,23 +217,26 @@ public class ExcelUtil {
             String[] objs = new String[endColIdx + 1];
             int colIdx = 0;
             // 遍历列
-            for (Cell c : row) {
-                if (c == null)
-                    continue;
+            for (int j=0; j<endColIdx+1; j++) {
+                Cell c = row.getCell(j);
                 String data = "";
-                try {
+                if (c == null) {
+                    data = "";
+                }else {
+                    try {
 //                    c.setCellType(Cell.CELL_TYPE_STRING);
-                    boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
-                    //判断是否具有合并单元格
-                    if (isMerge) {
-                        data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
-                    } else {
-                        data = getCellValue(c);
+                        boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
+                        //判断是否具有合并单元格
+                        if (isMerge) {
+                            data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
+                        } else {
+                            data = getCellValue(c);
 //                        data = c.getRichStringCellValue().toString();
+                        }
+                    } catch (Exception err) {
+                        logger.error("第{}行{}列读取值异常：{}", i + 1, c.getColumnIndex() + 1, err.getMessage());
+                        errorMessage.append("第" + (i + 1) + "行 " + (c.getColumnIndex() + 1) + "列读取值异常：" + err.getMessage() + ";");
                     }
-                } catch (Exception err) {
-                    logger.error("第{}行{}列读取值异常：{}", i+1, c.getColumnIndex()+1, err.getMessage());
-                    errorMessage.append("第" + (i+1) + "行 " + (c.getColumnIndex()+1) + "列读取值异常：" + err.getMessage() +";");
                 }
                 objs[colIdx] = data;
                 colIdx++;
@@ -446,6 +450,34 @@ public class ExcelUtil {
             if (outStream != null) {
                 outStream.close();
             }
+        }
+    }
+
+    /**
+     * 设置表格列宽度
+     *
+     * @param sheet
+     * @param columnWidthArray
+     */
+    public static void setSheetColumnWidth(XSSFSheet sheet, int[] columnWidthArray)
+    {
+        for(int i=0; i<columnWidthArray.length; i++)
+        {
+            sheet.setColumnWidth(i, columnWidthArray[i]);
+        }
+    }
+
+    /**
+     * 设置表格列宽度
+     *
+     * @param sheet
+     * @param columnWidthList
+     */
+    public static void setSheetColumnWidth(XSSFSheet sheet, List<Integer> columnWidthList)
+    {
+        for(int i=0; i<columnWidthList.size(); i++)
+        {
+            sheet.setColumnWidth(i, columnWidthList.get(i));
         }
     }
 }
