@@ -185,16 +185,51 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         StringBuffer selectDateColumn = new StringBuffer();
         StringBuffer selectColumn = new StringBuffer();
         StringBuffer pivotIn = new StringBuffer();
+
+        StringBuffer selectVarcharColumn = new StringBuffer();
+        StringBuffer selectSumVarcharColumn = new StringBuffer();
+        StringBuffer selectJHCHANCHUColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOColumn = new StringBuffer(); //计划后道领料(PCS)
+        StringBuffer selectJHHDCHANCHUColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHZHITONGLVColumn = new StringBuffer(); //计划后道直通率
+        StringBuffer selectSJLIANGLVColumn = new StringBuffer(); //实际模压成型良率
+        StringBuffer selectSJZHITONGLVColumn = new StringBuffer(); //实际后道直通率
+
         for (int i = 0; i < reportDateList.size(); i++) {
             String reportDate = reportDateList.get(i);
             if (i == 0) {
                 selectDateColumn.append("[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append("sum([" + reportDate + "]) as '" + reportDate + "'");
                 pivotIn.append("[" + reportDate + "]");
+                selectVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
+                        "   then cast(cast([" + reportDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor([" + reportDate + "]) as varchar(50)) end '" + reportDate + "'");
+                selectSumVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
+                        "   then cast(cast(sum([" + reportDate + "]) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor(sum([" + reportDate + "])) as varchar(50)) end '" + reportDate + "'");
+
+                selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHHDCHANCHUColumn.append("TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHZHITONGLVColumn.append("TEMP_JHXNLIANGLV.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectSJLIANGLVColumn.append("ISNULL(TCC.[" + reportDate + "] / TPA.[" + reportDate + "], 0) as '" + reportDate + "'");
+                selectSJZHITONGLVColumn.append("TPA.[" + reportDate + "] * TPB.[" + reportDate + "] as '" + reportDate + "'");
             } else {
                 selectDateColumn.append(",[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append(", sum([" + reportDate + "]) as '" + reportDate + "'");
                 pivotIn.append(", [" + reportDate + "]");
+                selectVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
+                        "   then cast(cast([" + reportDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor([" + reportDate + "]) as varchar(50)) end '" + reportDate + "'");
+                selectSumVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
+                        "   then cast(cast(sum([" + reportDate + "]) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor(sum([" + reportDate + "])) as varchar(50)) end '" + reportDate + "'");
+                selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHZHITONGLVColumn.append(", TEMP_JHXNLIANGLV.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectSJLIANGLVColumn.append(", ISNULL(TCC.[" + reportDate + "] / TPA.[" + reportDate + "], 0) as '" + reportDate + "'");
+                selectSJZHITONGLVColumn.append(", TPA.[" + reportDate + "] * TPB.[" + reportDate + "] as '" + reportDate + "'");
             }
         }
 
@@ -205,6 +240,14 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectDateColumn.toString(),
                 selectColumn.toString(),
                 pivotIn.toString(),
+                selectVarcharColumn.toString(),
+                selectSumVarcharColumn.toString(),
+                selectJHCHANCHUColumn.toString(),
+                selectJHLINGLIAOColumn.toString(),
+                selectJHHDCHANCHUColumn.toString(),
+                selectJHZHITONGLVColumn.toString(),
+                selectSJLIANGLVColumn.toString(),
+                selectSJZHITONGLVColumn.toString(),
                 dateStart,
                 dateEnd);
 

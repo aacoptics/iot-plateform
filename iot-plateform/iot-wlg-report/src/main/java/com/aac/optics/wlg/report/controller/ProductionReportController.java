@@ -222,21 +222,42 @@ public class ProductionReportController {
             }
         }
 
+        List<String> percentCode = new ArrayList<>();
+        percentCode.add("JHXNLIANGLV");
+        percentCode.add("MBLIANGLV");
+        percentCode.add("JHHDLIANGLV");
+        percentCode.add("JHZHITONGLV");
+        percentCode.add("SJXNLIANGLV");
+        percentCode.add("SJHDLIANGLV");
+        percentCode.add("SJLIANGLV");
+        percentCode.add("SJZHITONGLV");
         try {
             if (productionProjectList != null && productionProjectList.size() > 0) {
                 for (int i = 0; i < productionProjectList.size(); i++) {
                     Map<String, Object> productionDayMap = productionProjectList.get(i);
                     XSSFRow dataRow = wbSheet.createRow(i + 1);
+                    String projectName = productionDayMap.get("projectName") != null ? productionDayMap.get("projectName") + "" : "";
+                    String mold = productionDayMap.get("mold") != null ? productionDayMap.get("mold") + "" : "";
+                    String cycle = productionDayMap.get("cycle") != null ? productionDayMap.get("cycle") + "" : "";
+                    String code = productionDayMap.get("code") != null ? productionDayMap.get("code") + "" : "";
+                    String name = productionDayMap.get("name") != null ? productionDayMap.get("name") + "" : "";
+
                     dataRow.createCell(0).setCellValue(i + 1);
-                    dataRow.createCell(1).setCellValue(productionDayMap.get("projectName") != null ? productionDayMap.get("projectName") + "" : "");
-                    dataRow.createCell(2).setCellValue(productionDayMap.get("mold") != null ? productionDayMap.get("mold") + "" : "");
-                    dataRow.createCell(3).setCellValue(productionDayMap.get("cycle") != null ? productionDayMap.get("cycle") + "" : "");
-                    dataRow.createCell(4).setCellValue(productionDayMap.get("code") != null ? productionDayMap.get("code") + "" : "");
-                    dataRow.createCell(5).setCellValue(productionDayMap.get("name") != null ? productionDayMap.get("name") + "" : "");
+                    dataRow.createCell(1).setCellValue(projectName);
+                    dataRow.createCell(2).setCellValue(mold);
+                    dataRow.createCell(3).setCellValue(cycle);
+                    dataRow.createCell(4).setCellValue(code);
+                    dataRow.createCell(5).setCellValue(name);
 
                     if(productionDayMap.get("maxQty") != null)
                     {
-                        dataRow.createCell(6).setCellValue(Double.valueOf(productionDayMap.get("maxQty") + ""));
+                        if(percentCode.contains(code))
+                        {
+                            dataRow.createCell(6).setCellValue(productionDayMap.get("maxQty") + "");
+                        }
+                        else {
+                            dataRow.createCell(6).setCellValue(Double.valueOf(productionDayMap.get("maxQty") + ""));
+                        }
                     }else
                     {
                         dataRow.createCell(6).setCellType(XSSFCell.CELL_TYPE_BLANK);
@@ -248,7 +269,13 @@ public class ProductionReportController {
                         {
                             String productionDate = productionDateList.get(j);
                             if(productionDayMap.containsKey(productionDate) && productionDayMap.get(productionDate) != null) {
-                                dataRow.createCell(7+j).setCellValue(Double.valueOf(productionDayMap.get(productionDate) + ""));
+                                if(percentCode.contains(code))
+                                {
+                                    dataRow.createCell(7+j).setCellValue(productionDayMap.get(productionDate) + "");
+                                }else
+                                {
+                                    dataRow.createCell(7+j).setCellValue(Double.valueOf(productionDayMap.get(productionDate) + ""));
+                                }
                             }else{
                                 dataRow.createCell(7+j).setCellType(XSSFCell.CELL_TYPE_BLANK);
                             }
