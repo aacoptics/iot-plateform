@@ -50,16 +50,16 @@ public class ProductionReportServiceImpl implements ProductionReportService {
             if (i == 0) {
                 selectDateColumn.append("[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append("sum([" + reportDate + "]) as '" + reportDate + "'");
-                selectVarcharColumn.append("cast(floor([" + reportDate + "]) as varchar(50)) as '" + reportDate + "'");
-                selectSumVarcharColumn.append("cast(floor(sum([" + reportDate + "])) as varchar(50)) as '" + reportDate + "'");
+                selectVarcharColumn.append("cast(floor(ROUND([" + reportDate + "], 0)) as varchar(50)) as '" + reportDate + "'");
+                selectSumVarcharColumn.append("cast(floor(ROUND(sum([" + reportDate + "]), 0)) as varchar(50)) as '" + reportDate + "'");
                 selectRateColumn.append("cast(cast(ISNULL(TA.[" + reportDate + "], 0) / TP.[" + reportDate + "] *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 selectSumRateColumn.append("cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append("[" + reportDate + "]");
             } else {
                 selectDateColumn.append(",[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append(", sum([" + reportDate + "]) as '" + reportDate + "'");
-                selectVarcharColumn.append(", cast(floor([" + reportDate + "]) as varchar(50)) as '" + reportDate + "'");
-                selectSumVarcharColumn.append(", cast(floor(sum([" + reportDate + "])) as varchar(50)) as '" + reportDate + "'");
+                selectVarcharColumn.append(", cast(floor(ROUND([" + reportDate + "], 0)) as varchar(50)) as '" + reportDate + "'");
+                selectSumVarcharColumn.append(", cast(floor(ROUND(sum([" + reportDate + "]), 0)) as varchar(50)) as '" + reportDate + "'");
                 selectRateColumn.append(", cast(cast(ISNULL(TA.[" + reportDate + "], 0) / TP.[" + reportDate + "] *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 selectSumRateColumn.append(", cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append(", [" + reportDate + "]");
@@ -203,10 +203,10 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 pivotIn.append("[" + reportDate + "]");
                 selectVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
                         "   then cast(cast([" + reportDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor([" + reportDate + "]) as varchar(50)) end '" + reportDate + "'");
+                        "   else cast(floor(ROUND([" + reportDate + "], 0)) as varchar(50)) end '" + reportDate + "'");
                 selectSumVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
-                        "   then cast(cast(sum([" + reportDate + "]) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor(sum([" + reportDate + "])) as varchar(50)) end '" + reportDate + "'");
+                        "   then cast(cast(sum([" + reportDate + "])/count(1) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor(ROUND(sum([" + reportDate + "]), 0)) as varchar(50)) end '" + reportDate + "'");
 
                 selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
                 selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
@@ -220,10 +220,10 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 pivotIn.append(", [" + reportDate + "]");
                 selectVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
                         "   then cast(cast([" + reportDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor([" + reportDate + "]) as varchar(50)) end '" + reportDate + "'");
+                        "   else cast(floor(ROUND([" + reportDate + "], 0)) as varchar(50)) end '" + reportDate + "'");
                 selectSumVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV', 'SJXNLIANGLV', 'SJHDLIANGLV', 'SJLIANGLV', 'SJZHITONGLV') " +
-                        "   then cast(cast(sum([" + reportDate + "]) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor(sum([" + reportDate + "])) as varchar(50)) end '" + reportDate + "'");
+                        "   then cast(cast(sum([" + reportDate + "])/count(1) * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(floor(ROUND(sum([" + reportDate + "]), 0)) as varchar(50)) end '" + reportDate + "'");
                 selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
                 selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
                 selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
@@ -333,8 +333,8 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     }
 
     @Override
-    public List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate) {
-        return  productionReportMapper.findProductionDayDataByDate(productionDate);
+    public List<Map<String, Object>> queryProductionDayDataByDate(LocalDate monthStart, LocalDate productionDate) {
+        return  productionReportMapper.findProductionDayDataByDate(monthStart, productionDate);
     }
 
     @Override

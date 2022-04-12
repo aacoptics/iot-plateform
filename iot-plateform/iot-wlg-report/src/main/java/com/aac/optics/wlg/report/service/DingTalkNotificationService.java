@@ -40,5 +40,5 @@ public interface DingTalkNotificationService {
      *
      * @throws ApiException
      */
-    void sendProductionDayDataNotification() throws ApiException;
+    void sendProductionDayDataNotification(String groupType) throws ApiException;
 }

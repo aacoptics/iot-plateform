@@ -217,23 +217,26 @@ public class ExcelUtil {
             String[] objs = new String[endColIdx + 1];
             int colIdx = 0;
             // 遍历列
-            for (Cell c : row) {
-                if (c == null)
-                    continue;
+            for (int j=0; j<endColIdx+1; j++) {
+                Cell c = row.getCell(j);
                 String data = "";
-                try {
+                if (c == null) {
+                    data = "";
+                }else {
+                    try {
 //                    c.setCellType(Cell.CELL_TYPE_STRING);
-                    boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
-                    //判断是否具有合并单元格
-                    if (isMerge) {
-                        data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
-                    } else {
-                        data = getCellValue(c);
+                        boolean isMerge = isMergedRegion(sheet, i, c.getColumnIndex());
+                        //判断是否具有合并单元格
+                        if (isMerge) {
+                            data = getMergedRegionValue(sheet, row.getRowNum(), c.getColumnIndex());
+                        } else {
+                            data = getCellValue(c);
 //                        data = c.getRichStringCellValue().toString();
+                        }
+                    } catch (Exception err) {
+                        logger.error("第{}行{}列读取值异常：{}", i + 1, c.getColumnIndex() + 1, err.getMessage());
+                        errorMessage.append("第" + (i + 1) + "行 " + (c.getColumnIndex() + 1) + "列读取值异常：" + err.getMessage() + ";");
                     }
-                } catch (Exception err) {
-                    logger.error("第{}行{}列读取值异常：{}", i+1, c.getColumnIndex()+1, err.getMessage());
-                    errorMessage.append("第" + (i+1) + "行 " + (c.getColumnIndex()+1) + "列读取值异常：" + err.getMessage() +";");
                 }
                 objs[colIdx] = data;
                 colIdx++;

@@ -16,8 +16,13 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,20 +43,24 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
 
     @Override
-    public void sendProductionDayDataNotification() throws ApiException {
+    public void sendProductionDayDataNotification(String groupType) throws ApiException {
         LocalDateTime currentTime = LocalDateTime.now();
+        //获取当月一号
+        LocalDateTime monthStart = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
+
 
         String currentDate = currentTime.format(DateTimeFormatter.ofPattern(CURRENT_DATE_FORMAT));
 
         //1 获取数据
-        List<Map<String, Object>> productionDataList = productionReportService.queryProductionDayDataByDate(currentTime.toLocalDate());
+        List<Map<String, Object>> productionDataList = productionReportService.queryProductionDayDataByDate(monthStart.toLocalDate(),
+                currentTime.toLocalDate());
         if(productionDataList == null || productionDataList.size() == 0)
         {
             log.info("没有需要推送到钉钉群的数据");
             return;
         }
         //2 获取机器人
-        List<Map<String, String>> robotList = dingTalkNotificationMapper.findRobotList();
+        List<Map<String, String>> robotList = dingTalkNotificationMapper.findRobotListByType(groupType);
         if(robotList == null || robotList.size() == 0)
         {
             log.info("没有维护机器人");
@@ -123,9 +132,9 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             }
         }
 
+        log.info("WLG推送消息内容" + markdownGroupMessage.toString());
         //4 发送消息
         DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
-
         dingTalkMessageHistory.setProductionDate(currentTime.toLocalDate());
 
         for(Map<String, String> robotMap : robotList) {

@@ -161,7 +161,7 @@
                         when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV')
                         then cast(cast(maxQty * 100 as decimal(18, 2)) as varchar(50)) + '%'
                         else
-                        cast(floor(maxQty) as varchar(50)) end maxQty,
+                        cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) end maxQty,
                     ${selectVarcharColumn}
                  FROM TEMP_PRODUCTION_PLAN
             UNION ALL
@@ -170,7 +170,7 @@
                     cycle,
                     code,
                     name,
-                    cast(floor(maxQty) as varchar(50)) maxQty,
+                    cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) maxQty,
                     ${selectVarcharColumn}
                 FROM TEMP_JHCHANCHU
             UNION ALL
@@ -179,7 +179,7 @@
                 cycle,
                 code,
                 name,
-                cast(floor(maxQty) as varchar(50)) maxQty,
+                cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) maxQty,
                 ${selectVarcharColumn}
                 FROM TEMP_JHLINGLIAO
             UNION ALL
@@ -188,7 +188,7 @@
                 cycle,
                 'JHHDTOULIAO' code,
                 '后道计划投料(PCS)' name,
-                cast(floor(maxQty) as varchar(50)) maxQty,
+                cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) maxQty,
                 ${selectVarcharColumn}
                 FROM TEMP_JHLINGLIAO
             UNION ALL
@@ -197,7 +197,7 @@
                     cycle,
                     code,
                     name,
-                    cast(floor(maxQty) as varchar(50)) maxQty,
+                    cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) maxQty,
                     ${selectVarcharColumn}
                 FROM TEMP_JHHDCHANCHU
             UNION ALL
@@ -211,7 +211,7 @@
                     when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV')
                     then cast(cast(maxQty * 100 as decimal(18, 2)) as varchar(50)) + '%'
                     else
-                    cast(floor(maxQty) as varchar(50)) end maxQty,
+                    cast(FLOOR(ROUND(maxQty, 0)) as varchar(50)) end maxQty,
                     ${selectVarcharColumn}
                 FROM TEMP_JHZHITONGLV
                 )

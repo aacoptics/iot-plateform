@@ -91,7 +91,7 @@ export default {
         {prop: "estimateHoleQty", label: "实际收料穴", minWidth: 120},
         {prop: "JHHDCHANCHU", label: "计划产出", minWidth: 120},
         {prop: "fpy", label: "预估直通率", minWidth: 120},
-        {prop: "estimateHoleQty", label: "预估模压产出", minWidth: 120},
+        {prop: "YUGUMOYA", label: "预估模压产出", minWidth: 120},
         {prop: "inventoryQty", label: "实际入库", minWidth: 120},
         // {prop: "afterOutputQty", label: "待入库", minWidth: 120},
       ],

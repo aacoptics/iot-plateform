@@ -176,7 +176,7 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 pivotIn.append("[" + planDate + "]");
                 selectVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
                         "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor([" + planDate + "]) as varchar(50)) end '" + planDate + "'");
+                        "   else cast(FLOOR(ROUND([" + planDate + "], 0)) as varchar(50)) end '" + planDate + "'");
                 selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
                 selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
                 selectJHHDCHANCHUColumn.append("TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
@@ -186,7 +186,7 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 pivotIn.append(", [" + planDate + "]");
                 selectVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
                         "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
-                        "   else cast(floor([" + planDate + "]) as varchar(50)) end '" + planDate + "'");
+                        "   else cast(FLOOR(ROUND([" + planDate + "], 0)) as varchar(50)) end '" + planDate + "'");
                 selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
                 selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
                 selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");

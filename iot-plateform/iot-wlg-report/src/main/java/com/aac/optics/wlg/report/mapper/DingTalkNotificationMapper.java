@@ -15,5 +15,5 @@ import java.util.Map;
 @Mapper
 public interface DingTalkNotificationMapper extends BaseMapper<DingTalkMessageHistory> {
 
-    List<Map<String, String>> findRobotList();
+    List<Map<String, String>> findRobotListByType(@Param("groupType") String groupType);
 }

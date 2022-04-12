@@ -22,7 +22,7 @@ class DingTalkNotificationServiceImplTest {
     void sendProductionDayDataNotification() {
 
         try {
-            dingTalkNotificationService.sendProductionDayDataNotification();
+            dingTalkNotificationService.sendProductionDayDataNotification("TEST");
         } catch (ApiException e) {
             e.printStackTrace();
         }

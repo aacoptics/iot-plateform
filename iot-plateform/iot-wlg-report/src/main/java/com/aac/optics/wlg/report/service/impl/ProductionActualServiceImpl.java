@@ -142,15 +142,19 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                     throw new BusinessException("日期【" + actualDateStr + "】格式错误" + e.getMessage());
                 }
 
-                ProductionActual productionActual = this.queryProductionActual(projectName, product, mold, cycle, actualDate);
-                if (productionActual == null) {
-                    productionActual = new ProductionActual();
-                }else
+                //只能对是过去七天（包括当天）的数据进行写入或修改，不可对将来时间的数据进行写入和修改
+                ProductionActual productionActual = null;
+                if (currentLocalDate.minusDays(7).isAfter(actualDate) && currentLocalDate.plusDays(1).isBefore(actualDate)) {
+                    continue;
+                }
+                else
                 {
-                    if (currentLocalDate.minusDays(7).isAfter(actualDate)) {
-                        continue;
+                    productionActual = this.queryProductionActual(projectName, product, mold, cycle, actualDate);
+                    if (productionActual == null) {
+                        productionActual = new ProductionActual();
                     }
                 }
+
 
                 productionActual.setMold(mold);
                 productionActual.setCycle(cycle);

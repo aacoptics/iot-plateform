@@ -57,7 +57,7 @@ public interface ProductionReportService {
      *
      * @return
      */
-    List<Map<String, Object>> queryProductionDayDataByDate(LocalDate productionDate);
+    List<Map<String, Object>> queryProductionDayDataByDate(LocalDate monthStart, LocalDate productionDate);
 
 
     /**
