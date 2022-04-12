@@ -231,6 +231,9 @@ public class ProductionReportController {
         percentCode.add("SJHDLIANGLV");
         percentCode.add("SJLIANGLV");
         percentCode.add("SJZHITONGLV");
+        percentCode.add("CHANCHUDCL");
+        percentCode.add("RUKUDCL");
+
         try {
             if (productionProjectList != null && productionProjectList.size() > 0) {
                 for (int i = 0; i < productionProjectList.size(); i++) {

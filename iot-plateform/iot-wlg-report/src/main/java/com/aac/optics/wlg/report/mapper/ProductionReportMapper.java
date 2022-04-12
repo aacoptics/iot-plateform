@@ -29,6 +29,9 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                    @Param("selectSumVarcharColumn") String selectSumVarcharColumn,
                                                                    @Param("selectRateColumn") String selectRateColumn,
                                                                    @Param("selectSumRateColumn") String selectSumRateColumn,
+                                                                   @Param("selectJHCHANCHUColumn") String selectJHCHANCHUColumn,
+                                                                   @Param("selectJHLINGLIAOColumn") String selectJHLINGLIAOColumn,
+                                                                   @Param("selectJHHDCHANCHUColumn") String selectJHHDCHANCHUColumn,
                                                                    @Param("dateStart") LocalDate dateStart,
                                                                    @Param("dateEnd") LocalDate dateEnd);
 
@@ -52,6 +55,7 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                      @Param("selectJHZHITONGLVColumn") String selectJHZHITONGLVColumn,
                                                                      @Param("selectSJLIANGLVColumn") String selectSJLIANGLVColumn,
                                                                      @Param("selectSJZHITONGLVColumn") String selectSJZHITONGLVColumn,
+                                                                     @Param("selectDCLVColumn") String selectDCLVColumn,
                                                                      @Param("dateStart") LocalDate dateStart,
                                                                      @Param("dateEnd") LocalDate dateEnd);
 
