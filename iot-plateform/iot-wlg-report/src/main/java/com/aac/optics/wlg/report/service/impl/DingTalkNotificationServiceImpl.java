@@ -44,7 +44,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
     @Override
     public void sendProductionDayDataNotification(String groupType) throws ApiException {
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = LocalDateTime.now().minusDays(1);
         //获取当月一号
         LocalDateTime monthStart = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
 

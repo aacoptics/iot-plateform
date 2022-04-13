@@ -840,13 +840,13 @@
                   WHEN JHHDCHANCHU = 0 THEN '0.00%'
                   ELSE
                           CAST(
-                                  CAST(ISNULL(inventory_qty / JHHDCHANCHU, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                                  CAST(ISNULL(after_output_qty / JHHDCHANCHU, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
                           '%' END               CHANCHU_RATE,
               CASE
                   WHEN SUM_JHLEIJI = 0 THEN '0.00%'
                   ELSE
                           CAST(CAST(
-                                  ISNULL(sum_inventory_qty / SUM_JHLEIJI, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                                  ISNULL(sum_after_output_qty / SUM_JHLEIJI, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
                           '%' END               LEIJI_RATE
             FROM TEMP_SUM_PRODUCTION_ACTUAL A
         LEFT JOIN TEMP_PRODUCTION_ACTUAL B
@@ -882,11 +882,11 @@
             sum(JHHDCHANCHU)          JHHDCHANCHU,
             sum(YUGUMOYA)             YUGUMOYA,
             CASE WHEN SUM(JHHDCHANCHU) = 0 THEN '0.00%' ELSE
-            CAST(CAST(ISNULL(SUM(inventory_qty) / SUM(JHHDCHANCHU), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+            CAST(CAST(ISNULL(SUM(after_output_qty) / SUM(JHHDCHANCHU), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
             '%'    END                   CHANCHU_RATE,
             CASE WHEN SUM(SUM_JHLEIJI) = 0 THEN '0.00%' ELSE
             CAST(CAST(
-            ISNULL(SUM(sum_inventory_qty) / SUM(SUM_JHLEIJI), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+            ISNULL(SUM(sum_after_output_qty) / SUM(SUM_JHLEIJI), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
             '%'      END                 LEIJI_RATE
             FROM TEMP_PROJECT_DATA
             )
