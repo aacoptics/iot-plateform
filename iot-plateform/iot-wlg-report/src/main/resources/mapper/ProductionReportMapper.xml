@@ -790,14 +790,20 @@
                 product,
                 sum(isnull(after_output_qty, 0)) after_output_qty,
                 sum(isnull(inventory_qty, 0))    inventory_qty,
-                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty
-            FROM production_actual
+                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
+                SUM(FLOOR(ROUND(isnull(mold_press_input_qty * estimate_hole_qty * fpy, 0), 0))) YUGUMOYA
+            FROM (select A.*, B.fpy
+                from production_actual A
+                    LEFT JOIN estimate_fpy B
+                      ON A.project_name = B.project_name
+                     AND A.mold = B.mold
+                     AND A.cycle = B.cycle
+                     AND A.actual_date = B.fpy_date
+                ) T
             where actual_date = #{productionDate}
             group by project_name, product
             ),
         TEMP_PRODUCTION_PLAN AS (
-            SELECT T.*, F.fpy
-            FROM (
             SELECT b.project_name,
                 b.plan_date,
                 mold,
@@ -815,10 +821,7 @@
                 and plan_date &lt;= #{productionDate}
             )
             as a PIVOT (max(plan_value) FOR code IN ([JHTOURU], [JHXUESHU], [MBLIANGLV], [JHXNLIANGLV], [JHHDLIANGLV])) AS b
-            group by project_name, plan_date, mold, cycle) T
-            LEFT JOIN estimate_fpy F
-            ON T.project_name = F.project_name AND T.mold = F.mold AND T.cycle = F.cycle AND
-            T.plan_date = F.fpy_date
+            group by project_name, plan_date, mold, cycle
             ),
         TEMP_PROJECT_DATA AS (
             SELECT CASE WHEN A.project_name IS NULL THEN C.project_name ELSE A.project_name END project_name,
@@ -832,7 +835,7 @@
             ISNULL(C.SUM_JHLEIJI, 0)                                                     SUM_JHLEIJI,
             ISNULL(D.JHTOURU, 0)                                                         JHTOURU,
             ISNULL(D.JHHDCHANCHU, 0)                                                     JHHDCHANCHU,
-            ISNULL(C.YUGUMOYA, 0)                                                        YUGUMOYA,
+            ISNULL(B.YUGUMOYA, 0)                                                        YUGUMOYA,
               CASE
                   WHEN JHHDCHANCHU = 0 THEN '0.00%'
                   ELSE
@@ -846,18 +849,17 @@
                                   ISNULL(sum_inventory_qty / SUM_JHLEIJI, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
                           '%' END               LEIJI_RATE
             FROM TEMP_SUM_PRODUCTION_ACTUAL A
-            LEFT JOIN TEMP_PRODUCTION_ACTUAL B
+        LEFT JOIN TEMP_PRODUCTION_ACTUAL B
             ON A.project_name = B.project_name
             AND A.product = B.product
-            FULL JOIN
+        FULL JOIN
             (SELECT project_name,
             sum([JHTOURU])                                                                   SUM_JHTOURU,
-            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_JHLEIJI,
-            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * fpy), 0))                                         YUGUMOYA
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_JHLEIJI
             FROM TEMP_PRODUCTION_PLAN
             group by project_name) C
             ON A.project_name = C.project_name
-            LEFT JOIN (
+        LEFT JOIN (
             SELECT project_name,
             sum([JHTOURU])                                                                   JHTOURU,
             floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) JHHDCHANCHU
