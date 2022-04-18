@@ -239,7 +239,7 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
         projectNameJsonObject.put("prop", "projectName");
         projectNameJsonObject.put("label", "项目");
         projectNameJsonObject.put("fixed", "left");
-        projectNameJsonObject.put("minWidth", "80");
+        projectNameJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(projectNameJsonObject);
 
         JSONObject moldJsonObject = new JSONObject();
