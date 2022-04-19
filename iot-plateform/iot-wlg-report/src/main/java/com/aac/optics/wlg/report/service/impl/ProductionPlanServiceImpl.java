@@ -201,14 +201,14 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
         for(int i=0; i<planDateList.size(); i++) {
             String planDate = planDateList.get(i);
             if (i == 0) {
-                selectJHHDCHANCHUSumColumn.append("ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0) ");
-                selectJHCHANCHUSumColumn.append("ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0) ");
-                selectJHLINGLIAOSumColumn.append("ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0) ");
+                selectJHHDCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append("ISNULL(ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0), 0) ");
             } else
             {
-                selectJHHDCHANCHUSumColumn.append(" + ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0) ");
-                selectJHCHANCHUSumColumn.append(" + ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0) ");
-                selectJHLINGLIAOSumColumn.append(" + ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0) ");
+                selectJHHDCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append(" + ISNULL(ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0), 0) ");
             }
         }
 
