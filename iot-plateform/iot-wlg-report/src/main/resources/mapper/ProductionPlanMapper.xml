@@ -31,6 +31,18 @@
                         AND c.plan_date &lt;= #{planDateEnd}
                     </if>
                 ) as sumQty,
+                (select max(c.plan_value) from production_plan c
+                where c.code = b.code
+                and c.mold = b.mold
+                and c.cycle = b.cycle
+                and c.project_name = b.project_name
+                <if test="planDateStart != null">
+                    AND c.plan_date >= #{planDateStart}
+                </if>
+                <if test="planDateEnd != null">
+                    AND c.plan_date &lt;= #{planDateEnd}
+                </if>
+                ) as maxQty,
             ${selectColumn}
             from (select mold, cycle, code, name, project_name, plan_value, plan_date from production_plan
             where 1=1
@@ -165,9 +177,11 @@
                      name,
                         case
                         when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV')
-                        then cast(cast(sumQty * 100 as decimal(18, 2)) as varchar(50)) + '%'
+                            then cast(cast(sumQty * 100 as decimal(18, 2)) as varchar(50)) + '%'
+                        when code in ('JHXUESHU', 'JHZONGMOCI')
+                            then cast(FLOOR(ROUND(maxQty, 0)) as varchar(50))
                         else
-                        cast(FLOOR(ROUND(sumQty, 0)) as varchar(50)) end sumQty,
+                            cast(FLOOR(ROUND(sumQty, 0)) as varchar(50)) end sumQty,
                     ${selectVarcharColumn}
                  FROM TEMP_PRODUCTION_PLAN
             UNION ALL
