@@ -193,6 +193,25 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 selectJHZHITONGLVColumn.append(", TEMP_JHXNLIANGLV.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
             }
         }
+
+        //统计汇总
+        StringBuffer selectJHHDCHANCHUSumColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHCHANCHUSumColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOSumColumn = new StringBuffer(); //计划后道领料(PCS)
+        for(int i=0; i<planDateList.size(); i++) {
+            String planDate = planDateList.get(i);
+            if (i == 0) {
+                selectJHHDCHANCHUSumColumn.append("ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0) ");
+                selectJHCHANCHUSumColumn.append("ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0) ");
+                selectJHLINGLIAOSumColumn.append("ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0) ");
+            } else
+            {
+                selectJHHDCHANCHUSumColumn.append(" + ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0) ");
+                selectJHCHANCHUSumColumn.append(" + ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0) ");
+                selectJHLINGLIAOSumColumn.append(" + ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0) ");
+            }
+        }
+
 //        page.addOrder(OrderItem.asc("cycle")).addOrder(OrderItem.asc("code"));
         List<Map<String, Object>> productionPlanList = productionPlanMapper.findProductionPlanByMonth(
                 projectName,
@@ -205,6 +224,9 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 selectJHLINGLIAOColumn.toString(),
                 selectJHHDCHANCHUColumn.toString(),
                 selectJHZHITONGLVColumn.toString(),
+                selectJHHDCHANCHUSumColumn.toString(),
+                selectJHCHANCHUSumColumn.toString(),
+                selectJHLINGLIAOSumColumn.toString(),
                 planDateStart,
                 planDateEnd);
 
@@ -272,8 +294,8 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
 
 
         JSONObject maxQtyJsonObject = new JSONObject();
-        maxQtyJsonObject.put("prop", "maxQty");
-        maxQtyJsonObject.put("label", "最大值");
+        maxQtyJsonObject.put("prop", "sumQty");
+        maxQtyJsonObject.put("label", "汇总");
         maxQtyJsonObject.put("fixed", "left");
         maxQtyJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(maxQtyJsonObject);
