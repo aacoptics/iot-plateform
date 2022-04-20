@@ -148,6 +148,7 @@ export default {
         {prop: "performanceYield", label: "实际性能良率", minWidth: 120},
         {prop: "afterInputQty", label: "后道实际投料(PCS)", minWidth: 150},
         {prop: "afterOutputQty", label: "实际后道产出（颗)", minWidth: 150},
+        {prop: "inventoryQty", label: "实际入库（转镀膜）", minWidth: 180},
         {prop: "afterYield", label: "实际后道良率", minWidth: 120},
       ],
       pageRequest: {current: 1, size: 10},

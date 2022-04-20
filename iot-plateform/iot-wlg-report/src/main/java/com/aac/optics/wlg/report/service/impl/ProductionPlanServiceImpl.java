@@ -101,14 +101,17 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                     throw new BusinessException("日期格式错误" + e.getMessage());
                 }
 
-                ProductionPlan productionPlan = this.queryProductionPlan(projectName, mold, cycle, code, planDate);
-                if (productionPlan == null) {
-                    productionPlan = new ProductionPlan();
-                } else {
-                    if (currentLocalDate.isAfter(planDate)) {
-                        continue;
+                ProductionPlan productionPlan = null;
+                if (currentLocalDate.isAfter(planDate)) {
+                    continue;
+                }
+                else {
+                    productionPlan = this.queryProductionPlan(projectName, mold, cycle, code, planDate);
+                    if (productionPlan == null) {
+                        productionPlan = new ProductionPlan();
                     }
                 }
+
 
                 productionPlan.setMold(mold);
                 productionPlan.setName(name);
@@ -161,16 +164,54 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
 
         StringBuffer selectColumn = new StringBuffer();
         StringBuffer pivotIn = new StringBuffer();
+        StringBuffer selectVarcharColumn = new StringBuffer();
+        StringBuffer selectJHCHANCHUColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOColumn = new StringBuffer(); //计划后道领料(PCS)
+        StringBuffer selectJHHDCHANCHUColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHZHITONGLVColumn = new StringBuffer(); //计划后道直通率
         for (int i = 0; i < planDateList.size(); i++) {
             String planDate = planDateList.get(i);
             if (i == 0) {
                 selectColumn.append("max([" + planDate + "]) as '" + planDate + "'");
                 pivotIn.append("[" + planDate + "]");
+                selectVarcharColumn.append("case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
+                        "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(FLOOR(ROUND([" + planDate + "], 0)) as varchar(50)) end '" + planDate + "'");
+                selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHHDCHANCHUColumn.append("TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHZHITONGLVColumn.append("TEMP_JHXNLIANGLV.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
             } else {
                 selectColumn.append(", max([" + planDate + "]) as '" + planDate + "'");
                 pivotIn.append(", [" + planDate + "]");
+                selectVarcharColumn.append(", case when code in ('JHXNLIANGLV', 'MBLIANGLV', 'JHHDLIANGLV', 'JHZHITONGLV') " +
+                        "   then cast(cast([" + planDate + "] * 100 as decimal(18, 2)) as varchar(50)) + '%'" +
+                        "   else cast(FLOOR(ROUND([" + planDate + "], 0)) as varchar(50)) end '" + planDate + "'");
+                selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
+                selectJHZHITONGLVColumn.append(", TEMP_JHXNLIANGLV.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "] as '" + planDate + "'");
             }
         }
+
+        //统计汇总
+        StringBuffer selectJHHDCHANCHUSumColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHCHANCHUSumColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOSumColumn = new StringBuffer(); //计划后道领料(PCS)
+        for(int i=0; i<planDateList.size(); i++) {
+            String planDate = planDateList.get(i);
+            if (i == 0) {
+                selectJHHDCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append("ISNULL(ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0), 0) ");
+            } else
+            {
+                selectJHHDCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHXUESHU.[" + planDate + "] * TEMP_JHLINGLIAO.[" + planDate + "] * TEMP_JHHDLIANGLV.[" + planDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHTOURU.[" + planDate + "] * TEMP_MBLIANGLV.[" + planDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append(" + ISNULL(ROUND(TEMP_JHCHANCHU.[" + planDate + "] * TEMP_JHXNLIANGLV.[" + planDate + "], 0), 0) ");
+            }
+        }
+
 //        page.addOrder(OrderItem.asc("cycle")).addOrder(OrderItem.asc("code"));
         List<Map<String, Object>> productionPlanList = productionPlanMapper.findProductionPlanByMonth(
                 projectName,
@@ -178,6 +219,14 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
                 cycle,
                 selectColumn.toString(),
                 pivotIn.toString(),
+                selectVarcharColumn.toString(),
+                selectJHCHANCHUColumn.toString(),
+                selectJHLINGLIAOColumn.toString(),
+                selectJHHDCHANCHUColumn.toString(),
+                selectJHZHITONGLVColumn.toString(),
+                selectJHHDCHANCHUSumColumn.toString(),
+                selectJHCHANCHUSumColumn.toString(),
+                selectJHLINGLIAOSumColumn.toString(),
                 planDateStart,
                 planDateEnd);
 
@@ -212,7 +261,7 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
         projectNameJsonObject.put("prop", "projectName");
         projectNameJsonObject.put("label", "项目");
         projectNameJsonObject.put("fixed", "left");
-        projectNameJsonObject.put("minWidth", "80");
+        projectNameJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(projectNameJsonObject);
 
         JSONObject moldJsonObject = new JSONObject();
@@ -229,12 +278,12 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
         cycleJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(cycleJsonObject);
 
-        JSONObject codeJsonObject = new JSONObject();
-        codeJsonObject.put("prop", "code");
-        codeJsonObject.put("label", "条件代码");
-        codeJsonObject.put("fixed", "left");
-        codeJsonObject.put("minWidth", "120");
-        tableColumnJsonArray.add(codeJsonObject);
+//        JSONObject codeJsonObject = new JSONObject();
+//        codeJsonObject.put("prop", "code");
+//        codeJsonObject.put("label", "条件代码");
+//        codeJsonObject.put("fixed", "left");
+//        codeJsonObject.put("minWidth", "120");
+//        tableColumnJsonArray.add(codeJsonObject);
 
         JSONObject statusJsonObject = new JSONObject();
         statusJsonObject.put("prop", "name");
@@ -245,8 +294,8 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
 
 
         JSONObject maxQtyJsonObject = new JSONObject();
-        maxQtyJsonObject.put("prop", "maxQty");
-        maxQtyJsonObject.put("label", "最大值");
+        maxQtyJsonObject.put("prop", "sumQty");
+        maxQtyJsonObject.put("label", "汇总");
         maxQtyJsonObject.put("fixed", "left");
         maxQtyJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(maxQtyJsonObject);
@@ -271,6 +320,7 @@ public class ProductionPlanServiceImpl extends ServiceImpl<ProductionPlanMapper,
         QueryWrapper<ProductionPlan> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name", projectName);
         queryWrapper.eq("mold", mold);
+        queryWrapper.eq("cycle", cycle);
         queryWrapper.eq("code", code);
         queryWrapper.eq("plan_date", planDate);
 

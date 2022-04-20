@@ -24,10 +24,18 @@ public interface ProductionPlanMapper extends BaseMapper<ProductionPlan> {
     List<Map<String, Object>> findProductionPlanByMonth(@Param("projectName") String projectName,
                                                         @Param("mold") String mold,
                                                         @Param("cycle") String cycle,
-                                                      @Param("selectColumn") String selectColumn,
-                                                      @Param("pivotIn") String pivotIn,
-                                                      @Param("planDateStart") LocalDate planDateStart,
-                                                      @Param("planDateEnd") LocalDate planDateEnd);
+                                                        @Param("selectColumn") String selectColumn,
+                                                        @Param("pivotIn") String pivotIn,
+                                                        @Param("selectVarcharColumn") String selectVarcharColumn,
+                                                        @Param("selectJHCHANCHUColumn") String selectJHCHANCHUColumn,
+                                                        @Param("selectJHLINGLIAOColumn") String selectJHLINGLIAOColumn,
+                                                        @Param("selectJHHDCHANCHUColumn") String selectJHHDCHANCHUColumn,
+                                                        @Param("selectJHZHITONGLVColumn") String selectJHZHITONGLVColumn,
+                                                        @Param("selectJHHDCHANCHUSumColumn") String selectJHHDCHANCHUSumColumn,
+                                                        @Param("selectJHCHANCHUSumColumn") String selectJHCHANCHUSumColumn,
+                                                        @Param("selectJHLINGLIAOSumColumn") String selectJHLINGLIAOSumColumn,
+                                                        @Param("planDateStart") LocalDate planDateStart,
+                                                        @Param("planDateEnd") LocalDate planDateEnd);
 
 
 }

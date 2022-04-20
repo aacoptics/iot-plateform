@@ -12,6 +12,24 @@
                     size="small"
                 />
               </el-form-item>
+          <el-form-item label="模具" prop="mold">
+              <el-input
+                  v-model="filters.mold"
+                  placeholder="请输入模具"
+                  clearable
+                  size="small"
+              />
+            </el-form-item>
+            <el-form-item label="周期" prop="cycle">
+              <el-input
+                  v-model="filters.cycle"
+                  placeholder="请输入周期"
+                  clearable
+                  size="small"
+              />
+            </el-form-item>
+          </el-row>
+          <el-row>
             <el-form-item label="日期 从" prop="producitonDate">
               <el-date-picker v-model="filters.producitonDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
             </el-form-item>
@@ -29,7 +47,7 @@
             </el-form-item>
             <el-form-item>
               <el-button type="success" icon="el-icon-download" size="small" :loading="exportLoading"
-                         @click="exportExcelData('月度汇总报表')">导出
+                         @click="exportExcelData('单个项目报表')">导出
               </el-button>
             </el-form-item>
           </el-form>
@@ -46,17 +64,17 @@
 <script>
 
 import QueryAllTable from "@/components/QueryAllTable";
-import {findProductionReportPage, queryProductionReportTitleByMonth, exportProductionMonthExcel} from "@/api/wlg/productionMonthReport";
+import {findProductionReportPage, queryProductionReportTitleByMonth, exportProductionProjectExcel} from "@/api/wlg/productionProjectReport";
 
 export default {
-  name: "productionMonthReport",
+  name: "productionProjectReport",
   components: {QueryAllTable},
   data() {
     return {
       size: 'small',
       queryLoading: false,
       exportLoading: false,
-
+      
       filters: {
         projectName: '',
         mold: '',
@@ -68,6 +86,8 @@ export default {
         {prop: "projectName", label: "项目", minWidth: 120},
         {prop: "code", label: "条件代码", minWidth: 110},
         {prop: "name", label: "条件", minWidth: 110},
+        {prop: "mold", label: "模具", minWidth: 110},
+        {prop: "cycle", label: "周期", minWidth: 110},
         {prop: "planValue", label: "数量", minWidth: 120},
       ],
       pageRequest: {},
@@ -85,8 +105,8 @@ export default {
         this.pageRequest = data.pageRequest
       }
       this.pageRequest.projectName = this.filters.projectName;
-      // this.pageRequest.mold = this.filters.mold;
-      // this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.producitonDateStart;
       this.pageRequest.dateEnd = this.filters.producitonDateEnd;
 
@@ -115,13 +135,13 @@ export default {
     },
     exportExcelData(excelFileName) {
       this.pageRequest.projectName = this.filters.projectName;
-      // this.pageRequest.mold = this.filters.mold;
-      // this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.producitonDateStart;
       this.pageRequest.dateEnd = this.filters.producitonDateEnd;
 
       this.exportLoading = true;
-      exportProductionMonthExcel(this.pageRequest).then(res => {
+      exportProductionProjectExcel(this.pageRequest).then(res => {
           this.exportLoading = false;
           let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
           let link = document.createElement('a');

@@ -16,11 +16,11 @@ public class ProductionDayReportQueryForm extends BaseQueryForm<ProductionDayRep
     @ApiModelProperty(value = "项目")
     private String projectName;
 
-//    @ApiModelProperty(value = "模具")
-//    private String mold;
-//
-//    @ApiModelProperty(value = "周期")
-//    private String cycle;
+    @ApiModelProperty(value = "模具")
+    private String mold;
+
+    @ApiModelProperty(value = "周期")
+    private String cycle;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @ApiModelProperty(value = "查询业务发生开始日期")

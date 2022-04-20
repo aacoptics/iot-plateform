@@ -36,6 +36,7 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
     @Override
     @Transactional
     public void importEstimateFpyExcel(InputStream in) throws IOException, InvalidFormatException {
+        LocalDate currentLocalDate = LocalDate.now();
 
         List<String[]> excelDataList = ExcelUtil.read(in).get(0);
 
@@ -85,9 +86,16 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
                 throw new BusinessException("日期格式错误" + e.getMessage());
             }
 
-            EstimateFpy estimateFpy = this.queryEstimateFpy(mold, cycle, projectName, fpyDate);
-            if (estimateFpy == null) {
-                estimateFpy = new EstimateFpy();
+            EstimateFpy estimateFpy = null;
+            if (currentLocalDate.minusDays(1).isAfter(fpyDate)) {
+                continue;
+            }
+            else
+            {
+                estimateFpy = this.queryEstimateFpy(mold, cycle, projectName, fpyDate);
+                if (estimateFpy == null) {
+                    estimateFpy = new EstimateFpy();
+                }
             }
 
             estimateFpy.setMold(mold);

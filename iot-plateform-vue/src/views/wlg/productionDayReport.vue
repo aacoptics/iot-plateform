@@ -12,7 +12,7 @@
                   size="small"
               />
             </el-form-item>
-            <!-- <el-form-item label="模具" prop="mold">
+            <el-form-item label="模具" prop="mold">
               <el-input
                   v-model="filters.mold"
                   placeholder="请输入模具"
@@ -27,9 +27,9 @@
                   clearable
                   size="small"
               />
-            </el-form-item> -->
-          <!-- </el-row>
-          <el-row> -->
+            </el-form-item>
+          </el-row>
+          <el-row>
           <el-form-item label="日期 从" prop="productionDate">
             <el-date-picker v-model="filters.productionDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
@@ -42,6 +42,11 @@
             <el-form-item>
               <el-button icon="el-icon-search" type="primary" :loading="queryLoading"
                         @click="findPage(null)">查询
+              </el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="success" icon="el-icon-download" size="small" :loading="exportLoading"
+                         @click="exportExcelData('每日产出报表')">导出
               </el-button>
             </el-form-item>
           </el-form>
@@ -59,7 +64,7 @@
 <script>
 
 import QueryAllTable from "@/components/QueryAllTable";
-import {findProductionDayReportPage} from "@/api/wlg/productionDayReport";
+import {findProductionDayReportPage, exportProductionDayExcel} from "@/api/wlg/productionDayReport";
 
 export default {
   name: "productionDayReport",
@@ -68,10 +73,11 @@ export default {
     return {
       size: 'small',
       queryLoading: false,
+      exportLoading: false,
       filters: {
         projectName: '',
-        // mold: '',
-        // cycle: '',
+        mold: '',
+        cycle: '',
         productionDateStart:'',
         productionDateEnd:'',
       },
@@ -82,12 +88,12 @@ export default {
         {prop: "mold", label: "模具", minWidth: 110},
         {prop: "cycle", label: "周期", minWidth: 100},        
         {prop: "JHXUESHU", label: "计划收料穴", minWidth: 120},
-        {prop: "SJXUESHU", label: "实际收料穴", minWidth: 120},
+        {prop: "estimateHoleQty", label: "实际收料穴", minWidth: 120},
         {prop: "JHHDCHANCHU", label: "计划产出", minWidth: 120},
         {prop: "fpy", label: "预估直通率", minWidth: 120},
-        {prop: "estimateHoleQty", label: "预估模压产出", minWidth: 120},
-        {prop: "afterOutputQty", label: "实际入库", minWidth: 120},
-        {prop: "afterOutputQty", label: "待入库", minWidth: 120},
+        {prop: "YUGUMOYA", label: "预估模压产出", minWidth: 120},
+        {prop: "inventoryQty", label: "实际入库", minWidth: 120},
+        // {prop: "afterOutputQty", label: "待入库", minWidth: 120},
       ],
       pageRequest: {},
       pageResult: {},
@@ -101,8 +107,8 @@ export default {
         this.pageRequest = data.pageRequest
       }
       this.pageRequest.projectName = this.filters.projectName;
-      // this.pageRequest.mold = this.filters.mold;
-      // this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
       this.pageRequest.dateStart = this.filters.productionDateStart;
       this.pageRequest.dateEnd = this.filters.productionDateEnd;
 
@@ -120,6 +126,27 @@ export default {
         this.queryLoading = false;
       }).then(data != null ? data.callback : '')
     },
+
+    exportExcelData(excelFileName) {
+      this.pageRequest.projectName = this.filters.projectName;
+      this.pageRequest.mold = this.filters.mold;
+      this.pageRequest.cycle = this.filters.cycle;
+      this.pageRequest.dateStart = this.filters.productionDateStart;
+      this.pageRequest.dateEnd = this.filters.productionDateEnd;
+
+      this.exportLoading = true;
+      exportProductionDayExcel(this.pageRequest).then(res => {
+          this.exportLoading = false;
+          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+          let link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', excelFileName + "-" + new Date().getTime() + ".xlsx");
+          document.body.appendChild(link);
+          link.click();
+      });
+    },
+
     objectSpanMethod: function({ row, column, rowIndex, columnIndex }) {
         console.log(row[column]);
        if (columnIndex == 2) {

@@ -301,7 +301,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             List<Map<String, Object>> robotMapList = sendSalesDataMapper.getRobotUrlByTabType(tabType);
             if (robotMapList == null || robotMapList.size() == 0) {
                 log.error("类型{}机器人URL未配置，请确认");
-                return;
+                continue;
             }
 
             int sendCount = 0; //发送记录数
