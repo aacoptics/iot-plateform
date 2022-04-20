@@ -32,6 +32,9 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
                                                                    @Param("selectJHCHANCHUColumn") String selectJHCHANCHUColumn,
                                                                    @Param("selectJHLINGLIAOColumn") String selectJHLINGLIAOColumn,
                                                                    @Param("selectJHHDCHANCHUColumn") String selectJHHDCHANCHUColumn,
+                                                                   @Param("selectJHHDCHANCHUSumColumn") String selectJHHDCHANCHUSumColumn,
+                                                                   @Param("selectJHCHANCHUSumColumn") String selectJHCHANCHUSumColumn,
+                                                                   @Param("selectJHLINGLIAOSumColumn") String selectJHLINGLIAOSumColumn,
                                                                    @Param("dateStart") LocalDate dateStart,
                                                                    @Param("dateEnd") LocalDate dateEnd);
 

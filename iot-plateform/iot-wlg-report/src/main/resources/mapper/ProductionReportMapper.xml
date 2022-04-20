@@ -9,21 +9,32 @@
                 b.code as code,
                 b.name as name,
                 b.project_name    as     projectName,
-            (select sum(c.plan_value) from production_plan c
-                where c.code = b.code
-                and c.project_name = b.project_name
-                <if test="dateStart != null">
-                    AND c.plan_date >= #{dateStart}
-                </if>
-                <if test="dateEnd != null">
-                    AND c.plan_date &lt;= #{dateEnd}
-                </if>
-                ) as sumQty,
-            ${selectColumn}
+                b.mold as mold,
+                b.cycle as cycle,
+                (select sum(c.plan_value) from production_plan c
+                    where c.code = b.code
+                    and c.project_name = b.project_name
+                    <if test="dateStart != null">
+                        AND c.plan_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND c.plan_date &lt;= #{dateEnd}
+                    </if>
+                    ) as sumQty,
+                    (select max(c.plan_value) from production_plan c
+                    where c.code = b.code
+                    and c.project_name = b.project_name
+                    <if test="dateStart != null">
+                        AND c.plan_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND c.plan_date &lt;= #{dateEnd}
+                    </if>
+                    ) as maxQty,
+                ${selectDateColumn}
             from (
-                select code, name, project_name, plan_value, plan_date from production_plan
+                select code, name, project_name, mold, cycle, plan_value, plan_date from production_plan
                 where 1=1
-                AND code not in ('JHXNLIANGLV', 'JHHDLIANGLV', 'MBLIANGLV', 'JHZHITONGLV')
                 <if test="projectName != '' and projectName != null">
                     AND project_name = #{projectName}
                 </if>
@@ -35,12 +46,26 @@
                 </if>
                 ) as a
                 pivot(sum(plan_value) for plan_date in (${pivotIn})) as b
-                group by b.project_name, b.code, b.name),
+                ),
+        TEMP_PRODUCTION_PLAN_GROUP AS (
+                SELECT
+                code,
+                name,
+                projectName,
+                 sum(sumQty) sumQty,
+                 sum(maxQty) maxQty,
+                 ${selectColumn}
+                 FROM TEMP_PRODUCTION_PLAN
+                group by projectName, code, name
+        ),
         TEMP_JHTOURU AS (
             SELECT projectName,
             code,
             name,
+            mold,
+            cycle,
             sumQty,
+            maxQty,
             ${pivotIn}
             FROM TEMP_PRODUCTION_PLAN
             WHERE code = 'JHTOURU'),
@@ -48,7 +73,10 @@
             SELECT projectName,
             code,
             name,
+            mold,
+            cycle,
             sumQty,
+            maxQty,
             ${pivotIn}
             FROM TEMP_PRODUCTION_PLAN
             WHERE code = 'MBLIANGLV'),
@@ -56,7 +84,10 @@
             SELECT projectName,
             code,
             name,
+            mold,
+            cycle,
             sumQty,
+            maxQty,
             ${pivotIn}
             FROM TEMP_PRODUCTION_PLAN
             WHERE code = 'JHXUESHU'),
@@ -64,7 +95,10 @@
             SELECT projectName,
             code,
             name,
+            mold,
+            cycle,
             sumQty,
+            maxQty,
             ${pivotIn}
             FROM TEMP_PRODUCTION_PLAN
             WHERE code = 'JHXNLIANGLV'),
@@ -72,7 +106,10 @@
             SELECT projectName,
             code,
             name,
+            mold,
+            cycle,
             sumQty,
+            maxQty,
             ${pivotIn}
             FROM TEMP_PRODUCTION_PLAN
             WHERE code = 'JHHDLIANGLV'),
@@ -80,29 +117,59 @@
             SELECT TEMP_JHTOURU.projectName projectName,
             'JHCHANCHU' code,
             '计划模压产出片数(PCS)' name,
-            TEMP_JHTOURU.sumQty * TEMP_MBLIANGLV.sumQty sumQty,
+            ${selectJHCHANCHUSumColumn} sumQty,
+            sum(TEMP_JHTOURU.maxQty * TEMP_MBLIANGLV.maxQty) maxQty,
             ${selectJHCHANCHUColumn}
             FROM TEMP_JHTOURU
-            LEFT JOIN TEMP_MBLIANGLV ON TEMP_JHTOURU.projectName = TEMP_MBLIANGLV.projectName
+            LEFT JOIN TEMP_MBLIANGLV
+                ON TEMP_JHTOURU.projectName = TEMP_MBLIANGLV.projectName
+                AND TEMP_JHTOURU.mold = TEMP_MBLIANGLV.mold
+                AND TEMP_JHTOURU.cycle = TEMP_MBLIANGLV.cycle
+            GROUP BY TEMP_JHTOURU.projectName
             ),
         TEMP_JHLINGLIAO AS (
-            SELECT TEMP_JHCHANCHU.projectName projectName,
+            SELECT TEMP_JHTOURU.projectName projectName,
             'JHLINGLIAO' code,
             '计划后道领料(PCS)' name,
-            TEMP_JHCHANCHU.sumQty * TEMP_JHXNLIANGLV.sumQty sumQty,
+            ${selectJHLINGLIAOSumColumn} sumQty,
+            sum(TEMP_JHTOURU.maxQty * TEMP_MBLIANGLV.maxQty * TEMP_JHXNLIANGLV.maxQty) maxQty,
             ${selectJHLINGLIAOColumn}
-            FROM TEMP_JHCHANCHU
-            LEFT JOIN TEMP_JHXNLIANGLV ON TEMP_JHCHANCHU.projectName = TEMP_JHXNLIANGLV.projectName
+            FROM TEMP_JHTOURU
+            LEFT JOIN TEMP_MBLIANGLV
+                ON TEMP_JHTOURU.projectName = TEMP_MBLIANGLV.projectName
+                AND TEMP_JHTOURU.mold = TEMP_MBLIANGLV.mold
+                AND TEMP_JHTOURU.cycle = TEMP_MBLIANGLV.cycle
+            LEFT JOIN TEMP_JHXNLIANGLV
+                ON TEMP_JHTOURU.projectName = TEMP_JHXNLIANGLV.projectName
+                AND TEMP_JHTOURU.mold = TEMP_JHXNLIANGLV.mold
+                AND TEMP_JHTOURU.cycle = TEMP_JHXNLIANGLV.cycle
+            GROUP BY TEMP_JHTOURU.projectName
             ),
         TEMP_JHHDCHANCHU AS (
             SELECT TEMP_JHXUESHU.projectName projectName,
             'JHHDCHANCHU' code,
             '计划后道产出（颗)' name,
-            TEMP_JHXUESHU.sumQty * TEMP_JHLINGLIAO.sumQty * TEMP_JHHDLIANGLV.sumQty sumQty,
+            ${selectJHHDCHANCHUSumColumn} sumQty,
+            sum(TEMP_JHXUESHU.maxQty * TEMP_JHTOURU.maxQty * TEMP_MBLIANGLV.maxQty * TEMP_JHXNLIANGLV.maxQty * TEMP_JHHDLIANGLV.maxQty) maxQty,
             ${selectJHHDCHANCHUColumn}
             FROM TEMP_JHXUESHU
-            LEFT JOIN TEMP_JHLINGLIAO ON TEMP_JHXUESHU.projectName = TEMP_JHLINGLIAO.projectName
-            LEFT JOIN TEMP_JHHDLIANGLV ON TEMP_JHXUESHU.projectName = TEMP_JHHDLIANGLV.projectName
+            LEFT JOIN TEMP_JHTOURU
+                ON TEMP_JHXUESHU.projectName = TEMP_JHTOURU.projectName
+                AND TEMP_JHXUESHU.mold = TEMP_JHTOURU.mold
+                AND TEMP_JHXUESHU.cycle = TEMP_JHTOURU.cycle
+            LEFT JOIN TEMP_MBLIANGLV
+                ON TEMP_JHXUESHU.projectName = TEMP_MBLIANGLV.projectName
+                AND TEMP_JHXUESHU.mold = TEMP_MBLIANGLV.mold
+                AND TEMP_JHXUESHU.cycle = TEMP_MBLIANGLV.cycle
+            LEFT JOIN TEMP_JHXNLIANGLV
+                ON TEMP_JHXUESHU.projectName = TEMP_JHXNLIANGLV.projectName
+                AND TEMP_JHXUESHU.mold = TEMP_JHXNLIANGLV.mold
+                AND TEMP_JHXUESHU.cycle = TEMP_JHXNLIANGLV.cycle
+            LEFT JOIN TEMP_JHHDLIANGLV
+                ON TEMP_JHXUESHU.projectName = TEMP_JHHDLIANGLV.projectName
+                AND TEMP_JHXUESHU.mold = TEMP_JHHDLIANGLV.mold
+                AND TEMP_JHXUESHU.cycle = TEMP_JHHDLIANGLV.cycle
+            GROUP BY TEMP_JHXUESHU.projectName
             ),
         TEMP_PRODUCTION_ACTUAL_VALUE AS (
             SELECT project_name, actual_date, code, sum(actual_value) actual_value
@@ -155,6 +222,18 @@
                             AND TEMP_PRODUCTION_ACTUAL_VALUE.actual_date &lt;= #{dateEnd}
                         </if>
                     ) sumQty,
+                    (
+                    select max(TEMP_PRODUCTION_ACTUAL_VALUE.actual_value)
+                    from TEMP_PRODUCTION_ACTUAL_VALUE
+                    where TEMP_PRODUCTION_ACTUAL_VALUE.code = d.code
+                    and TEMP_PRODUCTION_ACTUAL_VALUE.project_name = d.project_name
+                    <if test="dateStart != null">
+                        AND TEMP_PRODUCTION_ACTUAL_VALUE.actual_date >= #{dateStart}
+                    </if>
+                    <if test="dateEnd != null">
+                        AND TEMP_PRODUCTION_ACTUAL_VALUE.actual_date &lt;= #{dateEnd}
+                    </if>
+                    ) maxQty,
                     ${selectColumn}
                 from (SELECT * FROM TEMP_PRODUCTION_ACTUAL_VALUE
                 ) as c
@@ -162,9 +241,11 @@
             group by d.project_name, d.code
         ),
         TEMP_PRODUCTION_REPORT AS (
-                SELECT projectName, code, name, cast(floor(ROUND(sumQty,0)) as varchar (50)) sumQty, ${selectVarcharColumn}  from TEMP_PRODUCTION_PLAN
+                SELECT projectName, code, name, cast(floor(ROUND(sumQty,0)) as varchar (50)) sumQty, ${selectVarcharColumn}  from TEMP_PRODUCTION_PLAN_GROUP
+                WHERE code not in ('JHXNLIANGLV', 'JHHDLIANGLV', 'MBLIANGLV', 'JHZHITONGLV', 'JHXUESHU')
             UNION ALL
-                SELECT '汇总' projectName, code, name, cast(floor(ROUND(sum(sumQty), 0)) as varchar(50)) sumQty, ${selectSumVarcharColumn} from TEMP_PRODUCTION_PLAN
+                SELECT '汇总' projectName, code, name, cast(floor(ROUND(sum(sumQty), 0)) as varchar(50)) sumQty, ${selectSumVarcharColumn} from TEMP_PRODUCTION_PLAN_GROUP
+                WHERE code not in ('JHXNLIANGLV', 'JHHDLIANGLV', 'MBLIANGLV', 'JHZHITONGLV', 'JHXUESHU')
                 group by code, name
             UNION ALL
                 SELECT projectName, code, name, cast(floor(ROUND(sumQty,0)) as varchar (50)) sumQty, ${selectVarcharColumn}  from TEMP_JHHDCHANCHU
@@ -182,7 +263,7 @@
                 '实际产出达成率'                                   name,
                 cast(CAST(ISNULL(TA.sumQty, 0) / TP.sumQty * 100 as decimal(18, 2) )as varchar(50)) +'%' sumQty,
                 ${selectRateColumn}
-                from (select * from TEMP_PRODUCTION_PLAN where code = 'JHHDCHANCHU') TP
+                from (select * from TEMP_JHHDCHANCHU) TP
                 LEFT JOIN
                     (select * from TEMP_PRODUCTION_ACTUAL TA where code = 'SJHDCHANCHU')  TA
                     ON TA.projectName = TP.projectName
@@ -192,7 +273,7 @@
                 '实际产出达成率'                                   name,
                 cast(CAST(sum(TA.sumQty) / sum(TP.sumQty) * 100 as decimal(18, 2) )as varchar(50)) +'%' sumQty,
                 ${selectSumRateColumn}
-                from (select * from TEMP_PRODUCTION_PLAN where code = 'JHHDCHANCHU') TP
+                from (select * from TEMP_JHHDCHANCHU) TP
                 LEFT JOIN
                 (select * from TEMP_PRODUCTION_ACTUAL TA where code = 'SJHDCHANCHU') TA
                 ON 1=1
