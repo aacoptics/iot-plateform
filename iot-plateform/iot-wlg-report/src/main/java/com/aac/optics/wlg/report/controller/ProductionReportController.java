@@ -213,7 +213,7 @@ public class ProductionReportController {
         titleRow.createCell(3).setCellValue("周期");
         titleRow.createCell(4).setCellValue("条件代码");
         titleRow.createCell(5).setCellValue("项目2");
-        titleRow.createCell(6).setCellValue("最大值");
+        titleRow.createCell(6).setCellValue("汇总");
         if(productionDateList != null && productionDateList.size() > 0)
         {
             for(int i=0; i<productionDateList.size(); i++)
@@ -252,14 +252,14 @@ public class ProductionReportController {
                     dataRow.createCell(4).setCellValue(code);
                     dataRow.createCell(5).setCellValue(name);
 
-                    if(productionDayMap.get("maxQty") != null)
+                    if(productionDayMap.get("sumQty") != null)
                     {
                         if(percentCode.contains(code))
                         {
-                            dataRow.createCell(6).setCellValue(productionDayMap.get("maxQty") + "");
+                            dataRow.createCell(6).setCellValue(productionDayMap.get("sumQty") + "");
                         }
                         else {
-                            dataRow.createCell(6).setCellValue(Double.valueOf(productionDayMap.get("maxQty") + ""));
+                            dataRow.createCell(6).setCellValue(Double.valueOf(productionDayMap.get("sumQty") + ""));
                         }
                     }else
                     {
