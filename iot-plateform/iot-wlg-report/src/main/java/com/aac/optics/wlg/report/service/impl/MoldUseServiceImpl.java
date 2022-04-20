@@ -208,7 +208,7 @@ public class MoldUseServiceImpl extends ServiceImpl<MoldUseMapper, MoldUse> impl
         projectNameJsonObject.put("prop", "projectName");
         projectNameJsonObject.put("label", "项目");
         projectNameJsonObject.put("fixed", "left");
-        projectNameJsonObject.put("minWidth", "80");
+        projectNameJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(projectNameJsonObject);
 
         JSONObject maxQtyJsonObject = new JSONObject();

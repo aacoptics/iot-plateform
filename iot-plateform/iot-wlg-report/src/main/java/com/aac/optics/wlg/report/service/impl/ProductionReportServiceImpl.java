@@ -59,9 +59,9 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectSumRateColumn.append("cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append("[" + reportDate + "]");
 
-                selectJHCHANCHUColumn.append("TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
-                selectJHLINGLIAOColumn.append("TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
-                selectJHHDCHANCHUColumn.append("TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHCHANCHUColumn.append("SUM(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
+                selectJHLINGLIAOColumn.append("SUM(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
+                selectJHHDCHANCHUColumn.append("SUM(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHTOURU.[" + reportDate + "]* TEMP_MBLIANGLV.[" + reportDate + "]* TEMP_JHXNLIANGLV.[" + reportDate + "]  * TEMP_JHHDLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
             } else {
                 selectDateColumn.append(",[" + reportDate + "] as '" + reportDate + "'");
                 selectColumn.append(", sum([" + reportDate + "]) as '" + reportDate + "'");
@@ -71,11 +71,33 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectSumRateColumn.append(", cast(cast(ISNULL(sum(TA.[" + reportDate + "]), 0) / sum(TP.[" + reportDate + "]) *100 as decimal(18, 2)) as varchar(50)) +'%' as '" + reportDate + "'");
                 pivotIn.append(", [" + reportDate + "]");
 
-                selectJHCHANCHUColumn.append(", TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
-                selectJHLINGLIAOColumn.append(", TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
-                selectJHHDCHANCHUColumn.append(", TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "] as '" + reportDate + "'");
+                selectJHCHANCHUColumn.append(", SUM(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
+                selectJHLINGLIAOColumn.append(", SUM(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
+                selectJHHDCHANCHUColumn.append(", SUM(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHTOURU.[" + reportDate + "]* TEMP_MBLIANGLV.[" + reportDate + "]* TEMP_JHXNLIANGLV.[" + reportDate + "]  * TEMP_JHHDLIANGLV.[" + reportDate + "], 0)) as '" + reportDate + "'");
             }
         }
+
+        //统计汇总
+        StringBuffer selectJHHDCHANCHUSumColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHCHANCHUSumColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOSumColumn = new StringBuffer(); //计划后道领料(PCS)
+        for(int i=0; i<reportDateList.size(); i++) {
+            String reportDate = reportDateList.get(i);
+            if (i == 0) {
+                selectJHHDCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append("ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0), 0) ");
+            } else
+            {
+                selectJHHDCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append(" + ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0), 0) ");
+            }
+        }
+        selectJHHDCHANCHUSumColumn = new StringBuffer("SUM(" + selectJHHDCHANCHUSumColumn + ")");
+        selectJHCHANCHUSumColumn = new StringBuffer("SUM(" + selectJHCHANCHUSumColumn + ")");
+        selectJHLINGLIAOSumColumn = new StringBuffer("SUM(" + selectJHLINGLIAOSumColumn + ")");
+
         List<Map<String, Object>> productionMonthList = productionReportMapper.findProductionMonthReportByCondition(
                 projectName,
                 selectDateColumn.toString(),
@@ -88,6 +110,9 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectJHCHANCHUColumn.toString(),
                 selectJHLINGLIAOColumn.toString(),
                 selectJHHDCHANCHUColumn.toString(),
+                selectJHHDCHANCHUSumColumn.toString(),
+                selectJHCHANCHUSumColumn.toString(),
+                selectJHLINGLIAOSumColumn.toString(),
                 dateStart,
                 dateEnd);
 
@@ -120,7 +145,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         projectNameJsonObject.put("prop", "projectName");
         projectNameJsonObject.put("label", "项目");
         projectNameJsonObject.put("fixed", "left");
-        projectNameJsonObject.put("minWidth", "80");
+        projectNameJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(projectNameJsonObject);
 
 //        JSONObject codeJsonObject = new JSONObject();
@@ -250,6 +275,24 @@ public class ProductionReportServiceImpl implements ProductionReportService {
             }
         }
 
+        //统计汇总
+        StringBuffer selectJHHDCHANCHUSumColumn = new StringBuffer(); //计划后道产出（颗)
+        StringBuffer selectJHCHANCHUSumColumn = new StringBuffer(); //计划模压产出片数(PCS)
+        StringBuffer selectJHLINGLIAOSumColumn = new StringBuffer(); //计划后道领料(PCS)
+        for(int i=0; i<reportDateList.size(); i++) {
+            String reportDate = reportDateList.get(i);
+            if (i == 0) {
+                selectJHHDCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append("ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append("ISNULL(ROUND(TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0), 0) ");
+            } else
+            {
+                selectJHHDCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHXUESHU.[" + reportDate + "] * TEMP_JHLINGLIAO.[" + reportDate + "] * TEMP_JHHDLIANGLV.[" + reportDate + "],0), 0) ");
+                selectJHCHANCHUSumColumn.append(" + ISNULL(ROUND(TEMP_JHTOURU.[" + reportDate + "] * TEMP_MBLIANGLV.[" + reportDate + "], 0), 0) ");
+                selectJHLINGLIAOSumColumn.append(" + ISNULL(ROUND(TEMP_JHCHANCHU.[" + reportDate + "] * TEMP_JHXNLIANGLV.[" + reportDate + "], 0), 0) ");
+            }
+        }
+
         List<Map<String, Object>> productionDayList = productionReportMapper.findProductionProjectReportByCondition(
                 projectName,
                 mold,
@@ -266,6 +309,9 @@ public class ProductionReportServiceImpl implements ProductionReportService {
                 selectSJLIANGLVColumn.toString(),
                 selectSJZHITONGLVColumn.toString(),
                 selectDCLVColumn.toString(),
+                selectJHHDCHANCHUSumColumn.toString(),
+                selectJHCHANCHUSumColumn.toString(),
+                selectJHLINGLIAOSumColumn.toString(),
                 dateStart,
                 dateEnd);
 
@@ -300,7 +346,7 @@ public class ProductionReportServiceImpl implements ProductionReportService {
         projectNameJsonObject.put("prop", "projectName");
         projectNameJsonObject.put("label", "项目");
         projectNameJsonObject.put("fixed", "left");
-        projectNameJsonObject.put("minWidth", "80");
+        projectNameJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(projectNameJsonObject);
 
         JSONObject moldJsonObject = new JSONObject();
@@ -333,8 +379,8 @@ public class ProductionReportServiceImpl implements ProductionReportService {
 
 
         JSONObject maxQtyJsonObject = new JSONObject();
-        maxQtyJsonObject.put("prop", "maxQty");
-        maxQtyJsonObject.put("label", "最大值");
+        maxQtyJsonObject.put("prop", "sumQty");
+        maxQtyJsonObject.put("label", "汇总");
         maxQtyJsonObject.put("fixed", "left");
         maxQtyJsonObject.put("minWidth", "100");
         tableColumnJsonArray.add(maxQtyJsonObject);
