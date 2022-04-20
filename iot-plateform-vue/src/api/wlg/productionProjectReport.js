@@ -2,9 +2,9 @@ import request from '@/utils/request'
 
 
 
-export function exportProductionMonthExcel(conditions) {
+export function exportProductionProjectExcel(conditions) {
     return request({
-        url: '/wlg-report/productionReport/exportProductionMonthExcel',
+        url: '/wlg-report/productionReport/exportProductionProjectExcel',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'
@@ -16,7 +16,7 @@ export function exportProductionMonthExcel(conditions) {
 
 export function queryProductionReportTitleByMonth(conditions) {
     return request({
-        url: '/wlg-report/productionReport/queryProductionMonthReportTitleByCondition',
+        url: '/wlg-report/productionReport/queryProductionProjectReportTitleByCondition',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'
@@ -27,7 +27,7 @@ export function queryProductionReportTitleByMonth(conditions) {
 
 export function findProductionReportPage(conditions) {
     return request({
-        url: '/wlg-report/productionReport/queryProductionMonthReportByCondition',
+        url: '/wlg-report/productionReport/queryProductionProjectReportByCondition',
         method: 'post',
         headers: {
             'Content-Type': 'application/json'

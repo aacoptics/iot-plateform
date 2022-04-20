@@ -12,3 +12,15 @@ export function findProductionDayReportPage(conditions) {
         data: conditions
     })
 }
+
+export function exportProductionDayExcel(conditions) {
+    return request({
+        url: '/wlg-report/productionReport/exportProductionDayExcel',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        responseType: 'blob',
+        data: conditions
+    })
+}

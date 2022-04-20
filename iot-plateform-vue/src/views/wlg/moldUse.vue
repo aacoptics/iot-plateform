@@ -105,7 +105,7 @@ export default {
         moldDateEnd:'',
       },
       columns: [
-        {prop: "code", label: "条件代码", minWidth: 110},
+        // {prop: "code", label: "条件代码", minWidth: 110},
         {prop: "status", label: "状态", minWidth: 100},
         {prop: "projectName", label: "项目", minWidth: 120},
         {prop: "moldDate", label: "日期", minWidth: 120},

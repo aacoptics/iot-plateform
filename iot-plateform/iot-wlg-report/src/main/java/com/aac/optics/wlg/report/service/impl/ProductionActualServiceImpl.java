@@ -81,6 +81,7 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 String performanceYieldStr = dataArray[34];// 实际性能良率
                 String afterInputQtyStr = dataArray[37];// 后道实际投料(PCS)
                 String afterOutputQtyStr = dataArray[47];// 实际后道产出（颗)
+                String inventoryQtyStr = dataArray[50];// 实际入库（转镀膜）
                 String afterYieldStr = dataArray[59];// 实际后道良率
 
                 if (StringUtils.isEmpty(actualDateStr)) {
@@ -124,6 +125,10 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 if (StringUtils.isNotEmpty(afterOutputQtyStr)) {
                     afterOutputQty = stringToLong(afterOutputQtyStr);
                 }
+                Long inventoryQty = null;
+                if (StringUtils.isNotEmpty(inventoryQtyStr)) {
+                    inventoryQty = stringToLong(inventoryQtyStr);
+                }
                 BigDecimal afterYield = null;
                 if (StringUtils.isNotEmpty(afterYieldStr)) {
                     afterYield = new BigDecimal(afterYieldStr);
@@ -137,15 +142,19 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                     throw new BusinessException("日期【" + actualDateStr + "】格式错误" + e.getMessage());
                 }
 
-                ProductionActual productionActual = this.queryProductionActual(projectName, product, mold, cycle, actualDate);
-                if (productionActual == null) {
-                    productionActual = new ProductionActual();
-                }else
+                //只能对是过去七天（包括当天）的数据进行写入或修改，不可对将来时间的数据进行写入和修改
+                ProductionActual productionActual = null;
+                if (currentLocalDate.minusDays(7).isAfter(actualDate) && currentLocalDate.plusDays(1).isBefore(actualDate)) {
+                    continue;
+                }
+                else
                 {
-                    if (currentLocalDate.minusDays(7).isAfter(actualDate)) {
-                        continue;
+                    productionActual = this.queryProductionActual(projectName, product, mold, cycle, actualDate);
+                    if (productionActual == null) {
+                        productionActual = new ProductionActual();
                     }
                 }
+
 
                 productionActual.setMold(mold);
                 productionActual.setCycle(cycle);
@@ -159,6 +168,7 @@ public class ProductionActualServiceImpl extends ServiceImpl<ProductionActualMap
                 productionActual.setPerformanceYield(performanceYield);
                 productionActual.setAfterInputQty(afterInputQty);
                 productionActual.setAfterOutputQty(afterOutputQty);
+                productionActual.setInventoryQty(inventoryQty);
                 productionActual.setAfterYield(afterYield);
 
                 this.saveOrUpdate(productionActual);
