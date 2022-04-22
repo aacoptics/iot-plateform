@@ -254,8 +254,10 @@
                 group by code, name
             UNION ALL
                 SELECT projectName, code, name, cast(floor(ROUND(sumQty, 0)) as varchar (50)) sumQty, ${selectVarcharColumn} from TEMP_PRODUCTION_ACTUAL
+                WHERE code not in ('SJXUESHU')
             UNION ALL
                 SELECT '汇总' projectName, code, name, cast(floor(ROUND(sum(sumQty), 0)) as varchar(50)) sumQty, ${selectSumVarcharColumn} from TEMP_PRODUCTION_ACTUAL
+                WHERE code not in ('SJXUESHU')
                 group by code, name
             UNION ALL
                 SELECT TP.projectName,
