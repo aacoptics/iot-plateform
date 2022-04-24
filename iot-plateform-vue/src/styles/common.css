@@ -169,6 +169,38 @@
     float: left;
 }
 
+.molding_card_type{
+    width: 260px;
+    height: 240px;
+    border:1px solid cornflowerblue;
+    background-color: #f0f0f0;
+    margin-right: 50px;
+    margin-bottom: 20px;
+    float: left;
+}
+
+.molding_error_status {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    line-height: 30px;
+    background-color: rgba(238,102,102,1);
+}
+.status-legend {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    line-height: 30px;
+}
+
+.molding_warn_status {
+    border: 1px solid rgba(250,200,88,1);
+    line-height: 20px;
+    font-weight: bold;
+    background-color: rgba(250,200,88,1);
+    color: rgba(250,200,88,1);
+}
+
 .mold_card_type{
     width: 80px;
     height: 50px;
