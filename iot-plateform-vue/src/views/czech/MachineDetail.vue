@@ -3,36 +3,39 @@
     <div class="container">
       <el-row>
         <el-col :span="6">
-          <el-card style="border:1px solid blue;margin:5px;" class="cz_room_card" :body-style="{ padding: '0px', height:'255px'}">
+          <el-card style="border:1px solid blue;margin:5px" class="cz_room_card" :body-style="{ padding: '0px', height:'255px'}">
             <p style="text-align: center;font-weight: bold;font-size: 24px">FG{{this.machineInfo.machineNo}}</p>
-            <el-row v-if="this.machineInfo.status === 'Maintenance'" style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
+            <el-row v-if="machineInfo.status === 'Maintenance'" style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
               <el-col :span="24">
-                <div :style="'background-color:grey;height:30px;line-height:30px'">{{this.machineInfo.status}}</div>
+                <div :style="'background-color:grey;height:30px;line-height:30px'">{{machineInfo.status}}</div>
 
               </el-col>
             </el-row>
-            <el-row v-else style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
-              <el-col :span="5">
-                <div :style="'background-color:yellow;height:30px;line-height:30px;cursor:pointer'" @click="onTemperatureClick(this.machineInfo.machineNo)">
-                  {{this.machineInfo.temperature}}℃
+            <el-row v-else style="text-align: center;height:30px; font-weight: bold;font-size: 16px;background-color: grey">
+              <el-col :span="12">
+                <div :style="'background-color:rgba(250,200,88,1);height:30px;line-height:30px;cursor:pointer'" @click="onTemperatureClick(machineInfo.machineNo)">
+                  {{machineInfo.temperature}}℃
                 </div>
               </el-col>
-              <el-col :span="15">
-                <div  v-if="this.machineInfo.status === 'Normal'" :style="'background-color:green;height:30px;line-height:30px'">
-                  {{this.machineInfo.status}}
+              <el-col :span="12">
+                <div  v-if="machineInfo.status === 'Normal'" :style="'background-color:rgba(59,162,114,1);height:30px;line-height:30px'">
+                  {{machineInfo.status}}
                 </div>
-                <div  v-else-if="this.machineInfo.status === 'LoJ'" :style="'background-color:red;height:30px;line-height:30px'">
-                  {{this.machineInfo.status}}
+                <div  v-else-if="machineInfo.status === 'LoJ'" :style="'background-color:rgba(238,102,102,1);height:30px;line-height:30px'">
+                  {{machineInfo.status}}
                 </div>
-                <div  v-else-if="this.machineInfo.status === 'Idle'" :style="'background-color:orange;height:30px;line-height:30px'">
-                  {{this.machineInfo.status}}
+                <div  v-else-if="machineInfo.status === 'idle'" :style="'background-color:rgba(252,132,82,1);height:30px;line-height:30px'">
+                  {{machineInfo.status}}
                 </div>
-              </el-col>
-              <el-col :span="4">
-                <div :style="'background-color:yellow;height:30px;line-height:30px'">
-                  {{}}
+                <div v-else :style="'background-color:rgba(84,112,198,1);height:30px;line-height:30px'">
+                  {{machineInfo.status}}
                 </div>
               </el-col>
+              <!--              <el-col :span="4">-->
+              <!--                <div :style="'background-color:yellow;height:30px;line-height:30px'">-->
+              <!--                  {{}}-->
+              <!--                </div>-->
+              <!--              </el-col>-->
             </el-row>
             <el-row>
               <el-col>
@@ -96,6 +99,9 @@ import {
 } from "@/api/czech/floorPlan";
 export default {
   name: "MachineDetail",
+  props: {
+    machineNo: String,
+  },
   data() {
     return {
       machineInfo: {},
@@ -128,7 +134,7 @@ export default {
       this.dialogVisible = true;
     },
     getMachineInfo() {
-      var machineNumber = this.$route.params.machineNo;
+      var machineNumber = this.machineNo;
       getMachineInfoByMachineNumber(machineNumber).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -137,7 +143,7 @@ export default {
       })
     },
     drawStatusPlot() {
-      var machineNumber = this.$route.params.machineNo;
+      var machineNumber = this.machineNo;
       getStatusInfoByMachineNumber(machineNumber).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {

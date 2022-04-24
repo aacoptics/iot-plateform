@@ -1,5 +1,5 @@
 <template>
-  <div v-if="this.showContent">
+<!--  <div v-if="this.showContent">-->
     <div class="container">
       <el-row :gutter="10">
         <el-col :span="12">
@@ -7,7 +7,7 @@
             <el-tag @click="roomDetail(9)" style="cursor: pointer">Room #9</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room9Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -220,16 +220,21 @@
           </div>
         </el-col>
       </el-row>
+      <el-dialog v-model="roomDetailDialogVisible" width="100%"  destroy-on-close title="Room Detail">
+        <room-detail ref="roomDetail" :floor-number="floorNo"></room-detail>
+      </el-dialog>
     </div>
-  </div>
+<!--  </div>-->
 </template>
 
 <script>
 import {
-  getFloorPlanMachineInfo
+  getAllFloorPlanMachineInfo
 } from "@/api/czech/floorPlan";
+import roomDetail from "./RoomDetail"
 export default {
   name: "FloorPlan",
+  components: { roomDetail },
   data() {
     return {
       room1Info: [],
@@ -241,6 +246,9 @@ export default {
       room7Info: [],
       room8Info: [],
       room9Info: [],
+      allRoomInfo: [],
+      floorNo: 0,
+      roomDetailDialogVisible: false,
       showContent: false
     }
   },
@@ -249,101 +257,48 @@ export default {
   },
   methods: {
     roomDetail(floorNumber) {
-      this.$router.push({name: 'roomDetail', params:{floorNumber: floorNumber}});
+      this.floorNo = floorNumber;
+      this.roomDetailDialogVisible = true;
+      //this.$router.push({name: 'roomDetail', params:{floorNumber: floorNumber}});
       // console.log(floorNumber);
       // this.$router.push({name: 'roomDetail'});
     },
     getMachineInfo() {
-      getFloorPlanMachineInfo(901, 916).then((response) => {
+      getAllFloorPlanMachineInfo().then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
+          this.allRoomInfo = responseData.data;
           responseData.data.forEach(item => {
-            this.room9Info.push(item)
-            this.showContent = true
+            if(item.machineNo.indexOf('1') === 0){
+              this.room1Info.push(item)
+            }
+            else if(item.machineNo.indexOf('2') === 0){
+              this.room2Info.push(item)
+            }
+            else if(item.machineNo.indexOf('3') === 0){
+              this.room3Info.push(item)
+            }
+            else if(item.machineNo.indexOf('4') === 0){
+              this.room4Info.push(item)
+            }
+            else if(item.machineNo.indexOf('5') === 0){
+              this.room5Info.push(item)
+            }
+            else if(item.machineNo.indexOf('6') === 0){
+              this.room6Info.push(item)
+            }
+            else if(item.machineNo.indexOf('7') === 0){
+              this.room7Info.push(item)
+            }
+            else if(item.machineNo.indexOf('8') === 0){
+              this.room8Info.push(item)
+            }
+            else if(item.machineNo.indexOf('9') === 0){
+              this.room9Info.push(item)
+            }
           })
         }
       });
-
-      getFloorPlanMachineInfo(801, 816).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room8Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(701, 716).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room7Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(601, 616).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room6Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(501, 516).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room5Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(401, 416).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room4Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(301, 316).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room3Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(201, 216).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room2Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
-      getFloorPlanMachineInfo(101, 116).then((response) => {
-        const responseData = response.data
-        if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.room1Info.push(item)
-            this.showContent = true
-          })
-        }
-      });
-
     },
 
   }
