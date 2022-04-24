@@ -7,7 +7,7 @@
             <el-tag @click="roomDetail(9)" style="cursor: pointer">Room #9</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room9Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -30,7 +30,7 @@
             <el-tag @click="roomDetail(4)" style="cursor: pointer">Room #4</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room4Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -54,7 +54,7 @@
             <el-tag @click="roomDetail(8)" style="cursor: pointer">Room #8</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room8Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -76,7 +76,7 @@
             <el-tag @click="roomDetail(3)" style="cursor: pointer">Room #3</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room3Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -100,7 +100,7 @@
             <el-tag @click="roomDetail(7)" style="cursor: pointer">Room #7</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room7Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -137,7 +137,7 @@
             <el-tag @click="roomDetail(6)" style="cursor: pointer">Room #6</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room6Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -158,7 +158,7 @@
             <el-tag @click="roomDetail(2)" style="cursor: pointer">Room #2</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room2Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -182,7 +182,7 @@
             <el-tag @click="roomDetail(5)" style="cursor: pointer">Room #5</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room5Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
@@ -203,7 +203,7 @@
             <el-tag @click="roomDetail(1)" style="cursor: pointer">Room #1</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room1Info" :span="3" :key="index">
-                <el-card style="border:1px solid blue;margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'green',cursor: 'pointer'}">
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px',backgroundColor:'rgba(59,162,114,1)',cursor: 'pointer'}">
                   <el-tooltip placement="top">
                     <template #content>
                       <p>Mold: {{machineInfo.mold}}</p>
