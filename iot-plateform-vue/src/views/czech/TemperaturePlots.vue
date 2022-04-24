@@ -39,10 +39,10 @@ export default {
     return {
       temperaturePlots: 'spindle',
       machineName: '',
-      airShowerPlot: '',
-      spindlePlot: '',
-      bearingPlot: '',
-      motorPlot: '',
+      // airShowerPlot: '',
+      // spindlePlot: '',
+      // bearingPlot: '',
+      // motorPlot: '',
       spindleDate: [],
       spindleTemperature: [],
       airDate: [],
@@ -58,13 +58,6 @@ export default {
 
   },
   mounted() {
-    // setTimeout(() => {
-    //   console.log(this.spindleTemperature)
-    //   this.drawSpindlePlot(this.machineName);
-    //   this.drawAirShowerPlot(this.machineName);
-    //   this.drawBearingPlot(this.machineName);
-    //   this.drawMotorPlot(this.machineName);
-    // },10000)
     this.getAirInfo();
     this.getSpindleInfo();
     this.getBearingInfo();
@@ -185,10 +178,8 @@ export default {
     // },
     drawAirShowerPlot(machineName) {
       var chartDom = document.getElementById('airShower');
-      this.airShowerPlot = echarts.init(chartDom);
+      var airShowerPlot = echarts.init(chartDom);
       var option;
-      //console.log(this.airTemperature);
-      //console.log(this.airDate)
 
       option = {
         title: {
@@ -198,10 +189,10 @@ export default {
           y: 'top'
         },
         tooltip: {
-          trigger: 'axis'
+          trigger: 'axis',
         },
         legend: {
-          data: []
+          data: ['airTemperature']
         },
         grid: {
           left: '3%',
@@ -218,15 +209,6 @@ export default {
           type: 'category',
           boundaryGap: false,
           data: this.airDate,
-          // data: ['2022-02-11 16:53:11.000',
-          //   '2022-02-11 16:53:12',
-          //   '2022-02-11 16:53:13',
-          //   '2022-02-11 16:53:14',
-          //   '2022-02-11 16:53:15',
-          //   '2022-02-11 16:53:16',
-          //   '2022-02-11 16:53:17',
-          //   '2022-02-11 16:53:18',
-          //   '2022-02-11 16:53:19'],
           axisLabel: {
             margin: 10,
             interval: 100000,
@@ -245,23 +227,14 @@ export default {
             name: 'Air Shower',
             type: 'line',
             data: this.airTemperature
-            // data: [21.40336,
-            //   21.40334,
-            //   21.40329,
-            //   21.40325,
-            //   21.40335,
-            //   21.40341,
-            //   21.40347,
-            //   21.40357,
-            //   21.40358]
           }
         ]
       };
-      this.airShowerPlot.setOption(option);
+      airShowerPlot.setOption(option);
     },
     drawSpindlePlot(machineName) {
       var chartDom = document.getElementById('spindle');
-      this.spindlePlot = echarts.init(chartDom);
+      var spindlePlot = echarts.init(chartDom);
       var option;
       option = {
         title: {
@@ -274,7 +247,7 @@ export default {
           trigger: 'axis'
         },
         legend: {
-          data: []
+          data: ['Temperature']
         },
         grid: {
           left: '3%',
@@ -312,11 +285,11 @@ export default {
           }
         ]
       };
-      this.spindlePlot.setOption(option);
+      spindlePlot.setOption(option);
     },
     drawBearingPlot(machineName) {
       var chartDom = document.getElementById('bearing');
-      this.bearingPlot = echarts.init(chartDom);
+      var bearingPlot = echarts.init(chartDom);
       var option;
       option = {
         title: {
@@ -329,7 +302,7 @@ export default {
           trigger: 'axis'
         },
         legend: {
-          data: []
+          data: ['Temperature']
         },
         grid: {
           left: '3%',
@@ -345,15 +318,6 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          // data: ['2022-02-11 16:55:47',
-          //   '2022-02-11 16:55:48',
-          //   '2022-02-11 16:55:49',
-          //   '2022-02-11 16:55:50',
-          //   '2022-02-11 16:55:51',
-          //   '2022-02-11 16:55:52',
-          //   '2022-02-11 16:55:53',
-          //   '2022-02-11 16:55:54',
-          //   '2022-02-11 16:55:55'],
           data: this.bearingDate,
           axisLabel: {
             margin: 10,
@@ -372,26 +336,16 @@ export default {
           {
             name: 'Bearing',
             type: 'line',
-            // stack: 'Total',
-            // data: [20.99767,
-            //   20.99828,
-            //   20.99828,
-            //   20.99859,
-            //   20.99767,
-            //   20.99844,
-            //   20.99859,
-            //   20.99782,
-            //   20.99828]
             data: this.bearingTemperature
           }
         ]
       };
-      this.bearingPlot.setOption(option);
+      bearingPlot.setOption(option);
     },
     drawMotorPlot(machineName) {
       console.log(this.motorTemperature)
       var chartDom = document.getElementById('motor');
-      this.motorPlot = echarts.init(chartDom);
+      var motorPlot = echarts.init(chartDom);
       var option;
       option = {
         title: {
@@ -404,7 +358,7 @@ export default {
           trigger: 'axis'
         },
         legend: {
-          data: []
+          data: ['Temperature']
         },
         grid: {
           left: '3%',
@@ -420,15 +374,6 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          // data: ['2022-02-11 16:55:47',
-          //   '2022-02-11 16:55:48',
-          //   '2022-02-11 16:55:49',
-          //   '2022-02-11 16:55:50',
-          //   '2022-02-11 16:55:51',
-          //   '2022-02-11 16:55:52',
-          //   '2022-02-11 16:55:53',
-          //   '2022-02-11 16:55:54',
-          //   '2022-02-11 16:55:55'],
           data: this.motorDate,
           axisLabel: {
             margin: 10,
@@ -447,21 +392,11 @@ export default {
           {
             name: 'Motor',
             type: 'line',
-            // stack: 'Total',
-            // data: [20.99767,
-            //   20.99828,
-            //   20.99828,
-            //   20.99859,
-            //   20.99767,
-            //   20.99844,
-            //   20.99859,
-            //   20.99782,
-            //   20.99828]
             data: this.motorTemperature
           }
         ]
       };
-      this.motorPlot.setOption(option);
+      motorPlot.setOption(option);
     },
 
   }
