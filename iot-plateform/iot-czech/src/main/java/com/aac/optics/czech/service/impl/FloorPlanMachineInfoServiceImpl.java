@@ -27,6 +27,11 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
     }
 
     @Override
+    public List<FloorPlanMachineInfo> getAllMachineInfo() {
+        return floorPlanMachineInfoMapper.getAllMachineInfo();
+    }
+
+    @Override
     public List<FloorPlanMachineInfo> getMachineInfoByFloorNumber(int floorNumber) {
         List<FloorPlanMachineInfo> machineInfoList = new ArrayList<FloorPlanMachineInfo>();
         switch(floorNumber) {

@@ -16,6 +16,8 @@ public interface FloorPlanMachineInfoMapper extends BaseMapper<FloorPlanMachineI
 
     List<FloorPlanMachineInfo> getMachineInfoByFloor(@Param("startNumber") int startNumber, @Param("endNumber") int endNumber);
 
+    List<FloorPlanMachineInfo> getAllMachineInfo();
+
     float getTemperatureByMachineNo(@Param("machineNumber") String machineNumber);
 
     FloorPlanMachineInfo getMachineInfoByMachineNumber(@Param("machineNumber") int machineNumber);

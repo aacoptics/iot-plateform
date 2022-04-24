@@ -25,6 +25,12 @@ public class FloorPlanController {
         return Result.success(floorPlanMachineInfoService.getMachineInfoByFloor(startNumber, endNumber));
     }
 
+    @ApiOperation(value = "查询所有机台信息", notes = "查询所有机台信息")
+    @GetMapping("/getAllMachineInfo")
+    public Result getAllMachineInfo() {
+        return Result.success(floorPlanMachineInfoService.getAllMachineInfo());
+    }
+
     @ApiOperation(value = "根据楼层号查询机台信息", notes = "根据楼层号查询机台信息")
     @GetMapping("/getMachineInfoByFloorNumber")
     public Result getMachineInfoByFloorNumber(@RequestParam int floorNumber) {
