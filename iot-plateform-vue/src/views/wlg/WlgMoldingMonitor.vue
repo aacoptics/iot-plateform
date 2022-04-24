@@ -137,7 +137,8 @@ export default {
         'READY': "rgba(252,132,82,1)",
         'Disconnected': "gray",
         'ACTIVATED': "rgba(59,162,114,1)",
-        'ABORTING': "rgba(238,102,102,1)"
+        'ABORTING': "rgba(238,102,102,1)",
+        'STOPPING': "rgba(238,102,102,1)"
       },
     }
   }

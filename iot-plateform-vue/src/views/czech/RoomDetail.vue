@@ -16,34 +16,33 @@
 
               </el-col>
             </el-row>
-            <el-row v-else style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
-              <el-col :span="8">
-                <div :style="'background-color:yellow;height:30px;line-height:30px;cursor:pointer'" @click="onTemperatureClick(machineInfo.machineNo)">
+            <el-row v-else style="text-align: center;height:30px; font-weight: bold;font-size: 16px;background-color: grey">
+              <el-col :span="12">
+                <div :style="'background-color:rgba(250,200,88,1);height:30px;line-height:30px;cursor:pointer'" @click="onTemperatureClick(machineInfo.machineNo)">
                   {{machineInfo.temperature}}℃
                 </div>
               </el-col>
               <el-col :span="12">
-                <div  v-if="machineInfo.status === 'Normal'" :style="'background-color:green;height:30px;line-height:30px'">
+                <div  v-if="machineInfo.status === 'Normal'" :style="'background-color:rgba(59,162,114,1);height:30px;line-height:30px'">
                   {{machineInfo.status}}
                 </div>
-                <div  v-else-if="machineInfo.status === 'LoJ'" :style="'background-color:red;height:30px;line-height:30px'">
+                <div  v-else-if="machineInfo.status === 'LoJ'" :style="'background-color:rgba(238,102,102,1);height:30px;line-height:30px'">
                   {{machineInfo.status}}
                 </div>
-                <div  v-else-if="machineInfo.status === 'idle'" :style="'background-color:orange;height:30px;line-height:30px'">
+                <div  v-else-if="machineInfo.status === 'idle'" :style="'background-color:rgba(252,132,82,1);height:30px;line-height:30px'">
                   {{machineInfo.status}}
                 </div>
-                <div v-else :style="'background-color:blue;height:30px;line-height:30px'">
+                <div v-else :style="'background-color:rgba(84,112,198,1);height:30px;line-height:30px'">
                   {{machineInfo.status}}
                 </div>
               </el-col>
-              <el-col :span="4">
-                <div :style="'background-color:yellow;height:30px;line-height:30px'">
-                  {{}}
-                </div>
-              </el-col>
+<!--              <el-col :span="4">-->
+<!--                <div :style="'background-color:yellow;height:30px;line-height:30px'">-->
+<!--                  {{}}-->
+<!--                </div>-->
+<!--              </el-col>-->
             </el-row>
-            <el-row>
-              <el-col>
+            <el-row style="margin-top: 15px">
                 <div style="font-weight: bold">
                   <p style="margin-top: 5px;margin-left: 5px">Project: {{machineInfo.project}}</p>
                   <p style="margin-top: 5px;margin-left: 5px">Mold: {{machineInfo.mold}}</p>
@@ -55,7 +54,6 @@
 <!--                    <el-button type="primary" @click="addNote(machineInfo.name)">Notes</el-button>-->
 <!--                  </p>-->
                 </div>
-              </el-col>
             </el-row>
           </el-card>
         </el-col>
@@ -65,6 +63,13 @@
 <!--          <div id="machineChart" style="border:1px solid blue;height:600px"></div>-->
 <!--        </el-col>-->
 <!--      </el-row>-->
+      <el-dialog v-model="temperatureDialogVisible" width="80%"  destroy-on-close title="Temperature Plots">
+        <temperature-plots ref="temperaturePlots" :machine-no="machineNo"></temperature-plots>
+      </el-dialog>
+
+      <el-dialog v-model="machineDetailDialogVisible" width="80%"  destroy-on-close title="Machine Detail">
+        <machine-detail ref="machineDetail" :machine-no="machineNo"></machine-detail>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -74,8 +79,14 @@
 import {
   getMachineInfoByFloorNumber
 } from "@/api/czech/floorPlan";
+import temperaturePlots from "./TemperaturePlots"
+import machineDetail from "./MachineDetail"
 export default {
-  name: "RoomDetail.vue",
+  name: "RoomDetail",
+  components: { temperaturePlots,  machineDetail},
+  props: {
+    floorNumber: Number
+  },
   data() {
     return {
       // machineList: ['FG101', 'FG102', 'FG103', 'FG104', 'FG105', 'FG106'],
@@ -88,7 +99,10 @@ export default {
       //   {name: 'GRF', color: '#72b362'}
       // ],
       floorMachineInfo: [],
-      showContent: false
+      showContent: false,
+      temperatureDialogVisible: false,
+      machineDetailDialogVisible: false,
+      machineNo: ''
     }
   },
   mounted() {
@@ -97,14 +111,15 @@ export default {
   },
   methods: {
     getFloorMachineInfo(){
-      var floorNumber = this.$route.params.floorNumber;
+      const floorNumber = this.floorNumber;
       getMachineInfoByFloorNumber(floorNumber).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
-          responseData.data.forEach(item => {
-            this.floorMachineInfo.push(item)
-          })
-          this.showContent = true
+          this.floorMachineInfo = responseData.data
+          // responseData.data.forEach(item => {
+          //   this.floorMachineInfo.push(item)
+          // })
+          // this.showContent = true
         }
       });
     },
@@ -232,10 +247,14 @@ export default {
     //   );
     // },
     onTemperatureClick(machineNo) {
-      this.$router.push({name: 'temperaturePlots', params: {machineNo: machineNo}});
+      this.machineNo = machineNo;
+      this.temperatureDialogVisible = true;
+      //this.$router.push({name: 'temperaturePlots', params: {machineNo: machineNo}});
     },
     onClick(machineNo) {
-      this.$router.push({name: 'machineDetail', params: {machineNo: machineNo}});
+      this.machineNo = machineNo;
+      this.machineDetailDialogVisible = true;
+      //this.$router.push({name: 'machineDetail', params: {machineNo: machineNo}});
     }
   }
 }

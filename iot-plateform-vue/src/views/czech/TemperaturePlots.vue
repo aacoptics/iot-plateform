@@ -32,6 +32,9 @@ import {
 } from "@/api/czech/floorPlan";
 export default {
   name: "temperaturePlots",
+  props: {
+    machineNo: String,
+  },
   data() {
     return {
       temperaturePlots: 'spindle',
@@ -51,7 +54,7 @@ export default {
     }
   },
   created() {
-    this.machineName = this.$route.params.machineNo;
+    this.machineName = this.machineNo;
 
   },
   mounted() {

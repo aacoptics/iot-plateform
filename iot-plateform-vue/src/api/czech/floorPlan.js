@@ -14,6 +14,16 @@ export function getFloorPlanMachineInfo(startNumber, endNumber) {
     })
 }
 
+export function getAllFloorPlanMachineInfo() {
+    return request({
+        url: '/czech-iot/floorPlan/getAllMachineInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
 export function getMachineInfoByFloorNumber(floorNumber) {
     return request({
         url: '/czech-iot/floorPlan/getMachineInfoByFloorNumber',
