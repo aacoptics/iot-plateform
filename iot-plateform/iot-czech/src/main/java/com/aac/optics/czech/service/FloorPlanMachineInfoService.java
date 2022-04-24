@@ -17,6 +17,12 @@ public interface FloorPlanMachineInfoService extends IService<FloorPlanMachineIn
     List<FloorPlanMachineInfo> getMachineInfoByFloor(int startNumber, int endNumber);
 
     /**
+     * 获取所有机台信息
+     * @return 所有机台信息
+     */
+    List<FloorPlanMachineInfo> getAllMachineInfo();
+
+    /**
      * 根据楼层获取机台信息
      * @param floorNumber
      * @return 该楼层所有机台信息
