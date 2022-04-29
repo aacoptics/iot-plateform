@@ -90,9 +90,13 @@ export default {
     },
     getSpindleInfo() {
       var endTime = this.getFormatDate(new Date());
-      var minutes = parseInt("370");
-      var interTimes = minutes*60*1000;
-      var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      // var minutes = parseInt("370");
+      // var interTimes = minutes*60*1000;
+      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      var startTime = this.getFormatDate(front12hour);
+      console.log(startTime);
+      console.log(endTime);
       getSpindleTemperature(startTime, endTime, this.machineName).then((response) => {
             const responseData = response.data
             if (responseData.code === '000000') {
@@ -108,9 +112,11 @@ export default {
     },
     getAirInfo() {
       var endTime = this.getFormatDate(new Date());
-      var minutes = parseInt("370");
-      var interTimes = minutes*60*1000;
-      var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      // var minutes = parseInt("370");
+      // var interTimes = minutes*60*1000;
+      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      var startTime = this.getFormatDate(front12hour);
       getAirTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -124,9 +130,11 @@ export default {
     },
     getBearingInfo() {
       var endTime = this.getFormatDate(new Date());
-      var minutes = parseInt("370");
-      var interTimes = minutes*60*1000;
-      var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      // var minutes = parseInt("370");
+      // var interTimes = minutes*60*1000;
+      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      var startTime = this.getFormatDate(front12hour);
       getBearingTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -140,9 +148,11 @@ export default {
     },
     getMotorInfo() {
       var endTime = this.getFormatDate(new Date());
-      var minutes = parseInt("370");
-      var interTimes = minutes*60*1000;
-      var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      // var minutes = parseInt("370");
+      // var interTimes = minutes*60*1000;
+      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
+      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      var startTime = this.getFormatDate(front12hour);
       getMotorTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
