@@ -28,7 +28,11 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
 
     @Override
     public List<FloorPlanMachineInfo> getAllMachineInfo() {
-        return floorPlanMachineInfoMapper.getAllMachineInfo();
+        List<FloorPlanMachineInfo> machineInfoList = floorPlanMachineInfoMapper.getAllMachineInfo();
+        for(FloorPlanMachineInfo floorPlanMachineInfo : machineInfoList) {
+            floorPlanMachineInfo.setShowStatusCode(getShowStatusCode(floorPlanMachineInfo.getStatus()));
+        }
+        return machineInfoList;
     }
 
     @Override
@@ -71,6 +75,7 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
             DecimalFormat decimalFormat = new DecimalFormat(".00");
             String temperature = decimalFormat.format(t2);
             floorPlanMachineInfo.setTemperature(temperature);
+            floorPlanMachineInfo.setShowStatus(getShowStatus(floorPlanMachineInfo.getStatus()));
         }
 
         return machineInfoList;
@@ -83,6 +88,7 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
         DecimalFormat decimalFormat = new DecimalFormat(".00");
         String temperature = decimalFormat.format(t2);
         machineInfo.setTemperature(temperature);
+        machineInfo.setShowStatus(getShowStatus(machineInfo.getStatus()));
         return machineInfo;
     }
 
@@ -109,5 +115,41 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
     @Override
     public List<StatusInfo> getStatusInfoByMachineNumber(int machineNumber) {
         return floorPlanMachineInfoMapper.getStatusInfoByMachineNumber(machineNumber);
+    }
+
+    private String getShowStatus(String status) {
+        String showStatus = "";
+        if("idle".equals(status) || "SR".equals(status) || "HMIOff".equals(status) ||
+            "LoJ".equals(status) || "IPZ".equals(status) || "IPU".equals(status) ||
+            "IPF".equals(status) || "LoT".equals(status) || "OMW".equals(status) ||
+            "undefined".equals(status) || "TB".equals(status) || "MB".equals(status) ||
+            "NoVal".equals(status)) {
+            showStatus = "Idle";
+        } else if("Normal".equals(status)) {
+            showStatus = "Running";
+        } else if("BD".equals(status)) {
+            showStatus = "Failure";
+        } else if("PM".equals(status)) {
+            showStatus = "Maintenance";
+        }
+        return showStatus;
+    }
+
+    private int getShowStatusCode(String status) {
+        int showStatusCode = 0;
+        if("Normal".equals(status)) {
+            showStatusCode = 0;
+        } else if("idle".equals(status) || "SR".equals(status) || "HMIOff".equals(status) ||
+                "LoJ".equals(status) || "IPZ".equals(status) || "IPU".equals(status) ||
+                "IPF".equals(status) || "LoT".equals(status) || "OMW".equals(status) ||
+                "undefined".equals(status) || "TB".equals(status) || "MB".equals(status) ||
+                "NoVal".equals(status)) {
+            showStatusCode = 1;
+        } else if("BD".equals(status)) {
+            showStatusCode = 2;
+        } else if("PM".equals(status)) {
+            showStatusCode = 3;
+        }
+        return showStatusCode;
     }
 }

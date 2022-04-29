@@ -45,8 +45,12 @@ export default {
       // motorPlot: '',
       spindleDate: [],
       spindleTemperature: [],
+      spindleTopTemperature: [],
+      spindleBottomTemperature: [],
       airDate: [],
       airTemperature: [],
+      airTopTemperature: [],
+      airBottomTemperature: [],
       bearingDate: [],
       bearingTemperature: [],
       motorDate: [],
@@ -89,52 +93,68 @@ export default {
       return formatDate
     },
     getSpindleInfo() {
-      var endTime = this.getFormatDate(new Date());
-      // var minutes = parseInt("370");
-      // var interTimes = minutes*60*1000;
-      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
-      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
-      var startTime = this.getFormatDate(front12hour);
-      console.log(startTime);
-      console.log(endTime);
+      // var endTime = this.getFormatDate(new Date());
+      // var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      // var startTime = this.getFormatDate(front12hour);
+
+      var endTime = this.getFormatDate(new Date(new Date().getTime() - 6 * 60 * 60 * 1000));
+      var startTime = this.getFormatDate(new Date(new Date().getTime() - 18 * 60 * 60 * 1000));
       getSpindleTemperature(startTime, endTime, this.machineName).then((response) => {
             const responseData = response.data
             if (responseData.code === '000000') {
               responseData.data.forEach(item => {
                 this.spindleDate.push(item.time);
                 this.spindleTemperature.push(item.temperature);
+                this.spindleTopTemperature.push(21.015);
+                this.spindleBottomTemperature.push(20.985);
               })
-
-              this.drawSpindlePlot(this.machineName)
+              var arr = this.spindleTemperature.slice(0);
+              console.log(arr);
+              arr.sort(function (a, b) {
+                return a - b;
+              });
+              const min = arr[0];
+              console.log("min=" + min);
+              const max = arr[arr.length - 1];
+              console.log("max=" + max);
+              //console.log(arr);
+              this.drawSpindlePlot(this.machineName, min, max)
             }
       })
 
     },
     getAirInfo() {
-      var endTime = this.getFormatDate(new Date());
-      // var minutes = parseInt("370");
-      // var interTimes = minutes*60*1000;
-      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
-      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
-      var startTime = this.getFormatDate(front12hour);
+      // var endTime = this.getFormatDate(new Date());
+      // var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      // var startTime = this.getFormatDate(front12hour);
+
+      var endTime = this.getFormatDate(new Date(new Date().getTime() - 6 * 60 * 60 * 1000));
+      var startTime = this.getFormatDate(new Date(new Date().getTime() - 18 * 60 * 60 * 1000));
       getAirTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           responseData.data.forEach(item => {
             this.airDate.push(item.time);
             this.airTemperature.push(item.temperature);
+            this.airTopTemperature.push(21.425);
+            this.airBottomTemperature.push(21.375);
           })
-          this.drawAirShowerPlot(this.machineName)
+          var arr = this.airTemperature.slice(0);
+          arr.sort(function (a, b) {
+            return a - b;
+          });
+          const min = arr[0];
+          const max = arr[arr.length - 1];
+          this.drawAirShowerPlot(this.machineName, min, max)
         }
       })
     },
     getBearingInfo() {
-      var endTime = this.getFormatDate(new Date());
-      // var minutes = parseInt("370");
-      // var interTimes = minutes*60*1000;
-      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
-      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
-      var startTime = this.getFormatDate(front12hour);
+      // var endTime = this.getFormatDate(new Date());
+      // var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      // var startTime = this.getFormatDate(front12hour);
+      var endTime = this.getFormatDate(new Date(new Date().getTime() - 6 * 60 * 60 * 1000));
+      var startTime = this.getFormatDate(new Date(new Date().getTime() - 18 * 60 * 60 * 1000));
       getBearingTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -147,12 +167,11 @@ export default {
       })
     },
     getMotorInfo() {
-      var endTime = this.getFormatDate(new Date());
-      // var minutes = parseInt("370");
-      // var interTimes = minutes*60*1000;
-      // var startTime = this.getFormatDate(new Date(Date.parse(new Date()) - parseInt(interTimes)));
-      var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
-      var startTime = this.getFormatDate(front12hour);
+      // var endTime = this.getFormatDate(new Date());
+      // var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);
+      // var startTime = this.getFormatDate(front12hour);
+      var endTime = this.getFormatDate(new Date(new Date().getTime() - 6 * 60 * 60 * 1000));
+      var startTime = this.getFormatDate(new Date(new Date().getTime() - 18 * 60 * 60 * 1000));
       getMotorTemperature(startTime, endTime, this.machineName).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -164,31 +183,20 @@ export default {
         }
       })
     },
-    // handleClick() {
-    //   if(this.temperaturePlots == 'airShower') {
-    //     this.$nextTick(() => {
-    //       this.drawAirShowerPlot(this.machineName);
-    //     });
-    //   }
-    //   if(this.temperaturePlots == 'bearing') {
-    //     this.$nextTick(() => {
-    //       this.drawBearingPlot(this.machineName);
-    //     });
-    //   }
-    //   if(this.temperaturePlots == 'motor') {
-    //     this.$nextTick(() => {
-    //       this.drawMotorPlot(this.machineName);
-    //     });
-    //   }
-    //   if(this.temperaturePlots == 'spindle') {
-    //     this.$nextTick(() => {
-    //       this.drawSpindlePlot(this.machineName);
-    //     });
-    //   }
-    // },
-    drawAirShowerPlot(machineName) {
+
+    drawAirShowerPlot(machineName, min, max) {
       var chartDom = document.getElementById('airShower');
       var airShowerPlot = echarts.init(chartDom);
+      var reg = new RegExp(/^\d+(?:\.\d{0,4})?/);
+      var minValue = Number((min - (max-min)/10).toString().match(reg));
+      var maxValue = Number((max + (max-min)/10).toString().match(reg));
+      if(minValue > 21.375) {
+        minValue = 21.375
+      }
+      if(maxValue < 21.425) {
+        maxValue = 21.425
+      }
+      var intervalValue = Number(((maxValue-minValue)/20).toString().match(reg));
       var option;
 
       option = {
@@ -228,23 +236,44 @@ export default {
         },
         yAxis: {
           type: 'value',
-          min: 21.375,
-          max: 21.425,
-          interval: 0.002
+          min: minValue,
+          max: maxValue,
+          interval: intervalValue
         },
         series: [
           {
             name: 'Air Shower',
             type: 'line',
             data: this.airTemperature
+          },
+          {
+            name: 'Air Shower Top',
+            type: 'line',
+            data: this.airTopTemperature
+          },
+          {
+            name: 'Air Shower Bottom',
+            type: 'line',
+            data: this.airBottomTemperature
           }
         ]
       };
       airShowerPlot.setOption(option);
     },
-    drawSpindlePlot(machineName) {
+    drawSpindlePlot(machineName, min, max) {
       var chartDom = document.getElementById('spindle');
       var spindlePlot = echarts.init(chartDom);
+      var reg = new RegExp(/^\d+(?:\.\d{0,4})?/);
+      var minValue = Number((min - (max-min)/10).toString().match(reg));
+      var maxValue = Number((max + (max-min)/10).toString().match(reg));
+      if(minValue > 20.985) {
+        minValue = 20.985
+      }
+      if(maxValue < 21.015) {
+        maxValue = 21.015
+      }
+      var intervalValue = Number(((maxValue-minValue)/20).toString().match(reg));
+
       var option;
       option = {
         title: {
@@ -283,15 +312,25 @@ export default {
         },
         yAxis: {
           type: 'value',
-          min: 20.985,
-          max: 21.015,
-          interval: 0.002
+          min: minValue,
+          max: maxValue,
+          interval: intervalValue,
         },
         series: [
           {
             name: 'Spindle',
             type: 'line',
             data: this.spindleTemperature
+          },
+          {
+            name: 'Spindle Top',
+            type: 'line',
+            data: this.spindleTopTemperature
+          },
+          {
+            name: 'Spindle Bottom',
+            type: 'line',
+            data: this.spindleBottomTemperature
           }
         ]
       };

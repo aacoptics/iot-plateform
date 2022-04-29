@@ -24,5 +24,9 @@ public class FloorPlanMachineInfo implements Serializable {
 
     private String status;
 
+    private String showStatus;
+
+    private int showStatusCode;
+
     private String temperature;
 }
