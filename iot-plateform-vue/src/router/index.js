@@ -8,8 +8,8 @@ import {saveRefreshTime} from "@/api";
 import worklog from "@/views/system/permission/worklog";
 
 import roomDetail from "@/views/czech/RoomDetail";
-import temperaturePlots from "@/views/czech/TemperaturePlots";
-import machineDetail from "@/views/czech/MachineDetail";
+// import temperaturePlots from "@/views/czech/TemperaturePlots";
+// import machineDetail from "@/views/czech/MachineDetail";
 
 const routes = [
     {
@@ -107,22 +107,22 @@ const formatRoutes = function (routes, routeData) {
                     },
                     component: roomDetail
                 },
-                {
-                    path: "/temperaturePlots",
-                    name: "temperaturePlots",
-                    meta: {
-                        title: 'Temperature Plots'
-                    },
-                    component: temperaturePlots
-                },
-                {
-                    path: "/machineDetail",
-                    name: "machineDetail",
-                    meta: {
-                        title: 'Machine Detail'
-                    },
-                    component: machineDetail
-                }
+                // {
+                //     path: "/temperaturePlots",
+                //     name: "temperaturePlots",
+                //     meta: {
+                //         title: 'Temperature Plots'
+                //     },
+                //     component: temperaturePlots
+                // },
+                // {
+                //     path: "/machineDetail",
+                //     name: "machineDetail",
+                //     meta: {
+                //         title: 'Machine Detail'
+                //     },
+                //     component: machineDetail
+                // }
             ]
         };
     }
