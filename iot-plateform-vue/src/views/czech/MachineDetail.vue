@@ -55,9 +55,7 @@
           </el-card>
         </el-col>
       </el-row>
-
       <el-row>
-        <el-col>
           <div class="block" style="margin-top:20px">
             <h3>Machine notes</h3>
             <el-timeline :reverse="reverse">
@@ -69,12 +67,9 @@
               </el-timeline-item>
             </el-timeline>
           </div>
-        </el-col>
       </el-row>
       <el-row>
-        <el-col>
-          <div id="status" style="border:1px solid blue;height:600px;width:100%"></div>
-        </el-col>
+          <div id="statusChart" style="border:1px solid blue;height:600px;width:100%"></div>
       </el-row>
       <el-dialog title="Machine Note" v-model="dialogVisible" width="30%">
         <el-input
@@ -103,6 +98,7 @@ export default {
     machineNo: String,
   },
   data() {
+    this.myChart = null
     return {
       machineInfo: {},
       reverse: true,
@@ -119,14 +115,30 @@ export default {
       dialogVisible: false,
       machineNotes: '',
       statusList: [],
-      timeList: []
+      timeList: [],
     }
   },
   created() {
     this.getMachineInfo()
   },
   mounted() {
-    this.drawStatusPlot()
+    this.$nextTick(() => {
+      this.drawStatusPlot()
+    })
+  },
+  beforeUnmount() {
+    console.log('beforeUnmount')
+    if (!this.myChart) {
+      return
+    }
+    // window.removeEventListener('resize', this.__resizeHandler)
+    this.myChart.dispose()
+    this.myChart = null
+  },
+  computed:{
+    machineNumber(){
+      return this.machineNo
+    }
   },
   methods: {
     addNote(machineName) {
@@ -134,8 +146,7 @@ export default {
       this.dialogVisible = true;
     },
     getMachineInfo() {
-      var machineNumber = this.machineNo;
-      getMachineInfoByMachineNumber(machineNumber).then((response) => {
+      getMachineInfoByMachineNumber(this.machineNumber).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           this.machineInfo = responseData.data
@@ -143,18 +154,18 @@ export default {
       })
     },
     drawStatusPlot() {
-      var machineNumber = this.machineNo;
-      getStatusInfoByMachineNumber(machineNumber).then((response) => {
+      getStatusInfoByMachineNumber(this.machineNumber).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
           responseData.data.forEach(item => {
             this.statusList.push(item.status);
             this.timeList.push(item.time);
           });
-          var chartDom = document.getElementById('status');
-          var myChart = echarts.init(chartDom);
-          var option;
-          option= {
+          const chartDom = document.getElementById('statusChart');
+          if (!chartDom)
+            return
+          this.myChart = echarts.init(chartDom);
+          let option= {
             // title: {
             //   text: machineNumber + ' Utilization in time',
             //   textAlign: 'center',
@@ -199,7 +210,7 @@ export default {
             ]
 
           };
-          myChart.setOption(option)
+          this.myChart.setOption(option)
         }
       });
     }
