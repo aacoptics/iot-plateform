@@ -191,10 +191,10 @@ export default {
       var minValue = Number((min - (max-min)/10).toString().match(reg));
       var maxValue = Number((max + (max-min)/10).toString().match(reg));
       if(minValue > 21.375) {
-        minValue = 21.375
+        minValue = 21.375 - (21.425-21.375)/20
       }
       if(maxValue < 21.425) {
-        maxValue = 21.425
+        maxValue = 21.425 + (21.425-21.375)/20
       }
       var intervalValue = Number(((maxValue-minValue)/20).toString().match(reg));
       var option;
@@ -267,10 +267,10 @@ export default {
       var minValue = Number((min - (max-min)/10).toString().match(reg));
       var maxValue = Number((max + (max-min)/10).toString().match(reg));
       if(minValue > 20.985) {
-        minValue = 20.985
+        minValue = 20.985 - (21.015-20.985)/20
       }
       if(maxValue < 21.015) {
-        maxValue = 21.015
+        maxValue = 21.015 + (21.015-20.985)/20
       }
       var intervalValue = Number(((maxValue-minValue)/20).toString().match(reg));
 
