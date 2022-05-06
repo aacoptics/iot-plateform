@@ -160,6 +160,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
                 String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
 
+                String subStandardProductType = productContent.getSubStandardTabProductType();
+                String subStandardShipQty = productContent.getSubStandardShipQty() != null ? decimalFormat.format(productContent.getSubStandardShipQty()) : "-";
+                String subStandardShipAmount = productContent.getSubStandardShipAmount() != null ? decimalFormat.format(productContent.getSubStandardShipAmount()) : "-";
+
                 String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
                 String shipAmount = productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
                 String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
@@ -214,6 +218,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipQty))
+                    {
+                        markdownGroupMessage.addBlobContent(subStandardProductType + "出货数量：" + subStandardShipQty + " K");
+                    }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         markdownGroupMessage.addBlobContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
@@ -225,6 +233,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货金额：" + subShipAmount + " K");
+                    }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipAmount))
+                    {
+                        markdownGroupMessage.addBlobContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
                     markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                 }
@@ -276,6 +288,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipQty))
+                    {
+                        markdownGroupMessage.addContent(subStandardProductType + "出货数量：" + subStandardShipQty + " K");
+                    }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         markdownGroupMessage.addContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
@@ -286,6 +302,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
+                    }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipAmount))
+                    {
+                        markdownGroupMessage.addContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
                     markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                     markdownGroupMessage.addBlankLine();
