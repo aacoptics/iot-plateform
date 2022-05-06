@@ -50,6 +50,12 @@ public class ProductContent implements Serializable {
 
     private BigDecimal subShipAmount;
 
+    private String subStandardTabProductType;
+
+    private BigDecimal subStandardShipQty;
+
+    private BigDecimal subStandardShipAmount;
+
     private String dayTabProductType;
 
     private BigDecimal dayShipQty;
