@@ -7,7 +7,7 @@
             <p style="text-align: center;font-weight: bold;font-size: 24px">FG{{this.machineInfo.machineNo}}</p>
             <el-row v-if="machineInfo.showStatus === 'Maintenance'" style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
               <el-col :span="24">
-                <div :style="'background-color:grey;height:30px;line-height:30px'">{{machineInfo.showStatus}}</div>
+                <div :style="'background-color:grey;height:30px;line-height:30px'">{{machineInfo.showStatus}} &nbsp; {{machineInfo.status}}</div>
 
               </el-col>
             </el-row>
@@ -19,13 +19,13 @@
               </el-col>
               <el-col :span="12">
                 <div  v-if="machineInfo.showStatus === 'Running'" :style="'background-color:rgba(59,162,114,1);height:30px;line-height:30px'">
-                  {{machineInfo.showStatus}}
+                  {{machineInfo.showStatus}} &nbsp; {{machineInfo.status}}
                 </div>
                 <div  v-else-if="machineInfo.showStatus === 'Idle'" :style="'background-color:rgba(252,132,82,1);height:30px;line-height:30px'">
-                  {{machineInfo.showStatus}}
+                  {{machineInfo.showStatus}} &nbsp; {{machineInfo.status}}
                 </div>
                 <div v-else-if="machineInfo.showStatus === 'Failure'" :style="'background-color:rgba(255,0,0,1);height:30px;line-height:30px'">
-                  {{machineInfo.showStatus}}
+                  {{machineInfo.showStatus}} &nbsp; {{machineInfo.status}}
                 </div>
               </el-col>
               <!--              <el-col :span="4">-->
@@ -80,6 +80,10 @@
           <el-button type="primary" @click="dialogVisible = false">confirm</el-button>
         </div>
       </el-dialog>
+
+      <el-dialog v-model="temperatureDialogVisible" width="80%"  destroy-on-close title="Temperature Plots">
+        <temperature-plots ref="temperaturePlots" :machine-no="machineNo"></temperature-plots>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -89,8 +93,10 @@ import * as echarts from 'echarts';
 import {
   getMachineInfoByMachineNumber,getStatusInfoByMachineNumber
 } from "@/api/czech/floorPlan";
+import temperaturePlots from "@/views/czech/TemperaturePlots";
 export default {
   name: "MachineDetail",
+  components: {temperaturePlots},
   props: {
     machineNo: String,
   },
@@ -113,6 +119,7 @@ export default {
       machineNotes: '',
       statusList: [],
       timeList: [],
+      temperatureDialogVisible: false,
     }
   },
   created() {
@@ -141,6 +148,11 @@ export default {
     addNote(machineName) {
       console.log(machineName);
       this.dialogVisible = true;
+    },
+    onTemperatureClick(machineNo) {
+      this.machineNumber = machineNo;
+      this.temperatureDialogVisible = true;
+      //this.$router.push({name: 'temperaturePlots', params: {machineNo: machineNo}});
     },
     getMachineInfo() {
       getMachineInfoByMachineNumber(this.machineNumber).then((response) => {

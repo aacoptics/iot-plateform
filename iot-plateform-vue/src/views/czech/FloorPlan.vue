@@ -10,10 +10,10 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(9)" style="cursor: pointer">Room #9</el-tag>
+            <el-tag @click="roomDetail(9)" style="cursor: pointer;font-size: 20px">Room #9</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room9Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px' }"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -35,10 +35,10 @@
 
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(4)" style="cursor: pointer">Room #4</el-tag>
+            <el-tag @click="roomDetail(4)" style="cursor: pointer;font-size: 20px">Room #4</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room4Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -61,10 +61,10 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(8)" style="cursor: pointer">Room #8</el-tag>
+            <el-tag @click="roomDetail(8)" style="cursor: pointer;font-size: 20px">Room #8</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room8Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -85,10 +85,10 @@
 
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(3)" style="cursor: pointer">Room #3</el-tag>
+            <el-tag @click="roomDetail(3)" style="cursor: pointer;font-size: 20px">Room #3</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room3Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -111,10 +111,10 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(7)" style="cursor: pointer">Room #7</el-tag>
+            <el-tag @click="roomDetail(7)" style="cursor: pointer;font-size: 20px">Room #7</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room7Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -150,10 +150,10 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(6)" style="cursor: pointer">Room #6</el-tag>
+            <el-tag @click="roomDetail(6)" style="cursor: pointer;font-size: 20px">Room #6</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room6Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -173,10 +173,10 @@
         </el-col>
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(2)" style="cursor: pointer">Room #2</el-tag>
+            <el-tag @click="roomDetail(2)" style="cursor: pointer;font-size: 20px">Room #2</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room2Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -199,10 +199,10 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(5)" style="cursor: pointer">Room #5</el-tag>
+            <el-tag @click="roomDetail(5)" style="cursor: pointer;font-size: 20px">Room #5</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room5Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -222,10 +222,10 @@
         </el-col>
         <el-col :span="12">
           <div class="cz_floor_plan">
-            <el-tag @click="roomDetail(1)" style="cursor: pointer">Room #1</el-tag>
+            <el-tag @click="roomDetail(1)" style="cursor: pointer;font-size: 20px">Room #1</el-tag>
             <el-row>
               <el-col v-for="(machineInfo, index) of this.room1Info" :span="3" :key="index">
-                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type"
+                <el-card style="border:1px rgba(59,162,114,1);margin:5px;" class="cz_floor_type" @click="onClick(machineInfo.machineNo)"
                          :body-style="{ paddingLeft: '0px',paddingRight: '0px',paddingTop:'11px',paddingBottom:'11px'}"
                          :style="'background-color:' + statusInfo[machineInfo.showStatusCode].color + ';cursor: pointer'">
                   <el-tooltip placement="top">
@@ -247,6 +247,9 @@
       <el-dialog v-model="roomDetailDialogVisible" width="100%"  destroy-on-close title="Room Detail">
         <room-detail ref="roomDetail" :floor-number="floorNo"></room-detail>
       </el-dialog>
+      <el-dialog v-model="machineDetailDialogVisible" width="80%"  destroy-on-close title="Machine Detail">
+        <machine-detail ref="machineDetail" :machine-no="machineNo"></machine-detail>
+      </el-dialog>
     </div>
 <!--  </div>-->
 </template>
@@ -256,9 +259,10 @@ import {
   getAllFloorPlanMachineInfo
 } from "@/api/czech/floorPlan";
 import roomDetail from "./RoomDetail"
+import machineDetail from "./MachineDetail"
 export default {
   name: "FloorPlan",
-  components: { roomDetail },
+  components: { roomDetail, machineDetail },
   data() {
     return {
       room1Info: [],
@@ -272,7 +276,9 @@ export default {
       room9Info: [],
       allRoomInfo: [],
       floorNo: 0,
+      machineNo: '',
       roomDetailDialogVisible: false,
+      machineDetailDialogVisible: false,
       showContent: false,
       statusRadio: [0, 1, 2, 3],
       statusInfo: {
@@ -343,7 +349,11 @@ export default {
         }
       });
     },
-
+    onClick(machineNo) {
+      this.machineNo = machineNo;
+      this.machineDetailDialogVisible = true;
+      //this.$router.push({name: 'machineDetail', params: {machineNo: machineNo}});
+    }
   }
 }
 </script>
