@@ -15,6 +15,7 @@
 <!--          <div id="motor" style="border:1px solid blue;height:600px;width:100%"></div>-->
 <!--        </el-tab-pane>-->
 <!--      </el-tabs>-->
+      <el-button type="primary" icon="el-icon-refresh" style="margin-bottom:20px" @click="refreshData">Refresh</el-button>
       <div id="spindle" style="border:1px solid blue;height:600px;width:100%"></div>
       <div id="airShower" style="border:1px solid blue;height:600px;width:100%"></div>
       <div id="bearing" style="border:1px solid blue;height:600px;width:100%"></div>
@@ -92,6 +93,26 @@ export default {
       + " " + hour + seperator2 + minutes + seperator2 + date.getSeconds();
       return formatDate
     },
+
+    refreshData() {
+      this.spindleDate = [];
+      this.spindleTemperature = [];
+      this.spindleTopTemperature = [];
+      this.spindleBottomTemperature = [];
+      this.airDate = [];
+      this.airTemperature = [];
+      this.airTopTemperature = [];
+      this.airBottomTemperature = [];
+      this.bearingDate = [];
+      this.bearingTemperature = [];
+      this.motorDate = [];
+      this.motorTemperature = [];
+      this.getAirInfo();
+      this.getSpindleInfo();
+      this.getBearingInfo();
+      this.getMotorInfo();
+    },
+
     getSpindleInfo() {
       // var endTime = this.getFormatDate(new Date());
       // var front12hour = new Date(new Date().getTime() - 12 * 60 * 60 * 1000);

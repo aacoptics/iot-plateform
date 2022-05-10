@@ -122,3 +122,55 @@ export function getStatusInfoByMachineNumber(machineNumber) {
         }
     })
 }
+
+export function saveRemark(machineNumber, content) {
+    return request({
+        url: '/czech-iot/floorPlan/saveRemark',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            machineNumber: machineNumber,
+            content: content
+        }
+    })
+}
+
+export function updateRemark(machineRemark, newContent) {
+    return request({
+        url: '/czech-iot/floorPlan/updateRemark',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: machineRemark,
+        params: {
+            newContent: newContent
+        }
+    })
+}
+
+export function deleteRemark(machineRemark) {
+    return request({
+        url: '/czech-iot/floorPlan/deleteRemark',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: machineRemark
+    })
+}
+
+export function getRemarkByMachineNumber(machineNumber) {
+    return request({
+        url: '/czech-iot/floorPlan/getRemarkByMachineNumber',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            machineNumber: machineNumber
+        }
+    })
+}

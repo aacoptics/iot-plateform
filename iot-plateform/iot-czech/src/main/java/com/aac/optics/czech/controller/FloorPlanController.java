@@ -1,15 +1,14 @@
 package com.aac.optics.czech.controller;
 
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.czech.entity.MachineRemark;
 import com.aac.optics.czech.service.FloorPlanMachineInfoService;
+import com.aac.optics.czech.service.MachineRemarkService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/floorPlan")
@@ -18,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class FloorPlanController {
     @Autowired
     FloorPlanMachineInfoService floorPlanMachineInfoService;
+
+    @Autowired
+    MachineRemarkService machineRemarkService;
 
     @ApiOperation(value = "根据楼层查询机台信息", notes = "根据楼层查询机台信息")
     @GetMapping("/getMachineInfoByFloor")
@@ -71,5 +73,31 @@ public class FloorPlanController {
     @GetMapping("/getStatusInfoByMachineNumber")
     public Result getStatusInfoByMachineNumber(@RequestParam int machineNumber) {
         return Result.success(floorPlanMachineInfoService.getStatusInfoByMachineNumber(machineNumber));
+    }
+
+    @ApiOperation(value = "保存备注信息", notes = "保存备注信息")
+    @GetMapping("/saveRemark")
+    public Result saveRemark(@RequestParam String machineNumber, @RequestParam String content) {
+        return Result.success(machineRemarkService.saveRemark(machineNumber, content));
+    }
+
+    @ApiOperation(value = "修改备注信息", notes = "修改备注信息")
+    @PostMapping("/updateRemark")
+    public Result updateRemark(@RequestBody MachineRemark machineRemark, @RequestParam String newContent) {
+        machineRemarkService.updateRemark(machineRemark, newContent);
+        return Result.success();
+    }
+
+    @ApiOperation(value = "删除备注信息", notes = "删除备注信息")
+    @PostMapping("/deleteRemark")
+    public Result deleteRemark(@RequestBody MachineRemark machineRemark) {
+        machineRemarkService.deleteRemark(machineRemark);
+        return Result.success();
+    }
+
+    @ApiOperation(value = "根据机台号查询备注信息", notes = "根据机台号查询备注信息")
+    @GetMapping("/getRemarkByMachineNumber")
+    public Result getRemarkByMachineNumber(@RequestParam String machineNumber) {
+        return Result.success(machineRemarkService.getRemarkByMachineNumber(machineNumber));
     }
 }

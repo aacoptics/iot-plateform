@@ -1,6 +1,7 @@
 package com.aac.optics.czech.service;
 
 import com.aac.optics.czech.entity.FloorPlanMachineInfo;
+import com.aac.optics.czech.entity.MachineRemark;
 import com.aac.optics.czech.entity.StatusInfo;
 import com.aac.optics.czech.entity.TemperaturePlotInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -70,4 +71,6 @@ public interface FloorPlanMachineInfoService extends IService<FloorPlanMachineIn
      * @return status
      */
     List<StatusInfo> getStatusInfoByMachineNumber(int machineNumber);
+
+
 }

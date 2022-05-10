@@ -1,17 +1,22 @@
 package com.aac.optics.czech.service.impl;
 
 import com.aac.optics.czech.entity.FloorPlanMachineInfo;
+import com.aac.optics.czech.entity.MachineRemark;
 import com.aac.optics.czech.entity.StatusInfo;
 import com.aac.optics.czech.entity.TemperaturePlotInfo;
 import com.aac.optics.czech.mapper.FloorPlanMachineInfoMapper;
 import com.aac.optics.czech.service.FloorPlanMachineInfoService;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -152,4 +157,6 @@ public class FloorPlanMachineInfoServiceImpl extends ServiceImpl<FloorPlanMachin
         }
         return showStatusCode;
     }
+
+
 }
