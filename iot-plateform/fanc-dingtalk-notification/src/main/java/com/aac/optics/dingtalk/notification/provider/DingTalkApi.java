@@ -79,12 +79,18 @@ public class DingTalkApi {
 
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
 
-        msg.setActionCard(new OapiMessageCorpconversationAsyncsendV2Request.ActionCard());
-        msg.setMsgtype("action_card");
-        msg.getActionCard().setTitle(title);
-        msg.getActionCard().setMarkdown(markdown);
-        msg.getActionCard().setSingleTitle(singleTile);
-        msg.getActionCard().setSingleUrl(singleUrl);
+//        msg.setMsgtype("action_card");
+//        OapiMessageCorpconversationAsyncsendV2Request.ActionCard actionCard = new OapiMessageCorpconversationAsyncsendV2Request.ActionCard();
+//        actionCard.setSingleUrl(singleUrl);
+//        actionCard.setSingleTitle(singleTile);
+//        actionCard.setMarkdown(markdown);
+//        actionCard.setTitle(title);
+//        msg.setActionCard(actionCard);
+
+        msg.setMsgtype("markdown");
+        msg.setMarkdown(new OapiMessageCorpconversationAsyncsendV2Request.Markdown());
+        msg.getMarkdown().setText(markdown);
+        msg.getMarkdown().setTitle(title);
 
         request.setMsg(msg);
 

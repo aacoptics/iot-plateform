@@ -4,9 +4,12 @@
 
 
     <select id="getSalesContent" resultType="com.aac.optics.dingtalk.notification.entity.Content">
-        SELECT A.ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE, A.CONTENT, A.FLAG, A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME
+        SELECT A.ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE, A.CONTENT, A.DINGTALK_USERNO, A.FLAG, A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME, B.USERID, C.TAB_URL
             FROM TAB_01_CONTENT A
+            LEFT JOIN DD_001_DINGTALK_USER B ON A.DINGTALK_USERNO = B.JOBNUMBER
+            LEFT JOIN TAB_02_TABTYPE_URL_MAPPING  C ON A.TAB_TYPE = C.TAB_TYPE
             WHERE A.FLAG = '0'
+            AND C.TAB_STATUS = '1'
             ORDER BY A.TAB_DATE
     </select>
 

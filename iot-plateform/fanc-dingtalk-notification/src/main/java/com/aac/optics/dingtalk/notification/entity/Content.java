@@ -1,5 +1,6 @@
 package com.aac.optics.dingtalk.notification.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,4 +35,20 @@ public class Content implements Serializable {
     private String modifyBy;
 
     private LocalDateTime modifyTime;
+
+    /**
+     * 工号
+     */
+    @TableField(exist = false)
+    private String dingtalkUserno;
+
+    /**
+     * 钉钉ID
+     */
+    @TableField(exist = false)
+    private String userid;
+
+
+    @TableField(exist = false)
+    private String tabUrl;
 }

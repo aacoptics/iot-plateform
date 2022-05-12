@@ -64,29 +64,32 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             String content = salesDataContent.getContent();
             String tabType = salesDataContent.getTabType();
             String tabDate = salesDataContent.getTabDate();
+            String userid = salesDataContent.getUserid(); //需要推送的用户
+            String tabUrl = salesDataContent.getTabUrl();
 
             //获取需要推送的用户
-            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
-            if (salesUserList == null || salesUserList.size() == 0) {
-                log.warn("类型{}未配置推送用户", tabType);
-                return;
-            }
+//            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
+//            if (salesUserList == null || salesUserList.size() == 0) {
+//                log.warn("类型{}未配置推送用户", tabType);
+//                return;
+//            }
+//
+//            String tabUrl = "";
+//            StringBuffer userIds = new StringBuffer();
+//            for (SalesUser salesUser : salesUserList) {
+//                tabUrl = salesUser.getTabUrl();
+//
+//                String userId = salesUser.getUserid();
+//                userIds.append(userId + ",");
+//            }
 
-            String tabUrl = "";
-            StringBuffer userIds = new StringBuffer();
-            for (SalesUser salesUser : salesUserList) {
-                tabUrl = salesUser.getTabUrl();
-
-                String userId = salesUser.getUserid();
-                userIds.append(userId + ",");
-            }
-
-            String markdownContent = this.convertContentToMarkdown(content);
+            MarkdownCard markdownCard = this.convertContentToMarkdown(content);
+            markdownCard.addContent("[查看详情](" + tabUrl + ")");
 
             //发送销售数据工作通知
-            dingTalkApi.sendCardCorpConversation(accessToken, userIds.toString(), title + "（" + tabDate + "）", markdownContent, "查看详情", tabUrl);
+            dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", tabUrl);
 
-            log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userIds);
+            log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userid);
             //更新发送状态
             sendSalesDataMapper.updateSalesContentSendFlag(contentId);
         }
@@ -100,9 +103,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
      * @param content
      * @return
      */
-    private String convertContentToMarkdown(String content) {
+    private MarkdownCard convertContentToMarkdown(String content) {
         if (StringUtils.isEmpty(content)) {
-            return "";
+            return null;
         }
         String[] contentArray = content.split(";");
 
@@ -113,7 +116,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             markdownCard.addContent(contentArray[i]);
         }
 
-        return markdownCard.toString();
+        return markdownCard;
     }
 
     @Override
