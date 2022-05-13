@@ -9,10 +9,18 @@ import com.aac.optics.wlg.report.service.ProductionReportService;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -153,6 +161,46 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             dingTalkMessageHistory.setMessage(message);
 
             dingTalkNotificationMapper.insert(dingTalkMessageHistory);
+        }
+
+    }
+
+    @Override
+    public void sendProductionDayDataImageNotification(String groupType) throws ApiException {
+        //创建文档对象
+        Workbook wk =new HSSFWorkbook();
+
+        //通过文档对象创建工作簿
+        Sheet sheet = wk.createSheet();
+
+        //通过工作簿对象创建行 0代表第一行
+        Row row=sheet.createRow(0);
+        //通过行对象创建列（单元格）,0代表第一列
+        Cell cell = row.createCell(0);
+        cell.setCellValue("这是第一行第一列");
+        Cell cell1 = row.createCell(1);
+        cell1.setCellValue("这是第一行第二列");
+
+        Row row1 = sheet.createRow(1);
+        //通过行对象创建列（单元格）,0代表第一列
+        Cell cell2 = row1.createCell(0);
+        cell2.setCellValue("这是第二行第一列");
+        Cell cell13 = row1.createCell(1);
+        cell13.setCellValue("这是第二行第二列");
+
+        //通过流输出文档对象
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream("C:\\test\\test.xls");
+            //向文档对象传入流对象进行写操作
+            wk.write(fos);
+            System.out.println("写操作成功！！！");
+            //关闭流
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }

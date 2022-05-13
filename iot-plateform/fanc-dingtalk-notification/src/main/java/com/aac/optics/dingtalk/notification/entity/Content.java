@@ -51,4 +51,10 @@ public class Content implements Serializable {
 
     @TableField(exist = false)
     private String tabUrl;
+
+    /**
+     * 域账号
+     */
+    @TableField(exist = false)
+    private String adaccount;
 }

@@ -5,6 +5,7 @@ import com.aac.optics.dingtalk.notification.mapper.SendSalesDataMapper;
 import com.aac.optics.dingtalk.notification.provider.DingTalkApi;
 import com.aac.optics.dingtalk.notification.provider.FeishuApi;
 import com.aac.optics.dingtalk.notification.service.SendSalesDataService;
+import com.aac.optics.dingtalk.notification.util.BIRsaEncrypt;
 import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
@@ -66,6 +67,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             String tabDate = salesDataContent.getTabDate();
             String userid = salesDataContent.getUserid(); //需要推送的用户
             String tabUrl = salesDataContent.getTabUrl();
+            String adaccount = salesDataContent.getAdaccount(); //域账号
 
             //获取需要推送的用户
 //            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
@@ -83,16 +85,25 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 //                userIds.append(userId + ",");
 //            }
 
+            String ssoUrl = tabUrl;
+            try {
+                String ssoToken = BIRsaEncrypt.getSsoToken(adaccount);
+                ssoUrl = tabUrl + "?ssoToken=" + ssoToken;
+                log.info("ssoUrl=" + ssoUrl);
+            } catch (Exception exception) {
+                log.error("获取单点登录token异常", exception);
+            }
+
             MarkdownCard markdownCard = this.convertContentToMarkdown(content);
-            markdownCard.addContent("[查看详情](" + tabUrl + ")");
+            markdownCard.addContent("[查看详情](" + ssoUrl + ")");
 
             //发送销售数据工作通知
-            dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", tabUrl);
+            dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
 
             String unionId = dingTalkApi.getUnionId(accessToken, userid);
             //创建待办事项
             try {
-                dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, tabUrl);
+                dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, ssoUrl);
             } catch (Exception exception) {
                 log.error("创建待办事项异常, contentId=" + contentId, exception);
             }

@@ -30,7 +30,7 @@ public class DingTalkScheduler {
     }
 
     @Scheduled(cron = "${dingtalk.cronStr.deleteSalesDataTodoTaskCron}")
-    @SchedulerLock(name = "deleteSalesDataTodoTask", lockAtMostFor = "30m", lockAtLeastFor = "3m")
+    @SchedulerLock(name = "deleteSalesDataTodoTask", lockAtMostFor = "30m", lockAtLeastFor = "1m")
     public void deleteSalesDataTodoTask() {
         log.info(LocalDateTime.now() + "开始执行删除待办事项定时任务");
         try {

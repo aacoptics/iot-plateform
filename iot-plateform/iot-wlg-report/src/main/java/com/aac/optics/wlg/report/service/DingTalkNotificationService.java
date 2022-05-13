@@ -41,4 +41,12 @@ public interface DingTalkNotificationService {
      * @throws ApiException
      */
     void sendProductionDayDataNotification(String groupType) throws ApiException;
+
+    /**
+     * 以图片形式推送
+     *
+     * @param groupType
+     * @throws ApiException
+     */
+    void sendProductionDayDataImageNotification(String groupType) throws ApiException;
 }
