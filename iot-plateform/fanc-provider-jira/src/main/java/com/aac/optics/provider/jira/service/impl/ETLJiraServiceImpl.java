@@ -58,7 +58,6 @@ public class ETLJiraServiceImpl implements ETLJiraService {
 
         calstart.add(Calendar.DAY_OF_WEEK, n);
 
-        System.out.println(df.format(calstart.getTime()));
         return calstart.getTime();
 
     }
@@ -330,6 +329,16 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                         .getInteger("originalEstimateSeconds");
                 JSONArray workLogs = resultJSON.getJSONObject("fields").getJSONObject("worklog").getJSONArray("worklogs");
 
+                String updateIssueNo = resultJSON.getJSONObject("fields").getString("customfield_14901");
+                if(updateIssueNo == null || "null".equalsIgnoreCase(updateIssueNo))
+                {
+                    ekpIssueNo = "";
+                }
+                else
+                {
+                    ekpIssueNo = updateIssueNo;
+                }
+
                 Integer parentId = Integer.parseInt(parentIdDB);
                 if(resultJSON.getJSONObject("fields").getJSONObject("parent") != null)
                 {
@@ -502,7 +511,7 @@ public class ETLJiraServiceImpl implements ETLJiraService {
 
             }
         }
-        return null;
+        return "SUCCESS";
     }
 
     @Override
