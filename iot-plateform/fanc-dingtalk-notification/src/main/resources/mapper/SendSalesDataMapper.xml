@@ -13,6 +13,15 @@
             ORDER BY A.TAB_DATE
     </select>
 
+    <select id="getDeleteTodoTask" resultType="com.aac.optics.dingtalk.notification.entity.Content">
+        SELECT A.ID, A.TAB_DATE, A.TAB_TYPE, A.TITLE, A.CONTENT, A.DINGTALK_USERNO, A.FLAG, A.CREATED_BY, A.CREATE_TIME, A.MODIFY_BY, A.MODIFY_TIME, B.USERID
+            FROM TAB_01_CONTENT A
+            LEFT JOIN DD_001_DINGTALK_USER B ON A.DINGTALK_USERNO = B.JOBNUMBER
+            WHERE A.FLAG = '1'
+            AND A.DINGTALK_FLAG = '0'
+            ORDER BY A.TAB_DATE
+    </select>
+
     <select id="getSendUsersByType" resultType="com.aac.optics.dingtalk.notification.entity.SalesUser">
         SELECT A.USER_NO, C.USERID, B.TAB_URL
             FROM TAB_03_USER_TABTYPE_MAPPING A
@@ -27,6 +36,12 @@
     <update id="updateSalesContentSendFlag">
 		update TAB_01_CONTENT
 		set FLAG = '1', MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
+		where id = #{id}
+	</update>
+
+    <update id="updateSalesContentDingtalkFlag">
+		update TAB_01_CONTENT
+		set DINGTALK_FLAG = '1', MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
 		where id = #{id}
 	</update>
 

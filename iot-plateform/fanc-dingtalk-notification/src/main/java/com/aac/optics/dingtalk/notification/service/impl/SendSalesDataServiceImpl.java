@@ -89,6 +89,13 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             //发送销售数据工作通知
             dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", tabUrl);
 
+            String unionId = dingTalkApi.getUnionId(accessToken, userid);
+            //创建待办事项
+            try {
+                dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, tabUrl);
+            } catch (Exception exception) {
+                log.error("创建待办事项异常, contentId=" + contentId, exception);
+            }
             log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userid);
             //更新发送状态
             sendSalesDataMapper.updateSalesContentSendFlag(contentId);
@@ -96,6 +103,32 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
     }
 
+
+    @Override
+    public void deleteSalesDataTodoTask() throws ApiException {
+        List<Content> salesDataDeleteTodoTaskList = sendSalesDataMapper.getDeleteTodoTask();
+        if (salesDataDeleteTodoTaskList == null || salesDataDeleteTodoTaskList.size() == 0) {
+            return;
+        }
+
+        //获取token
+        OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        for(Content deleteTodoTask : salesDataDeleteTodoTaskList)
+        {
+            Integer contentId = deleteTodoTask.getId();
+            String userid = deleteTodoTask.getUserid(); //需要推送的用户
+
+            String unionId = dingTalkApi.getUnionId(accessToken, userid);
+            try {
+                dingTalkApi.deleteDingtalkTodoTask(accessToken, unionId, "cost_" + contentId);
+
+                sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId);
+            } catch (Exception exception) {
+                log.error("删除待办事项异常, contentId=" + contentId, exception);
+            }
+        }
+    }
 
     /**
      * 转换字符串为markdown格式

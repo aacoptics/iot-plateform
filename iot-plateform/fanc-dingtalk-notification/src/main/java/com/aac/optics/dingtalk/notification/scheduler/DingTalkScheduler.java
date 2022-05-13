@@ -20,13 +20,25 @@ public class DingTalkScheduler {
     @Scheduled(cron = "${dingtalk.cronStr.sendSalesDataNotificationCron}")
     @SchedulerLock(name = "sendSalesDataNotification", lockAtMostFor = "30m", lockAtLeastFor = "3m")
     public void sendSalesDataNotification() {
-        log.info(LocalDateTime.now() + "开始执行推送销售数据工作通知异常定时任务");
+        log.info(LocalDateTime.now() + "开始执行推送销售数据工作通知定时任务");
         try {
             sendSalesDataService.sendSalesDataNotification();
         } catch (ApiException e) {
             log.error("推送销售数据工作通知异常", e);
         }
-        log.info(LocalDateTime.now() + "完成执行推送销售数据工作通知异常定时任务");
+        log.info(LocalDateTime.now() + "完成执行推送销售数据工作通知定时任务");
+    }
+
+    @Scheduled(cron = "${dingtalk.cronStr.deleteSalesDataTodoTaskCron}")
+    @SchedulerLock(name = "deleteSalesDataTodoTask", lockAtMostFor = "30m", lockAtLeastFor = "3m")
+    public void deleteSalesDataTodoTask() {
+        log.info(LocalDateTime.now() + "开始执行删除待办事项定时任务");
+        try {
+            sendSalesDataService.deleteSalesDataTodoTask();
+        } catch (ApiException e) {
+            log.error("删除待办事项异常", e);
+        }
+        log.info(LocalDateTime.now() + "完成执行删除待办事项定时任务");
     }
 
 
