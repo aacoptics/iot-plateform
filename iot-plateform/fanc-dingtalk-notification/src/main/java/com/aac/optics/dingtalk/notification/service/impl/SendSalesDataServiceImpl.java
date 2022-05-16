@@ -88,7 +88,15 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             String ssoUrl = tabUrl;
             try {
                 String ssoToken = BIRsaEncrypt.getSsoToken(adaccount);
-                ssoUrl = tabUrl + "?ssoToken=" + ssoToken;
+                if(tabUrl.contains("?"))
+                {
+                    ssoUrl = tabUrl + "&ssoToken=" + ssoToken;
+                }
+                else
+                {
+                    ssoUrl = tabUrl + "?ssoToken=" + ssoToken;
+                }
+
                 log.info("ssoUrl=" + ssoUrl);
             } catch (Exception exception) {
                 log.error("获取单点登录token异常", exception);

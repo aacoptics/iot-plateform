@@ -406,4 +406,10 @@ public class ProductionReportServiceImpl implements ProductionReportService {
        return productionReportMapper.findProductionReportDateByCondition(projectName, mold, cycle,
                 dateStart, dateEnd);
     }
+
+
+    @Override
+    public List<Map<String, Object>> findProductionDayReportDataByDate(LocalDate monthStart, LocalDate monthEnd, LocalDate productionDate) {
+        return  productionReportMapper.findProductionDayReportDataByDate(monthStart, monthEnd, productionDate);
+    }
 }
