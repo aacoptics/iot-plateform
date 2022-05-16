@@ -21,6 +21,7 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -32,9 +33,14 @@ public class BIRsaEncrypt {
     private static final int FRAGMENT_LENGTH = 245;
 
     public static String getSsoToken(String adName) throws Exception {
-       JSONObject param=new JSONObject();
+        Date currentDay = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDay);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);//加一天
+
+        JSONObject param=new JSONObject();
         param.put("username",adName);
-        param.put("issueTime",new Date().getTime());
+        param.put("issueTime",calendar.getTime().getTime());
 
         String username = param.toJSONString();
         String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm9jAdndOEnph8C51wEgRxUdNNBsnPQjj\n" +
