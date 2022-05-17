@@ -320,7 +320,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             }
 
             //修改模板内容导出
-            FileOutputStream out = new FileOutputStream(tempDir + "\\" + fileName);
+            FileOutputStream out = new FileOutputStream(tempDir + "/" + fileName);
             xssfWorkbook.write(out);
             out.close();
         } catch (IOException e) {
@@ -330,10 +330,10 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
         //4 Excel转图片
         Workbook spireXlsWorkbook = new Workbook();
-        spireXlsWorkbook.loadFromFile(tempDir + "\\" + fileName);
+        spireXlsWorkbook.loadFromFile(tempDir + "/" + fileName);
         Worksheet worksheet = spireXlsWorkbook.getWorksheets().get(0);
         // Excel转为图片
-        worksheet.saveToImage(tempDir + "\\" + imageFileName);
+        worksheet.saveToImage(tempDir + "/" + imageFileName);
 
         //5 推送图片到群
         DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
@@ -344,10 +344,10 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
         String accessToken = oapiGettokenResponse.getAccessToken();
 
         //上传图片
-        String mediaId = dingTalkApi.uploadMedia(accessToken, "image", tempDir + "\\" + imageFileName);
+        String mediaId = dingTalkApi.uploadMedia(accessToken, "image", tempDir + "/" + imageFileName);
         if(StringUtils.isEmpty(mediaId))
         {
-            log.error("上传图片到钉钉异常" + tempDir + "\\" + imageFileName);
+            log.error("上传图片到钉钉异常" + tempDir + "/" + imageFileName);
             return;
         }
 
