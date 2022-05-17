@@ -69,6 +69,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             String tabUrl = salesDataContent.getTabUrl();
             String adaccount = salesDataContent.getAdaccount(); //域账号
 
+            String flag = salesDataContent.getFlag();//工作通知发送状态
+            String dingtalkFlag = salesDataContent.getDingtalkFlag();//代办事项发送状态
+
             //获取需要推送的用户
 //            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
 //            if (salesUserList == null || salesUserList.size() == 0) {
@@ -105,19 +108,28 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             MarkdownCard markdownCard = this.convertContentToMarkdown(content);
             markdownCard.addContent("[查看详情](" + ssoUrl + ")");
 
-            //发送销售数据工作通知
-            dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
+            if("0".equals(flag))
+            {
+                //发送销售数据工作通知
+                dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
+                //更新发送状态
+                sendSalesDataMapper.updateSalesContentSendFlag(contentId);
+            }
 
-            String unionId = dingTalkApi.getUnionId(accessToken, userid);
-            //创建待办事项
-            try {
-                dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, ssoUrl);
-            } catch (Exception exception) {
-                log.error("创建待办事项异常, contentId=" + contentId, exception);
+            if("0".equals(dingtalkFlag))
+            {
+                String unionId = dingTalkApi.getUnionId(accessToken, userid);
+                //创建待办事项
+                try {
+                    dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, ssoUrl);
+                    //更新发送状态
+                    sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "1");
+                } catch (Exception exception) {
+                    log.error("创建待办事项异常, contentId=" + contentId, exception);
+                }
             }
             log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userid);
-            //更新发送状态
-            sendSalesDataMapper.updateSalesContentSendFlag(contentId);
+
         }
 
     }
@@ -142,7 +154,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             try {
                 dingTalkApi.deleteDingtalkTodoTask(accessToken, unionId, "cost_" + contentId);
 
-                sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId);
+                sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "3");
             } catch (Exception exception) {
                 log.error("删除待办事项异常, contentId=" + contentId, exception);
             }

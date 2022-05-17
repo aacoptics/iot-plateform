@@ -30,7 +30,7 @@ public interface SendSalesDataMapper extends BaseMapper<Content> {
     void updateSalesContentSendFlag(@Param("id") Integer id);
 
     @DS("jiraDB")
-    void updateSalesContentDingtalkFlag(@Param("id") Integer id);
+    void updateSalesContentDingtalkFlag(@Param("id") Integer id, @Param("dingtalkFlag") String dingtalkFlag);
 
     @DS("jiraDB")
     List<Map<String, String>> getSalesDataBatch();
