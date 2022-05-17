@@ -111,18 +111,30 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             if("0".equals(flag))
             {
                 //发送销售数据工作通知
-                dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
-                //更新发送状态
-                sendSalesDataMapper.updateSalesContentSendFlag(contentId);
+                boolean result = dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
+                if(result) {
+                    //更新发送状态，成功
+                    sendSalesDataMapper.updateSalesContentSendFlag(contentId, "1");
+                }else
+                {
+                    //更新发送状态，失败
+                    sendSalesDataMapper.updateSalesContentSendFlag(contentId, "2");
+                }
             }
 
             if("0".equals(dingtalkFlag))
             {
                 String unionId = dingTalkApi.getUnionId(accessToken, userid);
+                if(StringUtils.isEmpty(unionId))
+                {
+                    //更新发送状态-失败
+                    sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "4");
+                    continue;
+                }
                 //创建待办事项
                 try {
                     dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, ssoUrl);
-                    //更新发送状态
+                    //更新发送状态-已发送
                     sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "1");
                 } catch (Exception exception) {
                     log.error("创建待办事项异常, contentId=" + contentId, exception);

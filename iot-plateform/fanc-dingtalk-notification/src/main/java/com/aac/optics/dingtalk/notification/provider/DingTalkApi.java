@@ -78,7 +78,7 @@ public class DingTalkApi {
     /**
      * 发送卡片工作通知
      */
-    public void sendCardCorpConversation(String accessToken, String useridList, String title, String markdown, String singleTile, String singleUrl) throws ApiException {
+    public boolean sendCardCorpConversation(String accessToken, String useridList, String title, String markdown, String singleTile, String singleUrl) throws ApiException {
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
         OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
         request.setAgentId(1186196480L);
@@ -103,7 +103,13 @@ public class DingTalkApi {
         request.setMsg(msg);
 
         OapiMessageCorpconversationAsyncsendV2Response rsp = client.execute(request, accessToken);
-        log.info(rsp.getBody());
+        log.info("发送工作通知结果", rsp.getBody());
+        long errorCode = rsp.getErrcode();
+        if(errorCode == 0)
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -161,6 +167,10 @@ public class DingTalkApi {
             OapiV2UserGetRequest req = new OapiV2UserGetRequest();
             req.setUserid(userId);
             OapiV2UserGetResponse rsp = client.execute(req, accessToken);
+            if(rsp.getResult() == null)
+            {
+                return unionId;
+            }
             unionId = rsp.getResult().getUnionid();
         } catch (ApiException e) {
             log.error("获取UnionId异常", e);

@@ -27,7 +27,7 @@ public interface SendSalesDataMapper extends BaseMapper<Content> {
     List<SalesUser> getSendUsersByType(@Param("tabType") String tabType);
 
     @DS("jiraDB")
-    void updateSalesContentSendFlag(@Param("id") Integer id);
+    void updateSalesContentSendFlag(@Param("id") Integer id, @Param("flag") String flag);
 
     @DS("jiraDB")
     void updateSalesContentDingtalkFlag(@Param("id") Integer id, @Param("dingtalkFlag") String dingtalkFlag);

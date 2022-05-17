@@ -10,7 +10,7 @@
             LEFT JOIN TAB_02_TABTYPE_URL_MAPPING  C ON A.TAB_TYPE = C.TAB_TYPE
             WHERE (A.FLAG = '0' OR A.DINGTALK_FLAG = '0')
             AND C.TAB_STATUS = '1'
-            ORDER BY A.TAB_DATE
+            ORDER BY A.TAB_DATE, A.CREATE_TIME
     </select>
 
     <select id="getDeleteTodoTask" resultType="com.aac.optics.dingtalk.notification.entity.Content">
@@ -34,7 +34,7 @@
 
     <update id="updateSalesContentSendFlag">
 		update TAB_01_CONTENT
-		set FLAG = '1', MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
+		set FLAG = #{flag}, MODIFY_TIME = GETDATE(), MODIFY_BY='IOT'
 		where id = #{id}
 	</update>
 
