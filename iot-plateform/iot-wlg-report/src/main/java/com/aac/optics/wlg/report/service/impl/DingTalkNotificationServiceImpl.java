@@ -189,6 +189,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             log.info("没有需要推送到钉钉群的数据");
             return;
         }
+        List<Map<String, Object>> customerRequirementDataList = productionReportService.findCustomerRequirementDataByDate(monthStart.toLocalDate());
 
         //2 获取机器人
         List<Map<String, String>> robotList = dingTalkNotificationMapper.findRobotListByType(groupType);
@@ -223,18 +224,40 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                 XSSFRow dataRow = sheet.createRow(i + 2);
                 dataRow.createCell(1).setCellValue(productionDayMap.get("project_name") != null ? productionDayMap.get("project_name") + "" : "");
                 dataRow.createCell(2).setCellValue(productionDayMap.get("product") != null ? productionDayMap.get("product") + "" : "");
-                dataRow.createCell(3).setCellValue(productionDayMap.get("mold") != null ? productionDayMap.get("mold") + "" : "");
-                dataRow.createCell(4).setCellValue(productionDayMap.get("SUM_MONTH_JHLEIJI") != null ? productionDayMap.get("SUM_MONTH_JHLEIJI") + "" : ""); //计划总产出
-                dataRow.createCell(5).setCellValue(productionDayMap.get("SUM_JHLEIJI") != null ? productionDayMap.get("SUM_JHLEIJI") + "" : ""); //计划累计产出（颗）
-                dataRow.createCell(6).setCellValue(productionDayMap.get("sum_after_output_qty") != null ? productionDayMap.get("sum_after_output_qty") + "" : ""); //实际累计产出（颗）
-                dataRow.createCell(7).setCellValue(productionDayMap.get("LEIJI_RATE") != null ? productionDayMap.get("LEIJI_RATE") + "" : ""); //实际累计产出达成率
-                dataRow.createCell(8).setCellValue(productionDayMap.get("JHTOURU") != null ? productionDayMap.get("JHTOURU") + "" : ""); //计划投入模数（模）
-                dataRow.createCell(9).setCellValue(productionDayMap.get("mold_press_input_qty") != null ? productionDayMap.get("mold_press_input_qty") + "" : ""); //实际投入模数（模）
-                dataRow.createCell(10).setCellValue(productionDayMap.get("mold_press_output_qty") != null ? productionDayMap.get("mold_press_output_qty") + "" : ""); //实际产出模数（模）
-                dataRow.createCell(11).setCellValue(productionDayMap.get("JHHDCHANCHU") != null ? productionDayMap.get("JHHDCHANCHU") + "" : ""); //计划产出（颗)
-                dataRow.createCell(12).setCellValue(productionDayMap.get("YUGUMOYA") != null ? productionDayMap.get("YUGUMOYA") + "" : ""); //预估产出（颗）
-                dataRow.createCell(13).setCellValue(productionDayMap.get("after_output_qty") != null ? productionDayMap.get("after_output_qty") + "" : ""); //实际产出（颗）
-                dataRow.createCell(14).setCellValue(productionDayMap.get("CHANCHU_RATE") != null ? productionDayMap.get("CHANCHU_RATE") + "" : ""); //实际产出达成率
+                dataRow.createCell(3); //客户需求数量
+                dataRow.createCell(4); //达成率
+                dataRow.createCell(5).setCellValue(productionDayMap.get("mold") != null ? productionDayMap.get("mold") + "" : ""); //模具
+                dataRow.createCell(6).setCellValue(productionDayMap.get("SUM_MONTH_JHLEIJI") != null ? productionDayMap.get("SUM_MONTH_JHLEIJI") + "" : ""); //计划总产出
+                dataRow.createCell(7).setCellValue(productionDayMap.get("SUM_JHLEIJI") != null ? productionDayMap.get("SUM_JHLEIJI") + "" : ""); //计划累计产出（颗）
+                dataRow.createCell(8).setCellValue(productionDayMap.get("sum_after_output_qty") != null ? productionDayMap.get("sum_after_output_qty") + "" : ""); //实际累计产出（颗）
+                dataRow.createCell(9).setCellValue(productionDayMap.get("LEIJI_RATE") != null ? productionDayMap.get("LEIJI_RATE") + "" : ""); //实际累计产出达成率
+                dataRow.createCell(10).setCellValue(productionDayMap.get("JHTOURU") != null ? productionDayMap.get("JHTOURU") + "" : ""); //计划投入模数（模）
+                dataRow.createCell(11).setCellValue(productionDayMap.get("mold_press_input_qty") != null ? productionDayMap.get("mold_press_input_qty") + "" : ""); //实际投入模数（模）
+                dataRow.createCell(12).setCellValue(productionDayMap.get("mold_press_output_qty") != null ? productionDayMap.get("mold_press_output_qty") + "" : ""); //实际产出模数（模）
+                dataRow.createCell(13).setCellValue(productionDayMap.get("JHHDCHANCHU") != null ? productionDayMap.get("JHHDCHANCHU") + "" : ""); //计划产出（颗)
+                dataRow.createCell(14).setCellValue(productionDayMap.get("YUGUMOYA") != null ? productionDayMap.get("YUGUMOYA") + "" : ""); //预估产出（颗）
+                dataRow.createCell(15).setCellValue(productionDayMap.get("after_output_qty") != null ? productionDayMap.get("after_output_qty") + "" : ""); //实际产出（颗）
+                dataRow.createCell(16).setCellValue(productionDayMap.get("CHANCHU_RATE") != null ? productionDayMap.get("CHANCHU_RATE") + "" : ""); //实际产出达成率
+            }
+            //填充客户需求数据
+            if(customerRequirementDataList != null && customerRequirementDataList.size() > 0)
+            {
+                for(int i=0; i<productionDataSize; i++)
+                {
+                    Map<String, Object> productionDayMap = productionDataList.get(i);
+                    String projectName = productionDayMap.get("project_name") != null ? productionDayMap.get("project_name") + "" : "";
+                    for(int j=0; j<customerRequirementDataList.size(); j++)
+                    {
+                        Map<String, Object> customerRequirementDataMap = customerRequirementDataList.get(j);
+                        if(projectName.equals(customerRequirementDataMap.get("project_name")))
+                        {
+                            XSSFRow dataRow = sheet.getRow(i + 2);
+                            dataRow.getCell(3).setCellValue(customerRequirementDataMap.get("qty") != null ? customerRequirementDataMap.get("qty") + "" : "");
+                            dataRow.getCell(4).setCellValue(customerRequirementDataMap.get("completion_rate") != null ? customerRequirementDataMap.get("completion_rate") + "" : "");
+                            break;
+                        }
+                    }
+                }
             }
 
             //合并单元格
@@ -251,11 +274,16 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                     CellRangeAddress productRegion = new CellRangeAddress(startRow, k+2, 2, 2);
                     sheet.addMergedRegion(productRegion);
 
+                    CellRangeAddress requirementRegion = new CellRangeAddress(startRow, k+2, 3, 3);
+                    sheet.addMergedRegion(requirementRegion);
+
+                    CellRangeAddress completionRateRegion = new CellRangeAddress(startRow, k+2, 4, 4);
+                    sheet.addMergedRegion(completionRateRegion);
                     startRow = k+3;
                 }
             }
             //合并单元格
-            CellRangeAddress region = new CellRangeAddress(productionDataSize+1, productionDataSize+1, 1, 3);
+            CellRangeAddress region = new CellRangeAddress(productionDataSize+1, productionDataSize+1, 1, 2);
             sheet.addMergedRegion(region);
 
             //添加单元格样式
@@ -309,7 +337,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                     {
                         cell.setCellStyle(xssfTitleCellStyle);
                     }
-                    else if(k == 3)
+                    else if(k>=3 && k<=5)
                     {
                         cell.setCellStyle(xssfMoldCellStyle);
                     }

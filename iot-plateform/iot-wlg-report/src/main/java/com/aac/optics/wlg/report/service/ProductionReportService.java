@@ -74,4 +74,12 @@ public interface ProductionReportService {
      */
     List<Map<String, Object>> findProductionDayReportDataByDate(LocalDate monthStart, LocalDate monthEnd, LocalDate productionDate);
 
+
+    /**
+     * 查询客户需求
+     *
+     * @param requirementDate 需求月份
+     * @return
+     */
+    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate requirementDate);
 }

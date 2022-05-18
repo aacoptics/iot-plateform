@@ -412,4 +412,9 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     public List<Map<String, Object>> findProductionDayReportDataByDate(LocalDate monthStart, LocalDate monthEnd, LocalDate productionDate) {
         return  productionReportMapper.findProductionDayReportDataByDate(monthStart, monthEnd, productionDate);
     }
+
+    @Override
+    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate requirementDate) {
+        return  productionReportMapper.findCustomerRequirementDataByDate(requirementDate);
+    }
 }

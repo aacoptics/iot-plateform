@@ -1327,4 +1327,22 @@
         FROM TEMP_SUM_DATA
         ORDER BY sort_no, project_name, mold
     </select>
+
+
+    <select id="findCustomerRequirementDataByDate" resultType="map">
+            select project_name,
+                requirement_date,
+                FLOOR(ROUND(qty, 0)) qty,
+                CONVERT(varchar(20),CONVERT(decimal(18,2), completion_rate * 100)) + '%' completion_rate
+            from customer_requirement
+            where requirement_date = #{requirementDate}
+            union all
+            select '项目汇总' project_name,
+                '' requirement_date,
+                FLOOR(ROUND(SUM(qty), 0)) qty,
+                CONVERT(varchar(20),CONVERT(decimal(18,2), sum(qty*completion_rate)/sum(qty) * 100)) + '%' completion_rate
+            from customer_requirement
+            where requirement_date = #{requirementDate}
+            order by project_name
+    </select>
 </mapper>
