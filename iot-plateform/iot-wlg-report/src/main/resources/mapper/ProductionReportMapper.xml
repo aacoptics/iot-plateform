@@ -1054,4 +1054,295 @@
         FROM TEMP_SUM_DATA
         ORDER BY sort_no, project_name
     </select>
+
+
+    <select id="findProductionDayReportDataByDate" resultType="map">
+        with TEMP_SUM_PRODUCTION_ACTUAL AS (
+            select project_name, product, sum(after_output_qty) sum_after_output_qty, sum(inventory_qty) sum_inventory_qty, sum(mold_press_input_qty) sum_mold_press_input_qty
+            from production_actual
+            where actual_date >= #{monthStart}
+            and actual_date &lt;= #{productionDate}
+            group by project_name, product),
+        TEMP_SUM_PRODUCTION_MOLD_ACTUAL AS (
+            select project_name, product, mold, sum(after_output_qty) sum_after_output_qty, sum(inventory_qty) sum_inventory_qty, sum(mold_press_input_qty) sum_mold_press_input_qty
+            from production_actual
+            where actual_date >= #{monthStart}
+            and actual_date &lt;= #{productionDate}
+            group by project_name, product, mold),
+        TEMP_PRODUCTION_ACTUAL AS (
+            SELECT project_name,
+                product,
+                sum(isnull(after_output_qty, 0)) after_output_qty,
+                sum(isnull(inventory_qty, 0))    inventory_qty,
+                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
+                sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+                SUM(FLOOR(ROUND(isnull(mold_press_input_qty * estimate_hole_qty * fpy, 0), 0))) YUGUMOYA
+            FROM (select A.*, B.fpy
+                from production_actual A
+                    LEFT JOIN estimate_fpy B
+                      ON A.project_name = B.project_name
+                     AND A.mold = B.mold
+                     AND A.cycle = B.cycle
+                     AND A.actual_date = B.fpy_date
+                ) T
+            where actual_date = #{productionDate}
+            group by project_name, product
+            ),
+        TEMP_PRODUCTION_MOLD_ACTUAL AS (
+            SELECT project_name,
+                product,
+                mold,
+                sum(isnull(after_output_qty, 0)) after_output_qty,
+                sum(isnull(inventory_qty, 0))    inventory_qty,
+                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
+                sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+                SUM(FLOOR(ROUND(isnull(mold_press_input_qty * estimate_hole_qty * fpy, 0), 0))) YUGUMOYA
+            FROM (select A.*, B.fpy
+                from production_actual A
+                    LEFT JOIN estimate_fpy B
+                      ON A.project_name = B.project_name
+                     AND A.mold = B.mold
+                     AND A.cycle = B.cycle
+                     AND A.actual_date = B.fpy_date
+                ) T
+            where actual_date = #{productionDate}
+            group by project_name, product, mold
+            ),
+        TEMP_PRODUCTION_PLAN AS (
+            SELECT b.project_name,
+                b.plan_date,
+                mold,
+                cycle,
+                max([JHTOURU])     'JHTOURU',
+                max([JHXUESHU])    'JHXUESHU',
+                max([MBLIANGLV])   'MBLIANGLV',
+                max([JHXNLIANGLV]) 'JHXNLIANGLV',
+                max([JHHDLIANGLV]) 'JHHDLIANGLV'
+            FROM (
+                SELECT *
+                FROM production_plan
+                WHERE
+                plan_date >= #{monthStart}
+                and plan_date &lt;= #{productionDate}
+            )
+            as a PIVOT (max(plan_value) FOR code IN ([JHTOURU], [JHXUESHU], [MBLIANGLV], [JHXNLIANGLV], [JHHDLIANGLV])) AS b
+            group by project_name, plan_date, mold, cycle
+            ),
+        TEMP_PRODUCTION_MONTH_PLAN AS (
+            SELECT b.project_name,
+                b.plan_date,
+                mold,
+                cycle,
+                max([JHTOURU])     'JHTOURU',
+                max([JHXUESHU])    'JHXUESHU',
+                max([MBLIANGLV])   'MBLIANGLV',
+                max([JHXNLIANGLV]) 'JHXNLIANGLV',
+                max([JHHDLIANGLV]) 'JHHDLIANGLV'
+            FROM (
+                SELECT *
+                FROM production_plan
+                WHERE
+                plan_date >= #{monthStart}
+                and plan_date &lt;= #{monthEnd}
+            )
+            as a PIVOT (max(plan_value) FOR code IN ([JHTOURU], [JHXUESHU], [MBLIANGLV], [JHXNLIANGLV], [JHHDLIANGLV])) AS b
+            group by project_name, plan_date, mold, cycle
+            ),
+        TEMP_PROJECT_DATA AS (
+            SELECT CASE WHEN A.project_name IS NULL THEN C.project_name ELSE A.project_name END project_name,
+            A.product,
+            '汇总' mold,
+            isnull(A.sum_after_output_qty, 0)                                            sum_after_output_qty,
+            isnull(A.sum_inventory_qty, 0)                                               sum_inventory_qty,
+            isnull(B.after_output_qty, 0)                                                after_output_qty,
+            isnull(B.inventory_qty, 0)                                                   inventory_qty,
+            isnull(B.mold_press_output_qty, 0)                                           mold_press_output_qty,
+            isnull(B.mold_press_input_qty, 0)                                            mold_press_input_qty,
+            ISNULL(C.SUM_JHTOURU, 0)                                                     SUM_JHTOURU,
+            ISNULL(C.SUM_JHLEIJI, 0)                                                     SUM_JHLEIJI,
+            ISNULL(D.JHTOURU, 0)                                                         JHTOURU,
+            ISNULL(D.JHHDCHANCHU, 0)                                                     JHHDCHANCHU,
+            ISNULL(E.SUM_MONTH_JHTOURU, 0)                                               SUM_MONTH_JHTOURU     ,
+            ISNULL(E.SUM_MONTH_JHLEIJI, 0)                                               SUM_MONTH_JHLEIJI,
+            ISNULL(F.MONTH_JHTOURU, 0)                                                   MONTH_JHTOURU,
+            ISNULL(F.MONTH_JHHDCHANCHU, 0)                                               MONTH_JHHDCHANCHU,
+            ISNULL(B.YUGUMOYA, 0)                                                        YUGUMOYA,
+              CASE
+                  WHEN JHHDCHANCHU = 0 THEN '0.00%'
+                  ELSE
+                          CAST(
+                                  CAST(ISNULL(after_output_qty / JHHDCHANCHU, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                          '%' END               CHANCHU_RATE,
+              CASE
+                  WHEN SUM_JHLEIJI = 0 THEN '0.00%'
+                  ELSE
+                          CAST(CAST(
+                                  ISNULL(sum_after_output_qty / SUM_JHLEIJI, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                          '%' END               LEIJI_RATE
+            FROM TEMP_SUM_PRODUCTION_ACTUAL A
+        LEFT JOIN TEMP_PRODUCTION_ACTUAL B
+            ON A.project_name = B.project_name
+            AND A.product = B.product
+        FULL JOIN
+            (SELECT project_name,
+            sum([JHTOURU])                                                                   SUM_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_JHLEIJI
+            FROM TEMP_PRODUCTION_PLAN
+            group by project_name) C
+            ON A.project_name = C.project_name
+        LEFT JOIN (
+            SELECT project_name,
+            floor(ROUND(sum([JHTOURU]), 0))                                                              JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) JHHDCHANCHU
+            FROM TEMP_PRODUCTION_PLAN
+            where plan_date = #{productionDate}
+            group by project_name
+            ) D
+            ON C.project_name = D.project_name
+        LEFT JOIN
+            (SELECT project_name,
+            sum([JHTOURU])                                                                   SUM_MONTH_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_MONTH_JHLEIJI
+            FROM TEMP_PRODUCTION_MONTH_PLAN
+            group by project_name) E
+            ON A.project_name = E.project_name
+        LEFT JOIN (
+            SELECT project_name,
+            floor(ROUND(sum([JHTOURU]), 0))                                                              MONTH_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) MONTH_JHHDCHANCHU
+            FROM TEMP_PRODUCTION_MONTH_PLAN
+            where plan_date = #{productionDate}
+            group by project_name
+            ) F
+            ON E.project_name = F.project_name
+            ),
+        TEMP_PROJECT_MOLD_DATA AS (
+            SELECT CASE WHEN A.project_name IS NULL THEN C.project_name ELSE A.project_name END project_name,
+            A.product,
+            CASE WHEN A.mold IS NULL THEN C.mold ELSE A.mold END mold,
+            isnull(A.sum_after_output_qty, 0)                                            sum_after_output_qty,
+            isnull(A.sum_inventory_qty, 0)                                               sum_inventory_qty,
+            isnull(B.after_output_qty, 0)                                                after_output_qty,
+            isnull(B.inventory_qty, 0)                                                   inventory_qty,
+            isnull(B.mold_press_output_qty, 0)                                           mold_press_output_qty,
+            isnull(B.mold_press_input_qty, 0)                                            mold_press_input_qty,
+            ISNULL(C.SUM_JHTOURU, 0)                                                     SUM_JHTOURU,
+            ISNULL(C.SUM_JHLEIJI, 0)                                                     SUM_JHLEIJI,
+            ISNULL(D.JHTOURU, 0)                                                         JHTOURU,
+            ISNULL(D.JHHDCHANCHU, 0)                                                     JHHDCHANCHU,
+            ISNULL(E.SUM_MONTH_JHTOURU, 0)                                               SUM_MONTH_JHTOURU,
+            ISNULL(E.SUM_MONTH_JHLEIJI, 0)                                               SUM_MONTH_JHLEIJI,
+            ISNULL(F.MONTH_JHTOURU, 0)                                                   MONTH_JHTOURU,
+            ISNULL(F.MONTH_JHHDCHANCHU, 0)                                               MONTH_JHHDCHANCHU,
+            ISNULL(B.YUGUMOYA, 0)                                                        YUGUMOYA,
+              CASE
+                  WHEN JHHDCHANCHU = 0 THEN '0.00%'
+                  ELSE
+                          CAST(
+                                  CAST(ISNULL(after_output_qty / JHHDCHANCHU, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                          '%' END               CHANCHU_RATE,
+              CASE
+                  WHEN SUM_JHLEIJI = 0 THEN '0.00%'
+                  ELSE
+                          CAST(CAST(
+                                  ISNULL(sum_after_output_qty / SUM_JHLEIJI, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                          '%' END               LEIJI_RATE
+            FROM TEMP_SUM_PRODUCTION_MOLD_ACTUAL A
+        LEFT JOIN TEMP_PRODUCTION_MOLD_ACTUAL B
+            ON A.project_name = B.project_name
+            AND A.mold = B.mold
+        FULL JOIN
+            (SELECT project_name,
+            mold,
+            sum([JHTOURU])                                                                   SUM_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_JHLEIJI
+            FROM TEMP_PRODUCTION_PLAN
+            group by project_name, mold) C
+            ON A.project_name = C.project_name
+            AND A.mold = C.mold
+        LEFT JOIN (
+            SELECT project_name, mold,
+            sum([JHTOURU])                                                                   JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) JHHDCHANCHU
+            FROM TEMP_PRODUCTION_PLAN
+            where plan_date = #{productionDate}
+            group by project_name, mold
+            ) D
+            ON C.project_name = D.project_name
+            AND C.mold = D.mold
+        LEFT JOIN
+            (SELECT project_name,
+            mold,
+            sum([JHTOURU])                                                                   SUM_MONTH_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) SUM_MONTH_JHLEIJI
+            FROM TEMP_PRODUCTION_PLAN
+            group by project_name, mold) E
+            ON A.project_name = E.project_name
+            AND A.mold = E.mold
+        LEFT JOIN (
+            SELECT project_name, mold,
+            sum([JHTOURU])                                                                   MONTH_JHTOURU,
+            floor(ROUND(SUM([JHTOURU] * [JHXUESHU] * [MBLIANGLV] * [JHXNLIANGLV] * [JHHDLIANGLV]), 0)) MONTH_JHHDCHANCHU
+            FROM TEMP_PRODUCTION_PLAN
+            where plan_date = #{productionDate}
+            group by project_name, mold
+            ) F
+            ON E.project_name = F.project_name
+            AND E.mold = F.mold),
+        TEMP_SUM_DATA AS (
+            SELECT '项目汇总'                      project_name,
+            ''                        product,
+            ''                          mold,
+            sum(sum_after_output_qty) sum_after_output_qty,
+            sum(sum_inventory_qty)    sum_inventory_qty,
+            sum(after_output_qty)     after_output_qty,
+            sum(inventory_qty)        inventory_qty,
+            sum(mold_press_output_qty) mold_press_output_qty,
+            sum(mold_press_input_qty) mold_press_input_qty,
+            sum(SUM_JHTOURU)          SUM_JHTOURU,
+            sum(SUM_JHLEIJI)          SUM_JHLEIJI,
+            sum(JHTOURU)              JHTOURU,
+            sum(JHHDCHANCHU)          JHHDCHANCHU,
+            sum(SUM_MONTH_JHTOURU)          SUM_MONTH_JHTOURU,
+            sum(SUM_MONTH_JHLEIJI)          SUM_MONTH_JHLEIJI,
+            sum(MONTH_JHTOURU)              MONTH_JHTOURU,
+            sum(MONTH_JHHDCHANCHU)          MONTH_JHHDCHANCHU,
+            sum(YUGUMOYA)             YUGUMOYA,
+            CASE WHEN SUM(JHHDCHANCHU) = 0 THEN '0.00%' ELSE
+            CAST(CAST(ISNULL(SUM(after_output_qty) / SUM(JHHDCHANCHU), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+            '%'    END                   CHANCHU_RATE,
+            CASE WHEN SUM(SUM_JHLEIJI) = 0 THEN '0.00%' ELSE
+            CAST(CAST(
+            ISNULL(SUM(sum_after_output_qty) / SUM(SUM_JHLEIJI), 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+            '%'      END                 LEIJI_RATE
+            FROM TEMP_PROJECT_DATA
+            )
+        SELECT *, 0 sort_no
+        FROM TEMP_PROJECT_DATA
+        UNION ALL
+        SELECT *, 0 sort_no
+        FROM TEMP_PROJECT_MOLD_DATA
+        UNION ALL
+        SELECT *, 1 sort_no
+        FROM TEMP_SUM_DATA
+        ORDER BY sort_no, project_name, mold
+    </select>
+
+
+    <select id="findCustomerRequirementDataByDate" resultType="map">
+            select project_name,
+                requirement_date,
+                FLOOR(ROUND(qty, 0)) qty,
+                CONVERT(varchar(20),CONVERT(decimal(18,2), completion_rate * 100)) + '%' completion_rate
+            from customer_requirement
+            where requirement_date = #{requirementDate}
+            union all
+            select '项目汇总' project_name,
+                '' requirement_date,
+                FLOOR(ROUND(SUM(qty), 0)) qty,
+                CONVERT(varchar(20),CONVERT(decimal(18,2), sum(qty*completion_rate)/sum(qty) * 100)) + '%' completion_rate
+            from customer_requirement
+            where requirement_date = #{requirementDate}
+            order by project_name
+    </select>
 </mapper>

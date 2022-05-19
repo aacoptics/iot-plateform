@@ -66,4 +66,20 @@ public interface ProductionReportService {
      */
     List<String> findProductionReportDateByCondition(String projectName, String mold, String cycle, LocalDate dateStart, LocalDate dateEnd);
 
+
+    /**
+     * 查询需要以表格图片形式推送到钉钉的生产数据
+     *
+     * @return
+     */
+    List<Map<String, Object>> findProductionDayReportDataByDate(LocalDate monthStart, LocalDate monthEnd, LocalDate productionDate);
+
+
+    /**
+     * 查询客户需求
+     *
+     * @param requirementDate 需求月份
+     * @return
+     */
+    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate requirementDate);
 }

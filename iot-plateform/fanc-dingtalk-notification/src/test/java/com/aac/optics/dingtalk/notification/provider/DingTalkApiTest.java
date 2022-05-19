@@ -46,4 +46,62 @@ class DingTalkApiTest {
             e.printStackTrace();
         }
     }
+
+
+    @Test
+    void createDingtalkTodo() {
+
+        try {
+            OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+            String accessToken = oapiGettokenResponse.getAccessToken();
+
+            String unionId = dingTalkApi.getUnionId(accessToken, "15351344650");
+
+            dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_02", "管理费用预实分析",
+                    "管理费用预算与实际费用统计（测试）;时间：2022年3月;您负责部门费用如下;当月实际费用：￥14,616 K;当月预算金额：￥12,103 K;GAP节省费用：￥1,487 K;",
+                    "https://ekp.aacoptics.com:8443/km/review/km_review_main/kmReviewMain.do?method=view&fdId=180bc020117039298c3c67d492d85141&fdTaskInstanceId=180bc0277d0882a3f8aed824d9998e91"
+                    );
+        } catch (ApiException e) {
+            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+
+    @Test
+    void getDingtalkTodoTask() {
+
+        try {
+            OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+            String accessToken = oapiGettokenResponse.getAccessToken();
+
+            String unionId = dingTalkApi.getUnionId(accessToken, "15351344650");
+
+            dingTalkApi.getDingtalkTodoTask(accessToken, unionId, "cost_12");
+        } catch (ApiException e) {
+            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @Test
+    void deleteDingtalkTodoTask() {
+
+        try {
+            OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+            String accessToken = oapiGettokenResponse.getAccessToken();
+
+            String unionId = dingTalkApi.getUnionId(accessToken, "15351344650");
+
+            dingTalkApi.deleteDingtalkTodoTask(accessToken, unionId, "cost_01");
+        } catch (ApiException e) {
+            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+
 }
