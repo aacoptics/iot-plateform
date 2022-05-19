@@ -2,6 +2,7 @@ package com.aac.optics.wlg.report.service.impl;
 
 import com.aac.optics.wlg.report.entity.param.CustomerRequirementQueryParam;
 import com.aac.optics.wlg.report.entity.po.CustomerRequirement;
+import com.aac.optics.wlg.report.entity.po.EstimateFpy;
 import com.aac.optics.wlg.report.exception.BusinessException;
 import com.aac.optics.wlg.report.mapper.CustomerRequirementMapper;
 import com.aac.optics.wlg.report.service.CustomerRequirementService;
@@ -22,7 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +42,9 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
     @Transactional
     public void importCustomerRequirementExcel(InputStream in) throws IOException, InvalidFormatException {
         LocalDate currentLocalDate = LocalDate.now();
+
+        //获取当月一号
+        LocalDateTime monthStart = LocalDateTime.of(LocalDate.from(currentLocalDate.with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
 
         List<String[]> excelDataList = ExcelUtil.read(in).get(0);
 
@@ -87,9 +94,15 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
                 throw new BusinessException("日期格式错误" + e.getMessage());
             }
 
-            CustomerRequirement customerRequirement = this.queryCustomerRequirement(projectName, requirementDate);
-            if (customerRequirement == null) {
-                customerRequirement = new CustomerRequirement();
+            CustomerRequirement customerRequirement = null;
+            if (monthStart.toLocalDate().isAfter(requirementDate)) {
+                continue;
+            }
+            else {
+                customerRequirement = this.queryCustomerRequirement(projectName, requirementDate);
+                if (customerRequirement == null) {
+                    customerRequirement = new CustomerRequirement();
+                }
             }
 
             customerRequirement.setProjectName(projectName);
