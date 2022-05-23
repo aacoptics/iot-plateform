@@ -25,6 +25,7 @@
         <module>fanc-dingtalk-notification</module>
         <module>iot-wlg-report</module>
         <module>iot-czech</module>
+        <module>iot-wlg-dashboard</module>
     </modules>
 
     <packaging>pom</packaging>
