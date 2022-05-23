@@ -179,6 +179,9 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
         LocalDateTime monthStart = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
         LocalDateTime monthEnd = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.lastDayOfMonth())), LocalTime.MAX);
 
+        int month = currentTime.getMonthValue();
+        int monthDay = currentTime.getDayOfMonth();
+
 
         String currentDate = currentTime.format(DateTimeFormatter.ofPattern(CURRENT_DATE_FORMAT));
         //1 获取数据
@@ -216,6 +219,18 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
 
             //读取了模板内所有sheet内容
             XSSFSheet sheet = xssfWorkbook.getSheetAt(0);
+            //替换表头中的日期
+            XSSFRow titleRow = sheet.getRow(0);
+            for(int i=6; i<=10; i++)
+            {
+                XSSFCell titleCell = titleRow.getCell(i);
+                String cellValue = titleCell.getStringCellValue();
+                String resultCellValue = cellValue.replace("当月", month+"月");
+                String resultValue = resultCellValue.replace("前一天", month+"月" + monthDay + "日");
+                titleCell.setCellValue(resultValue);
+            }
+
+
             //如果这行没有了，整个公式都不会有自动计算的效果的
 //            sheet.setForceFormulaRecalculation(true);
             for(int i=0; i<productionDataSize; i++)
