@@ -1,5 +1,6 @@
 package com.aac.optics.wlg.dashboard.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class MoldingMachineParamData implements Serializable {
 
     private String machineName;
 
-    private BigDecimal waferId;
+    private String waferId;
 
     private String recipeName;
 
@@ -33,6 +34,9 @@ public class MoldingMachineParamData implements Serializable {
     private LocalDateTime plcTime;
 
     private LocalDateTime createTime;
+
+    @TableField(exist = false)
+    private Long plcTimeStamp;
 
 
 }

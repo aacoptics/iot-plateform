@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aac.optics.wlg.dashboard.mapper.MoldingMachineParamDataMapper">
 
-    <select id="getMoldingParamData" resultType="map">
+    <select id="getMoldingParamData" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">
         SELECT machine_name, wafer_id, recipe_name, recipe_phase, param_name, param_value, plc_time, a.create_time
         FROM t_wlg_molding_machine_param_data a
         join t_wlg_molding_machine_param_data_base b
@@ -16,6 +16,35 @@
         </foreach>
         and description + '_' + convert(varchar, array_id) = #{paramName}
         order by a.id
+    </select>
+
+    <select id="getMachineName" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">
+        SELECT distinct machine_name
+        from t_opc_ua_connections
+    </select>
+
+    <select id="getWaferIds" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">
+        select distinct wafer_id
+        from t_wlg_molding_machine_param_data_base
+        where machine_name = #{machineName}
+          and create_time between #{startTime} and #{endTime}
+        order by wafer_id
+    </select>
+
+    <select id="getMoldingParamName" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">
+        SELECT param_name + '_' + convert(varchar, array_id) as param_name
+        FROM t_wlg_molding_machine_param_data a
+        join t_wlg_molding_machine_param_data_base b
+        on a.serial_id = b.serial_id
+        join t_molding_machine_opc_ua_node c
+        on a.param_id = c.id
+        where machine_name = #{machineName}
+        and wafer_id in
+        <foreach item='waferId' index='index' collection='waferIds' open='(' separator=',' close=')'>
+            #{waferId}
+        </foreach>
+        group by param_name, array_id
+        order by param_name, array_id
     </select>
 
 </mapper>

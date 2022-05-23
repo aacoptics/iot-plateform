@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +27,12 @@ class MoldingMachineParamDataServiceTest {
         try {
             List<MoldingMachineParamData> test = moldingMachineParamDataService.getMoldingParamData("HPM-010",
                     "upper_moldcore_section_temp_actual_10", Arrays.asList("3852", "3851"));
+
+            List<MoldingMachineParamData> test1 = moldingMachineParamDataService.getMachineName();
+
+            List<MoldingMachineParamData> test2 = moldingMachineParamDataService.getWaferIds("HPM-010", LocalDateTime.now().minusDays(1), LocalDateTime.now());
+            List<MoldingMachineParamData> test3 = moldingMachineParamDataService.getMoldingParamName("HPM-010",
+                    Arrays.asList("3852", "3851"));
 
             String a = "1";
 

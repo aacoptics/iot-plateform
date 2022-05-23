@@ -6,15 +6,15 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: iottest.aacoptics.com:8848
+        server-addr: iot.czne.aacoptics.com:8848
         namespace: iot-plateform
         group: iot-plateform
       config:
-        server-addr: iottest.aacoptics.com:8848
+        server-addr: iot.czne.aacoptics.com:8848
         namespace: iot-plateform
         group: iot-plateform
         file-extension: yaml
     sentinel:
       transport:
-        dashboard: iottest.aacoptics.com:8844
+        dashboard: iot.czne.aacoptics.com:8844
         client-ip: localhost
