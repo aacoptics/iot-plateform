@@ -96,7 +96,7 @@
 
           </el-row>
           <el-row>
-            <el-form-item label="阶段" prop="recipePhase">
+            <el-form-item label="对齐阶段" prop="recipePhase">
               <el-select
                   v-model="alignRecipePhase"
                   placeholder="请选择需要对齐的阶段"
@@ -138,7 +138,7 @@
             </el-button>
           </el-form-item>
           <el-form-item>
-            <el-button icon="el-icon-search" type="primary"
+            <el-button icon="el-icon-s-data" type="success"
                        :loading="selectLoading"
                        @click="alainAllChart">对齐
             </el-button>
@@ -414,7 +414,7 @@ export default {
         if (responseData.code === '000000') {
           this.paramValue[paramName] = responseData.data
           //this.paramValueArray = responseData.data
-          this.drawLineChart(paramName)
+          this.drawLineChart(paramName, 0)
           this.selectLoading = false
         }
       }).catch((err) => {
@@ -436,14 +436,16 @@ export default {
         this.$message.error('请选择对齐的模次号和阶段！')
         return
       }
-      this.alignParamValue()
+      const minStampArray = this.alignParamValue()
       this.paramNames.forEach(item => {
-        this.drawLineChart(item)
+        this.drawLineChart(item, minStampArray[item])
       })
     },
 
     alignParamValue() {
       const alignShiftStamp = {}
+      const waferMinStamp = {}
+      const waferMinStampArray = {}
       for (const val in this.paramValue) {
         this.paramValue[val].forEach((item) => {
           if (item[7] !== 'recipePhase') {
@@ -459,11 +461,26 @@ export default {
 
       for (const val in this.paramValue) {
         this.paramValue[val].forEach((item) => {
-          if (item[1] !== this.alignWaferId && item[7] !== 'recipePhase') {
-            item[5] = alignShiftStamp[val][this.alignRecipePhase][this.alignWaferId] - alignShiftStamp[val][this.alignRecipePhase][item[1]] + item[5]
+          if(item[7] !== 'recipePhase') {
+            if (item[1] !== this.alignWaferId) {
+              item[5] = alignShiftStamp[val][this.alignRecipePhase][this.alignWaferId] - alignShiftStamp[val][this.alignRecipePhase][item[1]] + item[5]
+            }
+            if (!waferMinStamp[val]) {
+              waferMinStamp[val] = {}
+            }
+            if (!waferMinStamp[val][item[1]] || waferMinStamp[val][item[1]] > item[5]) {
+              waferMinStamp[val][item[1]] = item[5]
+            }
           }
         })
       }
+      for (const val in waferMinStamp) {
+        for(const waferVal in waferMinStamp[val]){
+          if(!waferMinStampArray[val] || waferMinStampArray[val] < waferMinStamp[val][waferVal])
+            waferMinStampArray[val] = waferMinStamp[val][waferVal]
+        }
+      }
+      return waferMinStampArray
     },
 
     // drawLineChart(paramName){
@@ -552,7 +569,7 @@ export default {
     //   option && myChart.setOption(option);
     // }
 
-    drawLineChart(paramName) {
+    drawLineChart(paramName, startStamp) {
       const chartDom = document.getElementById(paramName);
       const myChart = echarts.init(chartDom);
       let option;
@@ -575,7 +592,7 @@ export default {
               type: 'filter',
               config: {
                 and: [
-                  {dimension: 'plcTimeStamp', gte: 0},
+                  {dimension: 'plcTimeStamp', gte: startStamp},
                   {dimension: 'waferId', '=': waferIdInfo.waferId}
                 ]
               }
