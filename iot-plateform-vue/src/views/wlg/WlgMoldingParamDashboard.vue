@@ -665,10 +665,10 @@ export default {
           },
           series: seriesList
         };
-        myChart.setOption(option);
+        myChart.setOption(option, true);
       }
 
-      option && myChart.setOption(option);
+      option && myChart.setOption(option, true);
     }
   },
   mounted() {
