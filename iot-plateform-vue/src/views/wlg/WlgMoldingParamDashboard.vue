@@ -5,7 +5,11 @@
         <el-form :inline="true" :size="size" label-width="100px">
           <el-row>
             <el-form-item label="机台号" prop="machineName">
-              <el-select v-model="formParam.machineName" class="m-2" placeholder="请选择机台号" :size="size">
+              <el-select v-model="formParam.machineName"
+                         class="m-2"
+                         placeholder="请选择机台号"
+                         :size="size"
+                         @change="getWaferIdArray">
                 <el-option
                     v-for="item in machineNameArray"
                     :key="item.machineName"
@@ -28,17 +32,36 @@
             </el-form-item>
           </el-row>
           <el-row>
-            <el-form-item label="Wafer ID" prop="waferId">
+            <el-form-item label="OK模次号" prop="waferId">
               <el-select
-                  v-model="formParam.waferIds"
+                  v-model="okWaferIds"
                   multiple
                   collapse-tags
-                  placeholder="请选择wafer id"
+                  placeholder="请选择OK模次号"
                   :size="size"
                   :v-loading="selectLoading"
-                  @change="changeSelect"
+                  @change="okChangeSelect"
               >
-                <el-checkbox v-model="allChecked" @change='selectAll'>全选</el-checkbox>
+                <el-checkbox v-model="okAllChecked" @change='okSelectAll'>全选</el-checkbox>
+                <el-option
+                    v-for="item in waferIdArray"
+                    :key="item.waferId"
+                    :label="item.waferId"
+                    :value="item.waferId"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="NG模次号" prop="waferId">
+              <el-select
+                  v-model="ngWaferIds"
+                  multiple
+                  collapse-tags
+                  placeholder="请选择NG模次号"
+                  :size="size"
+                  :v-loading="selectLoading"
+                  @change="ngChangeSelect"
+              >
+                <el-checkbox v-model="ngAllChecked" @change='ngSelectAll'>全选</el-checkbox>
                 <el-option
                     v-for="item in waferIdArray"
                     :key="item.waferId"
@@ -72,6 +95,39 @@
             </el-form-item>
 
           </el-row>
+          <el-row>
+            <el-form-item label="阶段" prop="recipePhase">
+              <el-select
+                  v-model="alignRecipePhase"
+                  placeholder="请选择需要对齐的阶段"
+                  :size="size"
+                  :v-loading="selectLoading"
+                  @change="okChangeSelect"
+              >
+                <el-option
+                    v-for="item in allRecipePhase"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="对齐模次号" prop="waferId">
+              <el-select
+                  v-model="alignWaferId"
+                  placeholder="请选择对齐的模次号"
+                  :size="size"
+                  :v-loading="selectLoading"
+              >
+                <el-option
+                    v-for="item in allWaferIdsIncludeStatus"
+                    :key="item.waferId"
+                    :label="item.waferId"
+                    :value="item.waferId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-row>
         </el-form>
 
         <el-form :inline="true" :size="size">
@@ -79,6 +135,12 @@
             <el-button icon="el-icon-search" type="primary"
                        :loading="selectLoading"
                        @click="drawAllChart()">查询
+            </el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button icon="el-icon-search" type="primary"
+                       :loading="selectLoading"
+                       @click="alainAllChart">对齐
             </el-button>
           </el-form-item>
         </el-form>
@@ -99,11 +161,49 @@ import * as echarts from 'echarts';
 
 export default {
   name: "productionPlan",
+  computed: {
+    allWaferIdsIncludeStatus() {
+      const res = []
+      this.okWaferIds.forEach((item) => {
+        res.push(
+            {
+              waferId: item,
+              status: 'ok'
+            }
+        )
+      })
+      this.ngWaferIds.forEach((item) => {
+        if (this.okWaferIds.indexOf(item) === -1)
+          res.push(
+              {
+                waferId: item,
+                status: 'ng'
+              }
+          )
+      })
+      return res;
+    },
+    allRecipePhase() {
+      const res = []
+      for (const val in this.paramValue) {
+        this.paramValue[val].forEach((item) => {
+          if (res.indexOf(item[7]) === -1 && item[7] !== 'recipePhase')
+            res.push(item[7])
+        })
+      }
+      return res
+    }
+  },
   data() {
     return {
-      allChecked: false,
+      okAllChecked: false,
+      ngAllChecked: false,
+      alignRecipePhase: '',
+      alignWaferId: '',
       size: 'small',
       machineNameArray: [],
+      okWaferIds: [],
+      ngWaferIds: [],
       waferIdArray: [],
       paramValue: {},
       paramNameArray: [
@@ -222,22 +322,39 @@ export default {
     }
   },
   methods: {
-
-    selectAll() {
-      this.formParam.waferIds = []
-      if (this.allChecked) {
+    okSelectAll() {
+      this.okWaferIds = []
+      if (this.okAllChecked) {
         this.waferIdArray.map(item => {
-          this.formParam.waferIds.push(item.waferId)
+          this.okWaferIds.push(item.waferId)
         })
       } else {
-        this.formParam.waferIds = []
+        this.okWaferIds = []
       }
     },
-    changeSelect(val) {
+    okChangeSelect(val) {
       if (val.length === this.waferIdArray.length) {
-        this.allChecked = true
+        this.okAllChecked = true
       } else {
-        this.allChecked = false
+        this.okAllChecked = false
+      }
+    },
+
+    ngSelectAll() {
+      this.ngWaferIds = []
+      if (this.ngAllChecked) {
+        this.waferIdArray.map(item => {
+          this.ngWaferIds.push(item.waferId)
+        })
+      } else {
+        this.ngWaferIds = []
+      }
+    },
+    ngChangeSelect(val) {
+      if (val.length === this.waferIdArray.length) {
+        this.ngAllChecked = true
+      } else {
+        this.ngAllChecked = false
       }
     },
     getMachineName() {
@@ -249,14 +366,14 @@ export default {
       })
     },
 
-    getWaferIdArray(val) {
+    getWaferIdArray() {
       this.selectLoading = true
       if (!this.formParam.machineName || this.formParam.machineName === "") {
-        this.$message.warn('请先选择机台号！')
+        this.$message.error('请先选择机台号！')
         this.selectLoading = false
       }
-      const startTime = this.$moment(val[0]).format('YYYY-MM-DD HH:mm:ss');
-      const endTime = this.$moment(val[1]).format('YYYY-MM-DD HH:mm:ss');
+      const startTime = this.$moment(this.dateTimePickerValue[0]).format('YYYY-MM-DD HH:mm:ss');
+      const endTime = this.$moment(this.dateTimePickerValue[1]).format('YYYY-MM-DD HH:mm:ss');
       getWaferIds(this.formParam.machineName, startTime, endTime).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -269,24 +386,29 @@ export default {
       })
     },
 
-    getParamNames(val) {
-      // this.selectLoading = true
-      // getMoldParamName(this.formParam).then((response) => {
-      //   const responseData = response.data
-      //   if (responseData.code === '000000') {
-      //     this.paramNameArray = responseData.data
-      //     this.selectLoading = false
-      //   }
-      // }).catch((err) => {
-      //   this.$message.error(err.message)
-      //   this.selectLoading = false
-      // })
-      this.changeSelect(val)
-    },
+    // getParamNames(val) {
+    //   // this.selectLoading = true
+    //   // getMoldParamName(this.formParam).then((response) => {
+    //   //   const responseData = response.data
+    //   //   if (responseData.code === '000000') {
+    //   //     this.paramNameArray = responseData.data
+    //   //     this.selectLoading = false
+    //   //   }
+    //   // }).catch((err) => {
+    //   //   this.$message.error(err.message)
+    //   //   this.selectLoading = false
+    //   // })
+    //   //this.changeSelect(val)
+    // },
 
     getParamValue(paramName) {
       this.selectLoading = true
       this.formParam.paramName = paramName
+      const waferIdRes = []
+      this.allWaferIdsIncludeStatus.forEach((item) => {
+        waferIdRes.push(item.waferId)
+      })
+      this.formParam.waferIds = waferIdRes
       getMoldParamValue(this.formParam).then((response) => {
         const responseData = response.data
         if (responseData.code === '000000') {
@@ -302,9 +424,46 @@ export default {
     },
 
     drawAllChart() {
+      this.paramValue = {}
       this.paramNames.forEach(item => {
         this.getParamValue(item)
       })
+    },
+
+    alainAllChart() {
+      if (!this.alignRecipePhase || this.alignRecipePhase === '' ||
+          !this.alignWaferId || this.alignWaferId === '') {
+        this.$message.error('请选择对齐的模次号和阶段！')
+        return
+      }
+      this.alignParamValue()
+      this.paramNames.forEach(item => {
+        this.drawLineChart(item)
+      })
+    },
+
+    alignParamValue() {
+      const alignShiftStamp = {}
+      for (const val in this.paramValue) {
+        this.paramValue[val].forEach((item) => {
+          if (item[7] !== 'recipePhase') {
+            if (!alignShiftStamp[val])
+              alignShiftStamp[val] = {}
+            if (!alignShiftStamp[val][item[7]])
+              alignShiftStamp[val][item[7]] = {}
+            if (!alignShiftStamp[val][item[7]][item[1]] || alignShiftStamp[val][item[7]][item[1]] > item[5])
+              alignShiftStamp[val][item[7]][item[1]] = item[5]
+          }
+        })
+      }
+
+      for (const val in this.paramValue) {
+        this.paramValue[val].forEach((item) => {
+          if (item[1] !== this.alignWaferId && item[7] !== 'recipePhase') {
+            item[5] = alignShiftStamp[val][this.alignRecipePhase][this.alignWaferId] - alignShiftStamp[val][this.alignRecipePhase][item[1]] + item[5]
+          }
+        })
+      }
     },
 
     // drawLineChart(paramName){
@@ -398,15 +557,17 @@ export default {
       const myChart = echarts.init(chartDom);
       let option;
 
-      run(this.paramValue[paramName], this.formParam.waferIds)
+      run(this.paramValue[paramName], this.allWaferIdsIncludeStatus)
 
 
       function run(_rawData, waferIds) {
 
+        const waferIdRes = [];
         const datasetWithFilters = [];
         const seriesList = [];
-        echarts.util.each(waferIds, function (waferId) {
-          const datasetId = 'dataset_' + waferId;
+        echarts.util.each(waferIds, function (waferIdInfo) {
+          waferIdRes.push(waferIdInfo.waferId);
+          const datasetId = 'dataset_' + waferIdInfo.waferId;
           datasetWithFilters.push({
             id: datasetId,
             fromDatasetId: 'dataset_raw',
@@ -415,7 +576,7 @@ export default {
               config: {
                 and: [
                   {dimension: 'plcTimeStamp', gte: 0},
-                  {dimension: 'waferId', '=': waferId}
+                  {dimension: 'waferId', '=': waferIdInfo.waferId}
                 ]
               }
             }
@@ -424,7 +585,15 @@ export default {
             type: 'line',
             datasetId: datasetId,
             showSymbol: false,
-            name: waferId,
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  width: 2,
+                  type: waferIdInfo.status === 'ok' ? 'solid' : 'dotted' //'dotted'点型虚线 'solid'实线 'dashed'线性虚线
+                }
+              }
+            },
+            name: waferIdInfo.waferId,
             encode: {
               x: 'plcTimeStamp',
               y: 'paramValue',
@@ -446,7 +615,7 @@ export default {
             text: paramName
           },
           legend: {
-            data: waferIds,
+            data: waferIdRes,
             bottom: 0,
             type: 'scroll',
             orient: 'horizontal'
