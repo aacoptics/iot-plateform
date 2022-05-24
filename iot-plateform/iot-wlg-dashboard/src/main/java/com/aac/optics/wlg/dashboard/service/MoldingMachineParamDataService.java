@@ -1,6 +1,7 @@
 package com.aac.optics.wlg.dashboard.service;
 
 import com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData;
+import com.alibaba.fastjson.JSONArray;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,6 +11,10 @@ public interface MoldingMachineParamDataService {
     List<MoldingMachineParamData> getMoldingParamData(String machineName,
                                                       String paramName,
                                                       List<String> waferIds);
+
+    JSONArray getMoldingParamDataArray(String machineName,
+                                       String paramName,
+                                       List<String> waferIds);
 
     List<MoldingMachineParamData> getWaferIds(String machineName,
                                               LocalDateTime startTime,

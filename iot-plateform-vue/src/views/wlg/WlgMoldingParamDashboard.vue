@@ -2,276 +2,508 @@
   <div>
     <div class="container">
       <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
-                <el-form :inline="true" :size="size" label-width="100px">
+        <el-form :inline="true" :size="size" label-width="100px">
           <el-row>
-              <el-form-item label="项目" prop="projectName">
-                <el-input
-                    v-model="filters.projectName"
-                    placeholder="请输入项目"
-                    clearable
-                    size="small"
+            <el-form-item label="机台号" prop="machineName">
+              <el-select v-model="formParam.machineName" class="m-2" placeholder="请选择机台号" :size="size">
+                <el-option
+                    v-for="item in machineNameArray"
+                    :key="item.machineName"
+                    :label="item.machineName"
+                    :value="item.machineName"
                 />
-              </el-form-item>
-              <el-form-item label="模具" prop="mold">
-                <el-input
-                    v-model="filters.mold"
-                    placeholder="请输入模具"
-                    clearable
-                    size="small"
-
-                />
-              </el-form-item>
-              <el-form-item label="周期" prop="cycle">
-                <el-input
-                    v-model="filters.cycle"
-                    placeholder="请输入周期"
-                    clearable
-                    size="small"
-                />
-              </el-form-item>
-            </el-row>
-            <el-row>
-
-            <el-form-item label="日期 从" prop="planDate">
-              <el-date-picker v-model="filters.planDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+              </el-select>
             </el-form-item>
-            <el-form-item label="到" prop="planDate">
-              <el-date-picker v-model="filters.planDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+            <el-form-item label="时间" prop="dateTimePicker">
+              <el-date-picker
+                  v-model="dateTimePickerValue"
+                  type="datetimerange"
+                  :shortcuts="shortcuts"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :size="size"
+                  @change="getWaferIdArray">
+              </el-date-picker>
             </el-form-item>
-            </el-row>
+          </el-row>
+          <el-row>
+            <el-form-item label="Wafer ID" prop="waferId">
+              <el-select
+                  v-model="formParam.waferIds"
+                  multiple
+                  collapse-tags
+                  placeholder="请选择wafer id"
+                  :size="size"
+                  :v-loading="selectLoading"
+                  @change="changeSelect"
+              >
+                <el-checkbox v-model="allChecked" @change='selectAll'>全选</el-checkbox>
+                <el-option
+                    v-for="item in waferIdArray"
+                    :key="item.waferId"
+                    :label="item.waferId"
+                    :value="item.waferId"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="参数名" prop="paramName">
+              <el-select
+                  v-model="paramNames"
+                  multiple
+                  placeholder="请选择参数"
+                  :size="size"
+                  :v-loading="selectLoading"
+              >
+                <!--                <el-option-->
+                <!--                    v-for="item in paramNameArray"-->
+                <!--                    :key="item.paramName"-->
+                <!--                    :label="item.paramName"-->
+                <!--                    :value="item.paramName"-->
+                <!--                />-->
+                <el-option
+                    v-for="item in paramNameArray"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                />
+              </el-select>
+            </el-form-item>
+
+          </el-row>
         </el-form>
 
-          <el-form :inline="true" :size="size">
-            <el-form-item>
-              <el-button icon="el-icon-search" type="primary"
-              :loading="queryLoading"
-                        @click="findPage(null)">查询
-              </el-button>
-            </el-form-item>
-            <el-form-item>
-              <el-button icon="el-icon-document" type="info"
-                        @click="handleOpenExcelUpload">Excel导入
-              </el-button>
-            </el-form-item>
+        <el-form :inline="true" :size="size">
+          <el-form-item>
+            <el-button icon="el-icon-search" type="primary"
+                       :loading="selectLoading"
+                       @click="drawAllChart()">查询
+            </el-button>
+          </el-form-item>
+        </el-form>
 
-          </el-form>
+        <el-row v-for="(val, key, index) in paramNames" :key="index">
+          <div :id="val"
+               style="margin-top: 10px;height: 600px; width: 1280px"></div>
+        </el-row>
       </div>
-      <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
-                :data="pageResult" :columns="columns"
-                ref="queryAllTable"
-                @findPage="findPage" >
-      </QueryAllTable>
-
-      <el-dialog :title="'生产计划Excel导入'" width="400px" v-model="excelUploadDialogVisible"
-                 :close-on-click-modal="false">
-          <el-upload
-              class="upload-demo"
-              :before-upload="beforeUpload"
-              accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              :http-request="submitExcelUpload"
-              action=""
-              :multiple="false"
-              :show-file-list="false"
-              drag>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
-          </el-upload>
-        <div class="dialog-footer" style="padding-top: 20px;text-align: end">
-          <slot name="footer">
-            <el-progress
-            style="width:350px"
-              :percentage="progressPercentage"
-              :text-inside="true"
-              :indeterminate="true"
-              :stroke-width="20"
-              :duration="pregressDuration"
-              :status="progressStatus"
-            >
-              <span>{{progressContent}}</span>
-            </el-progress>
-            <div style="padding-top: 20px;">
-              <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
-              <el-button type="success" :size="size" @click="cancelExcelUpload">关闭</el-button>
-            </div>
-          </slot>
-        </div>
-      </el-dialog>
-
     </div>
   </div>
 </template>
 
 <script>
 
-import QueryAllTable from "@/components/QueryAllTable";
-import {uploadExcel, findProductionPlanPage, queryProductionPlanTitleByMonth, downloadTemplate} from "@/api/wlg/productionPlan";
+import {getMachineName, getMoldParamValue, getWaferIds} from "@/api/wlg/moldingMachineParamData";
+import * as echarts from 'echarts';
 
 export default {
   name: "productionPlan",
-  components: {QueryAllTable},
   data() {
     return {
+      allChecked: false,
       size: 'small',
-      queryLoading: false,
-      downloadTemplateLoading: false,
-
-      progressPercentage: 0,
-      progressContent:"",
-      pregressDuration: 6,
-      progressStatus: "",
-
-      filters: {
-        projectName: '',
-        mold: '',
-        cycle: '',
-        planDateStart:'',
-        planDateEnd:'',
-      },
-      columns: [
-        {prop: "projectName", label: "项目", minWidth: 120},
-        {prop: "status", label: "模具", minWidth: 100},
-        {prop: "status", label: "周期", minWidth: 100},
-        {prop: "code", label: "条件代码", minWidth: 110},
-        {prop: "planDate", label: "日期", minWidth: 120},
-        {prop: "planValue", label: "数量", minWidth: 120},
+      machineNameArray: [],
+      waferIdArray: [],
+      paramValue: {},
+      paramNameArray: [
+        "Customer_Input1_0",
+        "customer_temperature_1",
+        "customer_temperature_2",
+        "customer_temperature_3",
+        "customer_temperature_4",
+        "customer_temperature_5",
+        "customer_temperature_6",
+        "customer_temperature_7",
+        "customer_temperature_8",
+        "exchange_heater_dutycycle_actual_0",
+        "exchange_temp_actual_0",
+        "exchange_temp_control_enabled_0",
+        "exchange_temp_control_setpoint_actual_0",
+        "intermediate_heater_dutycycle_actual_0",
+        "intermediate_temp_actual_0",
+        "intermediate_temp_control_enabled_0",
+        "intermediate_temp_control_setpoint_actual_0",
+        "lc_forming_valve_open_0",
+        "lc_nitrogen_valve_open_0",
+        "lc_pressure_actual_0",
+        "lc_vacuum_valve_open_0",
+        "lc_vent_valve_open_0",
+        "lower_guard_temp_actual_0",
+        "lower_mold_temp_actual_0",
+        "lower_moldcore_section_dutycycle_actual_1",
+        "lower_moldcore_section_dutycycle_actual_10",
+        "lower_moldcore_section_dutycycle_actual_2",
+        "lower_moldcore_section_dutycycle_actual_3",
+        "lower_moldcore_section_dutycycle_actual_4",
+        "lower_moldcore_section_dutycycle_actual_5",
+        "lower_moldcore_section_dutycycle_actual_6",
+        "lower_moldcore_section_dutycycle_actual_7",
+        "lower_moldcore_section_dutycycle_actual_8",
+        "lower_moldcore_section_dutycycle_actual_9",
+        "lower_moldcore_section_temp_actual_1",
+        "lower_moldcore_section_temp_actual_10",
+        "lower_moldcore_section_temp_actual_2",
+        "lower_moldcore_section_temp_actual_3",
+        "lower_moldcore_section_temp_actual_4",
+        "lower_moldcore_section_temp_actual_5",
+        "lower_moldcore_section_temp_actual_6",
+        "lower_moldcore_section_temp_actual_7",
+        "lower_moldcore_section_temp_actual_8",
+        "lower_moldcore_section_temp_actual_9",
+        "lower_moldcore_temp_control_enabled_0",
+        "lower_moldcore_temp_control_setpoint_0",
+        "mc_forming_valve_open_0",
+        "mc_nitrogen_valve_open_0",
+        "mc_pressure_actual_0",
+        "mc_pressure_control_enabled_0",
+        "mc_pressure_control_setpoint_actual_0",
+        "mc_pressure_control_type_0",
+        "mc_proportional_valve_actual_0",
+        "mc_vacuum_valve_open_0",
+        "press_force_actual_0",
+        "press_force_control_enabled_0",
+        "press_force_control_setpoint_0",
+        "press_force_no_deadweight_0",
+        "press_force_raw_0",
+        "press_position_actual_0",
+        "sideforce_counterpressure_actual_0",
+        "sideforce_lowerU_setpoint_actual_0",
+        "sideforce_lowerV_setpoint_actual_0",
+        "sideforce_lowerW_setpoint_actual_0",
+        "sideforce_upperU_setpoint_actual_0",
+        "sideforce_upperV_setpoint_actual_0",
+        "sideforce_upperW_setpoint_actual_0",
+        "upper_guard_temp_actual_0",
+        "upper_mold_temp_actual_0",
+        "upper_moldcore_section_dutycycle_actual_1",
+        "upper_moldcore_section_dutycycle_actual_10",
+        "upper_moldcore_section_dutycycle_actual_2",
+        "upper_moldcore_section_dutycycle_actual_3",
+        "upper_moldcore_section_dutycycle_actual_4",
+        "upper_moldcore_section_dutycycle_actual_5",
+        "upper_moldcore_section_dutycycle_actual_6",
+        "upper_moldcore_section_dutycycle_actual_7",
+        "upper_moldcore_section_dutycycle_actual_8",
+        "upper_moldcore_section_dutycycle_actual_9",
+        "upper_moldcore_section_temp_actual_1",
+        "upper_moldcore_section_temp_actual_10",
+        "upper_moldcore_section_temp_actual_2",
+        "upper_moldcore_section_temp_actual_3",
+        "upper_moldcore_section_temp_actual_4",
+        "upper_moldcore_section_temp_actual_5",
+        "upper_moldcore_section_temp_actual_6",
+        "upper_moldcore_section_temp_actual_7",
+        "upper_moldcore_section_temp_actual_8",
+        "upper_moldcore_section_temp_actual_9",
+        "upper_moldcore_temp_control_enabled_0",
+        "upper_moldcore_temp_control_setpoint_0",
+        "vacuumhead_heater_dutycycle_actual_0",
+        "vacuumhead_temp_actual_0",
+        "vacuumhead_temp_control_enabled_0",
+        "vacuumhead_temp_control_setpoint_actual_0"
       ],
-      pageRequest: {},
-      pageResult: {
-        tableData:[]
+      //paramValueArray:[],
+      selectLoading: false,
+      formParam: {
+        waferIds: []
       },
-
-      excelUploadDialogVisible: false,
+      dateTimePickerValue: [],
+      paramNames: [],
+      shortcuts: [{
+        text: '最近一天',
+        value: (() => {
+          const end = new Date();
+          const start = new Date();
+          start.setTime(start.getTime() - 3600 * 1000 * 24);
+          return [start, end]
+        })()
+      }],
     }
   },
   methods: {
-    // 获取分页数据
-    findPage: function (data) {
-      if (data !== null) {
-        this.pageRequest = data.pageRequest
+
+    selectAll() {
+      this.formParam.waferIds = []
+      if (this.allChecked) {
+        this.waferIdArray.map(item => {
+          this.formParam.waferIds.push(item.waferId)
+        })
+      } else {
+        this.formParam.waferIds = []
       }
-      this.pageRequest.projectName = this.filters.projectName;
-      this.pageRequest.mold = this.filters.mold;
-      this.pageRequest.cycle = this.filters.cycle;
-      this.pageRequest.planDateStart = this.filters.planDateStart;
-      this.pageRequest.planDateEnd = this.filters.planDateEnd;
-
-      this.queryLoading = true;
-      queryProductionPlanTitleByMonth(this.pageRequest).then((res) => {
-        const responseData = res.data
-        if (responseData.code === '000000') {
-          this.columns = responseData.data
-        }
-      }).then(data != null ? data.callback : '')
-
-
-      findProductionPlanPage(this.pageRequest).then((res) => {
-        const responseData = res.data
-        if (responseData.code === '000000') {
-          this.pageResult.records = responseData.data
-          this.$message.success(responseData.msg)
-        }
-        else
-        {
-          this.pageResult.records = [];
-          this.$message.error(responseData.msg + "," + responseData.data);
-        }
-        this.queryLoading = false;
-      }).then(data != null ? data.callback : '')
     },
-
-    handleOpenExcelUpload:function()
-    {
-      this.excelUploadDialogVisible = true;
-
-      this.progressPercentage = 0;
-      this.progressContent = "";
-      this.progressStatus = "";
-      this.pregressDuration = 6;
+    changeSelect(val) {
+      if (val.length === this.waferIdArray.length) {
+        this.allChecked = true
+      } else {
+        this.allChecked = false
+      }
     },
-
-    submitExcelUpload(params) {
-      this.progressPercentage = 50;
-      this.progressContent = "Excel导入中，请稍等...";
-      this.progressStatus = "";
-      this.pregressDuration = 6;
-
-      uploadExcel(params).then((response) => {
+    getMachineName() {
+      getMachineName().then((response) => {
         const responseData = response.data
-
-        this.progressPercentage = 100;
-        this.pregressDuration = 0;
         if (responseData.code === '000000') {
-          this.$message.success('上传成功！')
-
-          this.progressContent = "导入成功";
-          this.progressStatus = "success"
-        } else {
-          this.$message.error('上传失败！' + responseData.msg + "," + responseData.data);
-
-          this.progressContent = "导入失败";
-          this.progressStatus = "exception";
+          this.machineNameArray = responseData.data
         }
-      }).catch((err) => {
-        this.$message.error(err)
       })
     },
-    beforeUpload(file) {
-      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel'
-      if (!isExcel) {
-        this.$message.error('只能上传xlsx, xls格式的文件！')
-        return false
+
+    getWaferIdArray(val) {
+      this.selectLoading = true
+      if (!this.formParam.machineName || this.formParam.machineName === "") {
+        this.$message.warn('请先选择机台号！')
+        this.selectLoading = false
       }
+      const startTime = this.$moment(val[0]).format('YYYY-MM-DD HH:mm:ss');
+      const endTime = this.$moment(val[1]).format('YYYY-MM-DD HH:mm:ss');
+      getWaferIds(this.formParam.machineName, startTime, endTime).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.waferIdArray = responseData.data
+          this.selectLoading = false
+        }
+      }).catch((err) => {
+        this.$message.error(err.message)
+        this.selectLoading = false
+      })
     },
-    downloadTemplate()
-    {
-      this.downloadTemplateLoading = true;
-      downloadTemplate().then(res => {
 
-          let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
-          let link = document.createElement('a');
-          link.style.display = 'none';
-          link.href = url;
-          link.setAttribute('download', '生产报表模板' + "-" + new Date().getTime() + ".xlsx");
-          document.body.appendChild(link);
-          link.click();
+    getParamNames(val) {
+      // this.selectLoading = true
+      // getMoldParamName(this.formParam).then((response) => {
+      //   const responseData = response.data
+      //   if (responseData.code === '000000') {
+      //     this.paramNameArray = responseData.data
+      //     this.selectLoading = false
+      //   }
+      // }).catch((err) => {
+      //   this.$message.error(err.message)
+      //   this.selectLoading = false
+      // })
+      this.changeSelect(val)
+    },
 
-          this.downloadTemplateLoading = false;
-      });
+    getParamValue(paramName) {
+      this.selectLoading = true
+      this.formParam.paramName = paramName
+      getMoldParamValue(this.formParam).then((response) => {
+        const responseData = response.data
+        if (responseData.code === '000000') {
+          this.paramValue[paramName] = responseData.data
+          //this.paramValueArray = responseData.data
+          this.drawLineChart(paramName)
+          this.selectLoading = false
+        }
+      }).catch((err) => {
+        this.$message.error(err.message)
+        this.selectLoading = false
+      })
     },
-    cancelExcelUpload()
-    {
-      this.excelUploadDialogVisible = false;
+
+    drawAllChart() {
+      this.paramNames.forEach(item => {
+        this.getParamValue(item)
+      })
     },
-    // 时间格式化
-    dateTimeFormat: function (row, column) {
-      return this.$moment(row[column.property]).format('YYYY-MM-DD HH:mm')
-    },
-    // 时间格式化
-    dateFormat: function (row, column) {
-      return this.$moment(row[column.property]).format('YYYY-MM-DD')
-    },
-    getCurrentMonthFirst () {
-      var date = new Date()
-      date.setDate(1)
-      var month = parseInt(date.getMonth() + 1)
-      var day = date.getDate()
-      if (month < 10)  month = '0' + month
-      if (day < 10)  day = '0' + day
-      this.filters.planDateStart = date.getFullYear() + '-' + month + '-' + day
-    },
-    getCurrentMonthLast () {
-      var date = new Date()
-      var month = parseInt(date.getMonth() + 1)
-      var day = date.getDate()
-      if (month < 10)  month = '0' + month
-      if (day < 10)  day = '0' + day
-      this.filters.planDateEnd = date.getFullYear() + '-' + month + '-' + day
-    },
+
+    // drawLineChart(paramName){
+    //   const chartDom = document.getElementById(paramName);
+    //   const myChart = echarts.init(chartDom);
+    //   let option;
+    //
+    //   run(this.paramValueArray)
+    //
+    //
+    //   function run(_rawData) {
+    //     option = {
+    //       dataset: [
+    //         {
+    //           id: 'dataset_raw',
+    //           source: _rawData
+    //         },
+    //         {
+    //           id: 'dataset_since_1950_of_germany',
+    //           fromDatasetId: 'dataset_raw',
+    //           transform: {
+    //             type: 'filter',
+    //             config: {
+    //               and: [
+    //                 { dimension: 'plcTimeStamp', gte: 0 },
+    //                 { dimension: 'waferId', '=': '3816' }
+    //               ]
+    //             }
+    //           }
+    //         },
+    //         {
+    //           id: 'dataset_since_1950_of_france',
+    //           fromDatasetId: 'dataset_raw',
+    //           transform: {
+    //             type: 'filter',
+    //             config: {
+    //               and: [
+    //                 { dimension: 'plcTimeStamp', gte: 0 },
+    //                 { dimension: 'waferId', '=': '3817' }
+    //               ]
+    //             }
+    //           }
+    //         }
+    //       ],
+    //       title: {
+    //         text: paramName
+    //       },
+    //       tooltip: {
+    //         trigger: 'axis'
+    //       },
+    //       xAxis: {
+    //         type: 'category',
+    //         nameLocation: 'middle'
+    //       },
+    //       yAxis: {
+    //         name: '值'
+    //       },
+    //       series: [
+    //         {
+    //           type: 'line',
+    //           datasetId: 'dataset_since_1950_of_germany',
+    //           showSymbol: false,
+    //           encode: {
+    //             x: 'plcTimeStamp',
+    //             y: 'paramValue',
+    //             itemName: 'plcTimeStamp',
+    //             tooltip: ['paramValue']
+    //           }
+    //         },
+    //         {
+    //           type: 'line',
+    //           datasetId: 'dataset_since_1950_of_france',
+    //           showSymbol: false,
+    //           encode: {
+    //             x: 'plcTimeStamp',
+    //             y: 'paramValue',
+    //             itemName: 'plcTimeStamp',
+    //             tooltip: ['paramValue']
+    //           }
+    //         }
+    //       ]
+    //     };
+    //     myChart.setOption(option);
+    //   }
+    //
+    //   option && myChart.setOption(option);
+    // }
+
+    drawLineChart(paramName) {
+      const chartDom = document.getElementById(paramName);
+      const myChart = echarts.init(chartDom);
+      let option;
+
+      run(this.paramValue[paramName], this.formParam.waferIds)
+
+
+      function run(_rawData, waferIds) {
+
+        const datasetWithFilters = [];
+        const seriesList = [];
+        echarts.util.each(waferIds, function (waferId) {
+          const datasetId = 'dataset_' + waferId;
+          datasetWithFilters.push({
+            id: datasetId,
+            fromDatasetId: 'dataset_raw',
+            transform: {
+              type: 'filter',
+              config: {
+                and: [
+                  {dimension: 'plcTimeStamp', gte: 0},
+                  {dimension: 'waferId', '=': waferId}
+                ]
+              }
+            }
+          });
+          seriesList.push({
+            type: 'line',
+            datasetId: datasetId,
+            showSymbol: false,
+            name: waferId,
+            encode: {
+              x: 'plcTimeStamp',
+              y: 'paramValue',
+              label: ['waferId', 'paramValue'],
+              itemName: 'plcTimeStamp',
+              tooltip: ['paramValue', 'recipePhase']
+            }
+          });
+        });
+        option = {
+          dataset: [
+            {
+              id: 'dataset_raw',
+              source: _rawData
+            },
+            ...datasetWithFilters
+          ],
+          title: {
+            text: paramName
+          },
+          legend: {
+            data: waferIds,
+            bottom: 0,
+            type: 'scroll',
+            orient: 'horizontal'
+          },
+          toolbox: {
+            feature: {
+              dataZoom: {
+                yAxisIndex: 'none'
+              },
+              restore: {},
+              saveAsImage: {}
+            }
+          },
+          tooltip: {
+            order: 'valueDesc',
+            trigger: 'axis',
+            confine: true,
+            // formatter: function (params) {
+            //   if (params instanceof Array) {
+            //     let str = '';
+            //     str += `${params[0].axisValue}<br/>`;
+            //     params.forEach((m, index) => {
+            //       str +=  `<span class="chart-tooltip-color" style="display: inline-block; margin-right: 10px; background-color: ${m.color}; width: 10px; height: 10px; border-radius:100%; margin-right: 5px"></span>`;
+            //       str += `${m.seriesName}: 参数值：${m.data[3]} 步骤：${m.data[7]}`;
+            //       str += `${index % 3 === 0 ? '<br/>' : ''}`; //一排放几个可根据实际情况改变
+            //     });
+            //     return str;
+            //   }
+            // }
+          },
+          xAxis: {
+            type: 'category',
+            name: '时间戳/S',
+            nameTextStyle: {
+              fontSize: '16px'
+            }
+          },
+          yAxis: {
+            name: '参数值',
+            scale: true,
+            nameTextStyle: {
+              fontSize: '16px'
+            }
+          },
+          grid: {
+            right: 140
+          },
+          series: seriesList
+        };
+        myChart.setOption(option);
+      }
+
+      option && myChart.setOption(option);
+    }
   },
-  mounted()
-  {
-    this.getCurrentMonthFirst();
-    this.getCurrentMonthLast();
+  mounted() {
+    this.getMachineName();
   }
 }
 </script>

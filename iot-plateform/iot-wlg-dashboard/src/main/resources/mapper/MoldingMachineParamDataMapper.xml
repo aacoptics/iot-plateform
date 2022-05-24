@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aac.optics.wlg.dashboard.mapper.MoldingMachineParamDataMapper">
-
     <select id="getMoldingParamData" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">
-        SELECT machine_name, wafer_id, recipe_name, recipe_phase, param_name, param_value, plc_time, a.create_time
+        select * from (
+        SELECT machine_name, wafer_id, recipe_name, recipe_phase, param_name, param_value, plc_time, a.create_time,
+        ROW_NUMBER() over (partition by wafer_id order by a.id) as plc_time_stamp
+--         datediff(second, min(plc_time) over (partition by wafer_id), plc_time) as plc_time_stamp
         FROM t_wlg_molding_machine_param_data a
         join t_wlg_molding_machine_param_data_base b
         on a.serial_id = b.serial_id
@@ -15,7 +17,8 @@
             #{waferId}
         </foreach>
         and description + '_' + convert(varchar, array_id) = #{paramName}
-        order by a.id
+        )t
+        order by plc_time_stamp, wafer_id
     </select>
 
     <select id="getMachineName" resultType="com.aac.optics.wlg.dashboard.entity.MoldingMachineParamData">

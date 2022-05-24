@@ -35,8 +35,5 @@ public class MoldingMachineParamData implements Serializable {
 
     private LocalDateTime createTime;
 
-    @TableField(exist = false)
     private Long plcTimeStamp;
-
-
 }
