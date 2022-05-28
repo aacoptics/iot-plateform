@@ -315,7 +315,7 @@ export default {
           this.$message.error('保存失败，存在直径不匹配的刀柄（表格已标红）')
           return;
         }
-        if (tempMoldList[i].machineNo === "" && tempMoldList[i].matInfo.toolCode !== "") {
+        if (tempMoldList[i].machineNo === "" && tempMoldList[i].matInfo.toolCode !== null && tempMoldList[i].matInfo.toolCode !== "") {
           this.$message.error('保存失败，刀具编码有值时机台号不能为空')
           return;
         }
