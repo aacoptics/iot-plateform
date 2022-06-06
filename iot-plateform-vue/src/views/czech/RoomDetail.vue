@@ -119,7 +119,7 @@
       <el-row>
         <el-col v-for="(machineInfo, index) of machineInfoByRoom(9)" :span="3" :key="index">
           <el-card style="border:1px solid blue;margin:5px;" class="cz_room_card" :body-style="{ padding: '0px', height:'255px'}">
-            <p style="text-align: center;font-weight: bold;font-size: 24px">{{machineInfo.name}}</p>
+            <p style="text-align: center;font-weight: bold;font-size: 24px;cursor: pointer" @click="onClick(machineInfo.name)">{{machineInfo.name}}</p>
             <el-row v-if="machineInfo.status === 'Maintenance'" style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
               <el-col :span="24">
                 <div :style="'background-color:grey;height:30px;line-height:30px'">{{machineInfo.status}}</div>
@@ -128,7 +128,7 @@
             </el-row>
             <el-row v-else style="text-align: center;height:30px; font-weight: bold;font-size: 16px;">
               <el-col :span="5">
-                <div :style="'background-color:yellow;height:30px;line-height:30px'">
+                <div :style="'background-color:yellow;height:30px;line-height:30px;cursor:pointer'" @click="onTemperatureClick(machineInfo.name)">
                   {{machineInfo.temperature}}℃
                 </div>
               </el-col>
@@ -158,9 +158,9 @@
                   <p style="margin-top: 5px;margin-left: 5px">Process: {{machineInfo.process}}</p>
                   <p style="margin-top: 5px;margin-left: 5px">ML: {{machineInfo.ml}}</p>
                   <p style="margin-top: 5px;margin-left: 5px">OP id: {{machineInfo.opid}}</p>
-                  <p style="margin-top: 5px;margin-left: 5px">
-                    <el-button type="primary" @click="addNote(machineInfo.name)">Notes</el-button>
-                  </p>
+<!--                  <p style="margin-top: 5px;margin-left: 5px">-->
+<!--                    <el-button type="primary" @click="addNote(machineInfo.name)">Notes</el-button>-->
+<!--                  </p>-->
                 </div>
               </el-col>
             </el-row>
@@ -319,6 +319,9 @@ export default {
             style: api.style()
           }
       );
+    },
+    onTemperatureClick(machineName) {
+      this.$router.push({name: 'temperaturePlots', query: {machineName: machineName}});
     },
     machineInfoByRoom(roomNum) {
       const res = []
@@ -502,8 +505,11 @@ export default {
       }
       return res
     },
-    addNote(projectName) {
-      console.log(projectName)
+    // addNote(projectName) {
+    //   console.log(projectName)
+    // }
+    onClick(machineName) {
+      this.$router.push({name: 'machineDetail', query: {machineName: machineName}});
     }
   }
 }

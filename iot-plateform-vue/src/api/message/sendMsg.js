@@ -93,3 +93,17 @@ export function filterPlanContact(planKey) {
     })
 }
 
+export function excutePlan(planKey) {
+    return request({
+        url: '/MessagePlan/excutePlan',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            planKey: planKey
+        }
+
+    });
+}
+

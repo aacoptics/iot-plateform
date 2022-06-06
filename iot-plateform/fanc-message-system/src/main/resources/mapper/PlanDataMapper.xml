@@ -125,7 +125,6 @@
   		     , ISNULL([TIME_PERIOD],0) as timePeriod
   		     , [STATUS] as status
         FROM MS_00_PLAN P
-        WHERE P.STATUS = 1
     </select>
 
 </mapper>

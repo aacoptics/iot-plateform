@@ -3,7 +3,9 @@ package com.aac.optics.dingtalk.notification.service.impl;
 import com.aac.optics.dingtalk.notification.entity.*;
 import com.aac.optics.dingtalk.notification.mapper.SendSalesDataMapper;
 import com.aac.optics.dingtalk.notification.provider.DingTalkApi;
+import com.aac.optics.dingtalk.notification.provider.FeishuApi;
 import com.aac.optics.dingtalk.notification.service.SendSalesDataService;
+import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiRobotSendRequest;
@@ -32,6 +34,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
     @Resource
     DingTalkApi dingTalkApi;
+
+    @Resource
+    FeishuApi feishuApi;
 
     @Resource
     SendSalesDataMapper sendSalesDataMapper;
@@ -116,8 +121,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
         LocalTime currentTime = LocalTime.now();
 
         List<Map<String, String>> batchList = sendSalesDataMapper.getSalesDataBatch();
-        if(batchList == null || batchList.size() == 0)
-        {
+        if (batchList == null || batchList.size() == 0) {
             log.info("没有需要发送到钉钉群的销售数据");
             return;
         }
@@ -126,8 +130,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
         decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
 
         DecimalFormat percentDecimalFormat = new DecimalFormat("0.0%");
-        for(Map<String, String> batchMap: batchList)
-        {
+        for (Map<String, String> batchMap : batchList) {
             String title = batchMap.get("TITLE");
             String batchId = batchMap.get("BATCH");
             String titleTime = batchMap.get("TITLE_TIME");
@@ -139,8 +142,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             MarkdownGroupMessage markdownGroupMessage = new MarkdownGroupMessage();
             markdownGroupMessage.setTitle(title);
             markdownGroupMessage.addContent("日期：" + titleTime);
-            for(ProductContent productContent : productContentList)
-            {
+            for (ProductContent productContent : productContentList) {
                 String productType = productContent.getTabProductType();
 
 
@@ -149,35 +151,34 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 String dayShipPlanQty = productContent.getDayShipPlanQty() != null ? decimalFormat.format(productContent.getDayShipPlanQty()) : "-";
                 String dayShipRate = productContent.getDayShipQtyRate() != null ? percentDecimalFormat.format(productContent.getDayShipQtyRate()) : "-";
 
+                String mtdTabProductType = productContent.getMtdTabProductType();
+                String mtdShipQty = productContent.getMtdShipQty() != null ? decimalFormat.format(productContent.getMtdShipQty()) : "-";
+                String mtdShipPlanQty = productContent.getMtdShipPlanQty() != null ? decimalFormat.format(productContent.getMtdShipPlanQty()) : "-";
+                String mtdShipRate = productContent.getMtdShipQtyRate() != null ? percentDecimalFormat.format(productContent.getMtdShipQtyRate()) : "-";
+
                 String subProductType = productContent.getSubTabProductType();
                 String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
                 String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
 
                 String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
-                String shipAmount =  productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
+                String shipAmount = productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
                 String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
                 String shipPlanAmount = productContent.getShipPlanAmount() != null ? decimalFormat.format(productContent.getShipPlanAmount()) : "-";
                 String shipQtyRate = productContent.getShipQtyRate() != null ? percentDecimalFormat.format(productContent.getShipQtyRate()) : "-";
                 String shipAmountRate = productContent.getShipAmountRate() != null ? percentDecimalFormat.format(productContent.getShipAmountRate()) : "-";
 
-                if("汇总".equals(productType)) {
+                if ("汇总".equals(productType)) {
                     markdownGroupMessage.addBlobContent(productType);
-                    if(!StringUtils.isEmpty(dayTabProductType)) {
-                        if("-".equals(dayShipPlanQty))
-                        {
-                            markdownGroupMessage.addBlobContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty);
-                        }
-                        else
-                        {
-                            markdownGroupMessage.addBlobContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
+                    if (!StringUtils.isEmpty(dayTabProductType)) {
+                        if ("-".equals(dayShipPlanQty)) {
+                            markdownGroupMessage.addBlobContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty);
+                        } else {
+                            markdownGroupMessage.addBlobContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty + " K");
                         }
 
-                        if("-".equals(dayShipQty))
-                        {
+                        if ("-".equals(dayShipQty)) {
                             markdownGroupMessage.addBlobContent(dayTabProductType + "实际出货数量：" + dayShipQty);
-                        }
-                        else
-                        {
+                        } else {
                             markdownGroupMessage.addBlobContent(dayTabProductType + "实际出货数量：" + dayShipQty + " K");
                         }
 
@@ -186,30 +187,60 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlankLine();
                     }
 
-                    markdownGroupMessage.addBlobContent("当月计划出货数量：" + shipPlanQty + " K");
-                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
-                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addBlobContent("当月计划出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    //MTD
+                    if(!StringUtils.isEmpty(mtdTabProductType))
+                    {
+                        if("-".equals(mtdShipPlanQty))
+                        {
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty);
+                        }
+                        else
+                        {
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty + " K");
+                        }
+                        if("-".equals(mtdShipQty))
+                        {
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "实际出货数量：" + mtdShipQty);
+                        }
+                        else
+                        {
+                            markdownGroupMessage.addBlobContent(mtdTabProductType + "实际出货数量：" + mtdShipQty + " K");
+                        }
+
+
+                    }
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addBlobContent(subProductType + "出货数量：" + subShipQty + " K");
+                    }
+                    if(!StringUtils.isEmpty(mtdTabProductType))
+                    {
+                        markdownGroupMessage.addBlobContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
+                    }
+//                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
-                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
+                    if(!StringUtils.isEmpty(subProductType))
+                    {
+                        markdownGroupMessage.addBlobContent(subProductType + "出货金额：" + subShipAmount + " K");
+                    }
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                 }
                 else {
-                    markdownGroupMessage.addContent(productType);
+                    markdownGroupMessage.addBlobContent(productType);
                     if(!StringUtils.isEmpty(dayTabProductType)) {
                         if("-".equals(dayShipPlanQty))
                         {
-                            markdownGroupMessage.addContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty);
+
+                            markdownGroupMessage.addContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty);
+                        } else {
+                            markdownGroupMessage.addContent(dayTabProductType + "预测出货数量：" + dayShipPlanQty + " K");
                         }
-                        else
-                        {
-                            markdownGroupMessage.addContent(dayTabProductType + "计划出货数量：" + dayShipPlanQty + " K");
-                        }
-                        if("-".equals(dayShipQty))
-                        {
+                        if ("-".equals(dayShipQty)) {
                             markdownGroupMessage.addContent(dayTabProductType + "实际出货数量：" + dayShipQty);
-                        }
-                        else
-                        {
+                        } else {
                             markdownGroupMessage.addContent(dayTabProductType + "实际出货数量：" + dayShipQty + " K");
                         }
 
@@ -217,76 +248,114 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
+                    markdownGroupMessage.addContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    //MTD
+                    if(!StringUtils.isEmpty(mtdTabProductType))
+                    {
+                        if("-".equals(mtdShipPlanQty))
+                        {
+                            markdownGroupMessage.addContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty);
+                        }
+                        else
+                        {
+                            markdownGroupMessage.addContent(mtdTabProductType + "预测目标出货数量：" + mtdShipPlanQty + " K");
+                        }
+                        if("-".equals(mtdShipQty))
+                        {
+                            markdownGroupMessage.addContent(mtdTabProductType + "实际出货数量：" + mtdShipQty);
+                        }
+                        else
+                        {
+                            markdownGroupMessage.addContent(mtdTabProductType + "实际出货数量：" + mtdShipQty + " K");
+                        }
+                    }
 
-                    markdownGroupMessage.addContent("当月计划出货数量：" + shipPlanQty + " K");
-                    markdownGroupMessage.addContent("当月实际出货数量：" + shipQty + " K");
+
+//                    markdownGroupMessage.addContent("当月实际出货数量：" + shipQty + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addContent("当月计划出货金额：" + shipPlanAmount + " K");
-                    markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
-                    if(!StringUtils.isEmpty(subProductType))
+                    if(!StringUtils.isEmpty(mtdTabProductType))
                     {
+                        markdownGroupMessage.addContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
+                    }
+
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
+                    if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
                     markdownGroupMessage.addBlankLine();
                 }
             }
             //获取详情URL
             String tabUrl = sendSalesDataMapper.getUrlByTabType(tabType);
-            if(StringUtils.isEmpty(tabUrl))
-            {
+            if (StringUtils.isEmpty(tabUrl)) {
                 log.warn("类型【{}】详情地址URL未配置", tabType);
-            }
-            else {
+            } else {
                 markdownGroupMessage.addContent("[查看详情](" + tabUrl + ")");
             }
-
             List<Map<String, Object>> robotMapList = sendSalesDataMapper.getRobotUrlByTabType(tabType);
-            if(robotMapList == null || robotMapList.size() == 0)
-            {
+            if (robotMapList == null || robotMapList.size() == 0) {
                 log.error("类型{}机器人URL未配置，请确认");
                 return;
             }
 
             int sendCount = 0; //发送记录数
-            for(Map<String, Object> robotMap : robotMapList) {
-                Integer robotId = Integer.valueOf(robotMap.get("ID")+"");
-                String robotUrl = robotMap.get("ROBOT_URL") != null ? robotMap.get("ROBOT_URL")+"" : "";
-                String sendTimeStr = robotMap.get("SEND_TIME") != null ? robotMap.get("SEND_TIME")+"" : "";
+            for (Map<String, Object> robotMap : robotMapList) {
+                Integer robotId = Integer.valueOf(robotMap.get("ID") + "");
+                String robotUrl = robotMap.get("ROBOT_URL") != null ? robotMap.get("ROBOT_URL") + "" : "";
+                String sendTimeStr = robotMap.get("SEND_TIME") != null ? robotMap.get("SEND_TIME") + "" : "";
                 //校验是否已发送
                 List<Map<String, String>> sendHistoryList = sendSalesDataMapper.getSendHistoryByBatchAndRobot(batchId, robotId);
-                if(sendHistoryList != null && sendHistoryList.size() > 0)
-                {
+                if (sendHistoryList != null && sendHistoryList.size() > 0) {
                     sendCount++;
                     continue;
                 }
 
                 //校验当前时间是否在配置时间之后，如果是，则发送
-                if(!StringUtils.isEmpty(sendTimeStr))
-                {
+                if (!StringUtils.isEmpty(sendTimeStr)) {
                     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
                     LocalTime sendTime = LocalTime.parse(sendTimeStr, dateTimeFormatter);
-                    if(currentTime.isBefore(sendTime))
-                    {
+                    if (currentTime.isBefore(sendTime)) {
                         continue;
                     }
                 }
-                Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
-                String result = resultMap.get("result");
-                String message = resultMap.get("message");
-                if(!StringUtils.isEmpty(message) && message.length() > 1024)
-                {
-                    message = message.substring(1024);
+
+                if (robotUrl.contains("feishu")) {
+                    String message = feishuApi.SendGroupMessage(robotUrl, markdownGroupMessage.toString());
+                    JSONObject messageJson = new JSONObject();
+                    try {
+                        messageJson = JSONObject.parseObject(message);
+                    } catch (Exception err) {
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "false", null);
+                        log.error("解析返回值失败！{}", err.getMessage());
+                    }
+                    if (messageJson.containsKey("StatusCode") && messageJson.getInteger("StatusCode") == 0) {
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "true", null);
+                    } else {
+                        String errorMsg = null;
+                        if (messageJson.containsKey("msg") && !StringUtils.isEmpty(messageJson.getString("msg"))) {
+                            errorMsg = messageJson.getString("msg");
+                        }
+                        sendSalesDataMapper.saveSendHistory(batchId, robotId, "false", errorMsg);
+                    }
+                } else {
+                    Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+                    String result = resultMap.get("result");
+                    String message = resultMap.get("message");
+                    if (!StringUtils.isEmpty(message) && message.length() > 1024) {
+                        message = message.substring(1024);
+                    }
+                    sendSalesDataMapper.saveSendHistory(batchId, robotId, result, message);
                 }
-                sendSalesDataMapper.saveSendHistory(batchId, robotId, result, message);
                 sendCount++;
             }
             //如果所有已配置的群都已发送，更新发送状态
-            if(sendCount >= robotMapList.size()) {
+            if (sendCount >= robotMapList.size()) {
                 sendSalesDataMapper.updateSalesProductContentSendFlag(batchId);
             }
             log.info("销售数据【{}】推送到群", batchId);

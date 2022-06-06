@@ -295,6 +295,8 @@ public class ETLJiraServiceImpl implements ETLJiraService {
         List<Map<String, Object>> issueList = issueDataMapper.getIssuesToUpdate(emptyParam);
         if(issueList != null || !issueList.isEmpty())
         {
+            int totalCount = issueList.size();
+            int idx = 1;
             for(Map<String,Object> issueMap:issueList)
             {
                 String issueEndTime = "";
@@ -322,6 +324,25 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                     status = resultJSON.getJSONObject("fields").getJSONObject("status").getString("name");
                 }
 
+                String userno = null;
+                if(resultJSON.getJSONObject("fields").getJSONObject("assignee") != null)
+                {
+                    userno = resultJSON.getJSONObject("fields").getJSONObject("assignee").getString("name");
+                }
+
+                String businessDesc = null;
+                if(resultJSON.getJSONObject("fields").getJSONObject("customfield_14701") != null)
+                {
+                    businessDesc = resultJSON.getJSONObject("fields").getJSONObject("customfield_14701").getString("value");
+                }
+
+                int estimateSecond = 0;
+                double estimateHour = 0.0;
+                if(resultJSON.getJSONObject("fields").getInteger("aggregatetimeoriginalestimate") != null)
+                {
+                    estimateSecond = resultJSON.getJSONObject("fields").getInteger("aggregatetimeoriginalestimate");
+                    estimateHour = estimateSecond/hourF;
+                }
                 String updateTimeStr = resultJSON.getJSONObject("fields").getString("updated");
                 LocalDateTime updateTime = LocalDateTime.parse(updateTimeStr, pattern);
 
@@ -369,8 +390,10 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                         String workLogDesc = workLogJson.getString("comment");
 
                         String cost = numberFormat.format((float) workLogJson.getInteger("timeSpentSeconds")/hourF);
+
                         Map<String, Object> inertWorkLogParam = new HashMap<>();
                         inertWorkLogParam.put("issueKey", issueKey);
+                        inertWorkLogParam.put("userno", userno);
                         inertWorkLogParam.put("workLogDate", workLogDate);
                         inertWorkLogParam.put("workLogDesc", workLogDesc);
                         inertWorkLogParam.put("cost", Double.parseDouble(cost));
@@ -405,10 +428,12 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 if(issueKey.indexOf("DEV-") > -1)
                 {
                     developCost = numberFormat.format(estimateTimeF/hourF);
+                    developOwnerNo  = userno;
                 }
                 else
                 {
                     businessCost = numberFormat.format(estimateTimeF/hourF);
+                    businessOwnerNo = userno;
                 }
                 if(!"".equals(ekpIssueNo))
                 {
@@ -507,8 +532,14 @@ public class ETLJiraServiceImpl implements ETLJiraService {
                 updateParam.put("parentId", parentId !=0?parentId:null);
                 updateParam.put("ekpIssueNo", ekpIssueNo);
 
+                updateParam.put("businessDesc", businessDesc);
+                updateParam.put("estimateHour", estimateHour);
+
                 issueDataMapper.updateIssueLog(updateParam);
 
+                System.out.println("任务时间: " + LocalDateTime.now() + "更新 " + issueKey + " 进度" + idx + "/" + totalCount);
+
+                idx++;
             }
         }
         return "SUCCESS";

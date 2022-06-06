@@ -1,6 +1,7 @@
 package com.aac.optics.message.system.controller;
 
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.message.system.schedule.DynamicNotifyTask;
 import com.aac.optics.message.system.service.PlanService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,6 +20,9 @@ public class MessagePlanController {
 
     @Autowired
     PlanService planService;
+
+    @Autowired(required = false)
+    DynamicNotifyTask task;
 
     @ApiOperation(value = "查询已创建的计划", notes = "查询已创建的计划")
     @ApiImplicitParam(name = "planKey", value = "planKey", required = true, dataType = "String")
@@ -122,6 +126,18 @@ public class MessagePlanController {
             e.printStackTrace();
             return Result.fail("数据保存发生异常，请联系系统管理员！");
         }
+    }
+
+    @ApiOperation(value = "手动推送计划", notes = "手动推送计划")
+    @ApiImplicitParam(name = "planKey", value = "planKey", required = true, dataType = "String")
+    @GetMapping("/excutePlan")
+    @CrossOrigin
+    public Result excutePlan(@RequestParam("planKey") String planKey) {
+
+        task.setPlanKey(planKey);
+        task.excuteTask(true);
+
+        return Result.success("手动计划推送成功！");
     }
 
 }

@@ -24,6 +24,7 @@
         <module>fanc-dingtalk-sync</module>
         <module>fanc-dingtalk-notification</module>
         <module>fanc-message-system</module>
+        <module>iot-wlg-report</module>
     </modules>
 
     <packaging>pom</packaging>

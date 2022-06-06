@@ -29,7 +29,7 @@ public class StaticScheduleTask {
     }
 
     //3.添加定时任务
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */20 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void initIssues()
     {
@@ -41,6 +41,7 @@ public class StaticScheduleTask {
     @Scheduled(cron = "0 */5 * * * ?")
     //或直接指定时间间隔，例如：5秒
     public void updateIssues()  {
+        System.out.println("任务开始时间: " + LocalDateTime.now() + " 任务updateIssues()");
         String resultMSG = null;
         try {
             resultMSG = etlJiraService.updateIssues();

@@ -6,7 +6,7 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages="com.aac.optics.message.system.*")
 @EnableDiscoveryClient
 @EnableCircuitBreaker
 public class MessageSystemApplication {

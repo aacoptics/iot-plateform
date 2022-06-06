@@ -8,9 +8,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.scheduling.config.TriggerTask;
 import org.springframework.scheduling.support.CronTrigger;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,9 @@ public class StaticScheduleTask  implements SchedulingConfigurer {
     //或直接指定时间间隔，例如：5秒
     public void refreshTaskRegister()
     {
-        taskRegistrar.destroy();
+        /*taskRegistrar.destroy();
+
+        taskRegistrar.setTriggerTasksList(new ArrayList<TriggerTask>());
 
         List<Map<String, Object>> scheduleList = planService.queryScheduledPlan();
 
@@ -57,7 +61,10 @@ public class StaticScheduleTask  implements SchedulingConfigurer {
                     }
             );
             taskRegistrar.afterPropertiesSet();
-        }
+        }*/
+
+        /*task.setPlanKey("PLAN-006");
+        task.excuteTask();*/
     }
 
     @Override
@@ -65,7 +72,7 @@ public class StaticScheduleTask  implements SchedulingConfigurer {
 
         // this.taskRegistrar = taskRegistrar;
 
-        /*List<Map<String, Object>> scheduleList = planService.queryScheduledPlan();
+        List<Map<String, Object>> scheduleList = planService.queryScheduledPlan();
         for (Map<String, Object> scheduleMap : scheduleList) {
 
             String planCron = scheduleMap.get("planCron") + "";
@@ -78,7 +85,7 @@ public class StaticScheduleTask  implements SchedulingConfigurer {
                         return new CronTrigger(planCron).nextExecutionTime(triggerContext);
                     }
             );
-        }*/
+        }
 
         StaticScheduleTask.taskRegistrar = taskRegistrar;
     }

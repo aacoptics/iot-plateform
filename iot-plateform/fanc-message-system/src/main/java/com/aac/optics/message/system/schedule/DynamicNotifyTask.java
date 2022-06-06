@@ -52,6 +52,11 @@ public class DynamicNotifyTask  implements Runnable {
 
     @Override
     public void run() {
+        excuteTask(false);
+    }
+
+    public void excuteTask(boolean isManual)
+    {
         SimpleDateFormat currentSdf = new SimpleDateFormat("yyyy-MM-dd");
         String WORK_DAY = currentSdf.format(new Date());
 
@@ -74,12 +79,14 @@ public class DynamicNotifyTask  implements Runnable {
         String notifyRobot = planMap.get("notifyRobot") + "";
         String secret = planMap.get("sign") + "";
 
-        if("0".equals(status))
+        if(!isManual)
         {
-            insertJobParam.put("MSG", "通知计划未启用");
-            planDataMapper.insertPlanJob(insertJobParam);
+            if ("0".equals(status)) {
+                insertJobParam.put("MSG", "通知计划未启用");
+                planDataMapper.insertPlanJob(insertJobParam);
 
-            return;
+                return;
+            }
         }
 
         Map<String, String> keyMap = new HashMap<>();
@@ -94,10 +101,16 @@ public class DynamicNotifyTask  implements Runnable {
         }
         for(String keyTxt:keyArray)
         {
-            String[] attrArr = keyTxt.split("=");
-            if(attrArr != null && attrArr.length != 0)
+            if(keyTxt.indexOf("URL") == 0)
             {
-                keyMap.put(attrArr[0], attrArr[1]);
+                keyMap.put("URL", keyTxt.substring(4));
+            }
+            else
+            {
+                String[] attrArr = keyTxt.split("=");
+                if (attrArr != null && attrArr.length != 0) {
+                    keyMap.put(attrArr[0], attrArr[1]);
+                }
             }
         }
 
@@ -182,7 +195,7 @@ public class DynamicNotifyTask  implements Runnable {
         }
         notifyMessage += messageTear;
 
-        notifyMessage += ("[查看详情](" + url + ")  \n");
+        notifyMessage += ("[查看详情](" + url + ")" + "  \n");
 
         String msgType = planMap.get("msgType") + "";
         String notifyType = planMap.get("notifyType") + "";
@@ -223,22 +236,22 @@ public class DynamicNotifyTask  implements Runnable {
                 else
                 {
                     String notifyURL = notifyRobot;
-                            // "https://oapi.dingtalk.com/robot/send?access_token=48df943458770124cbeaf8a983032d3fca5a7d88bcf10dfeef2049857c254f20";
-                    Long timestamp = System.currentTimeMillis();
-                    // String secret = "SECf5213c029551084197995dc59bd0328ea177fcf7a4b0c33d7057a8487e5d4ff5";
-
-                    String stringToSign = timestamp + "\n" + secret;
-                    Mac mac = Mac.getInstance("HmacSHA256");
-                    mac.init(new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256"));
-                    byte[] signData = mac.doFinal(stringToSign.getBytes("UTF-8"));
-                    String sign = URLEncoder.encode(new String(Base64.encodeBase64(signData)), "UTF-8");
-
                     if(!"".equals(secret))
                     {
+                        // "https://oapi.dingtalk.com/robot/send?access_token=48df943458770124cbeaf8a983032d3fca5a7d88bcf10dfeef2049857c254f20";
+                        Long timestamp = System.currentTimeMillis();
+                        // String secret = "SECf5213c029551084197995dc59bd0328ea177fcf7a4b0c33d7057a8487e5d4ff5";
+
+
+                        String stringToSign = timestamp + "\n" + secret;
+                        Mac mac = Mac.getInstance("HmacSHA256");
+                        mac.init(new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256"));
+                        byte[] signData = mac.doFinal(stringToSign.getBytes("UTF-8"));
+                        String sign = URLEncoder.encode(new String(Base64.encodeBase64(signData)), "UTF-8");
+
                         notifyURL += ("&timestamp=" + timestamp);
                         notifyURL += ("&sign=" + sign);
                     }
-
                     notifyMessage = notifyMessage.replaceAll("&&t", "\\\n");
 
                     DingTalkUtil.sendGroupRobotMessage(notifyURL, title, notifyMessage);
@@ -249,6 +262,8 @@ public class DynamicNotifyTask  implements Runnable {
         }
         else if("FeiShu".equals(msgType))
         {
+            notifyMessage = notifyMessage.replaceAll("&&t", "\\\n");
+
             String resultMesaage = feishuApi.SendGroupMessage(notifyRobot, notifyMessage);
             JSONObject messageJson = new JSONObject();
             try {
@@ -282,6 +297,10 @@ public class DynamicNotifyTask  implements Runnable {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
         dateTxt = sdf.format(calendar.getTime());
+        if("1".equals(DATE_COLUMN))
+        {
+            dateTxt = "1";
+        }
 
         String ATTRIBUTE_COLUMN = keyMap.get("ATTRIBUTE_COLUMN");
         String sql = "SELECT " + ATTRIBUTE_COLUMN + " FROM " + TABLE

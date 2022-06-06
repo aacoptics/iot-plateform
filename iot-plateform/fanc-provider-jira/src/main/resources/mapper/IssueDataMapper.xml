@@ -23,8 +23,8 @@
 	</insert>
 
 	<insert id="insertWorkLog" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
-  		INSERT INTO JIRA_00_WORKLOG(ISSUE_KEY, WORKLOG_DESC, WORKLOG_DATE, COST,  CREATE_TIME, UPDATE_TIME)
-  		VALUES(#{issueKey}, #{workLogDesc}, #{workLogDate}, #{cost},  GETDATE(), GETDATE())
+  		INSERT INTO JIRA_00_WORKLOG(ISSUE_KEY, AD_NUM, WORKLOG_DESC, WORKLOG_DATE, COST,  CREATE_TIME, UPDATE_TIME)
+  		VALUES(#{issueKey}, #{userno}, #{workLogDesc}, #{workLogDate}, #{cost},  GETDATE(), GETDATE())
 	</insert>
 
 	<delete id="deleteWorkLog" parameterType="java.lang.String">
@@ -43,7 +43,8 @@
         		, ISNULL(DEVELOP_COST, 0.0) AS DEVELOP_COST
         		, ISNULL(PARENT_ID, 0) AS PARENT_ID
         FROM JIRA_00_ISSUE I
-        WHERE I.FINISH_FLAG = 0
+        WHERE 1=1
+        AND I.FINISH_FLAG = 0
         ORDER BY ID DESC
     </select>
 
@@ -65,6 +66,8 @@
 		    ,END_TIME = convert(datetime, #{endTime}, 120)
 		    ,FINISH_FLAG = #{finishFlag}
 		    ,BUSINESS_COST = #{businessCost}
+		    ,BUSINESS_DESC = #{businessDesc}
+		    ,STORY_POINT = #{estimateHour}
 		    ,BUSINESS_OWNER = #{businessOwner}
 		    ,BUSINESS_USERNO = #{businessOwnerNo}
 		    ,DEVELOP_COST = #{developCost}

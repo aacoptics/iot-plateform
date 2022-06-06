@@ -136,6 +136,10 @@
                 <el-button type="primary" @click="resetInput()">
                   重置
                 </el-button>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <el-button type="primary" @click="manualExcutePlan()">
+                  推送
+                </el-button>
               </el-form-item>
             </el-form>
         </el-col>
@@ -235,7 +239,7 @@
 
 <script>
 
-import {insertPlanData, insertPlanContact, updatePlanData, filterPlanData, filterPlanContact, filterContactData} from "@/api/message/sendMsg";
+import {insertPlanData, insertPlanContact, updatePlanData, filterPlanData, filterPlanContact, filterContactData, excutePlan} from "@/api/message/sendMsg";
 
 export default {
   name: "sendMsgConfig",
@@ -330,7 +334,18 @@ export default {
         this.planData = [];
       });
     },
-
+    manualExcutePlan()
+    {
+        var planKey = this.input.planKey + '';
+        excutePlan(planKey).then((res) => {
+          const responseData = res.data
+          if (responseData.code === '000000') {
+            this.$message({message: responseData.msg, type: 'success'});
+          }
+        }).catch(() => {
+          this.$message({message: '计划' + planKey + '手动执行失败！', type: 'error'});
+        });
+    },
     queryContactData()
     {
       var userName = this.input.userName + '';
