@@ -145,8 +145,12 @@
           </el-form-item>
         </el-form>
 
-        <el-row v-for="(val, key, index) in paramNames" :key="index">
-          <div :id="val"
+        <!--        <el-row v-for="(val, key, index) in paramNames" :key="index">-->
+        <!--          <div :id="val"-->
+        <!--               style="margin-top: 10px;height: 600px; width: 1280px"></div>-->
+        <!--        </el-row>-->
+        <el-row>
+          <div id="lineChart"
                style="margin-top: 10px;height: 600px; width: 1280px"></div>
         </el-row>
       </div>
@@ -190,6 +194,21 @@ export default {
           if (res.indexOf(item[7]) === -1 && item[7] !== 'recipePhase')
             res.push(item[7])
         })
+      }
+      return res
+    },
+    allParamValue() {
+      let res = []
+      let isFirst = true
+      for (const val in this.paramValue) {
+        if (!isFirst) {
+          const tempValue = Object.assign([], this.paramValue[val])
+          tempValue.shift()
+          res = res.concat(tempValue)
+        } else {
+          res = res.concat(this.paramValue[val])
+          isFirst = false
+        }
       }
       return res
     }
@@ -414,7 +433,8 @@ export default {
         if (responseData.code === '000000') {
           this.paramValue[paramName] = responseData.data
           //this.paramValueArray = responseData.data
-          this.drawLineChart(paramName, 0)
+          this.drawLineChart(0)
+          console.log(this.allParamValue)
           this.selectLoading = false
         }
       }).catch((err) => {
@@ -428,6 +448,7 @@ export default {
       this.paramNames.forEach(item => {
         this.getParamValue(item)
       })
+
     },
 
     alainAllChart() {
@@ -437,8 +458,12 @@ export default {
         return
       }
       const minStampArray = this.alignParamValue()
+      let isFirst = true
       this.paramNames.forEach(item => {
-        this.drawLineChart(item, minStampArray[item])
+        if(isFirst){
+          this.drawLineChart(minStampArray[item])
+          isFirst = false
+        }
       })
     },
 
@@ -461,7 +486,7 @@ export default {
 
       for (const val in this.paramValue) {
         this.paramValue[val].forEach((item) => {
-          if(item[7] !== 'recipePhase') {
+          if (item[7] !== 'recipePhase') {
             if (item[1] !== this.alignWaferId) {
               item[5] = alignShiftStamp[val][this.alignRecipePhase][this.alignWaferId] - alignShiftStamp[val][this.alignRecipePhase][item[1]] + item[5]
             }
@@ -475,8 +500,8 @@ export default {
         })
       }
       for (const val in waferMinStamp) {
-        for(const waferVal in waferMinStamp[val]){
-          if(!waferMinStampArray[val] || waferMinStampArray[val] < waferMinStamp[val][waferVal])
+        for (const waferVal in waferMinStamp[val]) {
+          if (!waferMinStampArray[val] || waferMinStampArray[val] < waferMinStamp[val][waferVal])
             waferMinStampArray[val] = waferMinStamp[val][waferVal]
         }
       }
@@ -569,56 +594,104 @@ export default {
     //   option && myChart.setOption(option);
     // }
 
-    drawLineChart(paramName, startStamp) {
-      const chartDom = document.getElementById(paramName);
+    drawLineChart(startStamp) {
+      const chartDom = document.getElementById('lineChart');
       const myChart = echarts.init(chartDom);
       let option;
 
-      run(this.paramValue[paramName], this.allWaferIdsIncludeStatus)
+      run(this.allParamValue, this.allWaferIdsIncludeStatus, this.paramNames)
 
 
-      function run(_rawData, waferIds) {
+      function run(_rawData, waferIds, paramsInfo) {
 
         const waferIdRes = [];
         const datasetWithFilters = [];
         const seriesList = [];
-        echarts.util.each(waferIds, function (waferIdInfo) {
-          waferIdRes.push(waferIdInfo.waferId);
-          const datasetId = 'dataset_' + waferIdInfo.waferId;
-          datasetWithFilters.push({
-            id: datasetId,
-            fromDatasetId: 'dataset_raw',
-            transform: {
-              type: 'filter',
-              config: {
-                and: [
-                  {dimension: 'plcTimeStamp', gte: startStamp},
-                  {dimension: 'waferId', '=': waferIdInfo.waferId}
-                ]
-              }
-            }
-          });
-          seriesList.push({
-            type: 'line',
-            datasetId: datasetId,
-            showSymbol: false,
-            itemStyle: {
-              normal: {
+        const yAxisList = [];
+        const yAxisIndexList = [];
+        echarts.util.each(paramsInfo, function (item) {
+          yAxisIndexList.push(item + '_value')
+          const i = yAxisIndexList.indexOf(item + '_value')
+          if (i === 0)
+            yAxisList.push({
+              type: 'value',
+              name: '值',
+              yAxisIndex: i,
+              alignTicks: true,
+              scale: true,
+              axisLine: {
+                show: true,
                 lineStyle: {
-                  width: 2,
-                  type: waferIdInfo.status === 'ok' ? 'solid' : 'dotted' //'dotted'点型虚线 'solid'实线 'dashed'线性虚线
+                  color: '#5470C6'
+                }
+              },
+              nameTextStyle: {
+                fontSize: '16px'
+              }
+            })
+          else {
+            yAxisList.push({
+              name: '值',
+              yAxisIndex: i,
+              alignTicks: true,
+              scale: true,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: '#5470C6'
+                }
+              },
+              position: 'right',
+              offset: (i - 1) * 80,
+              nameTextStyle: {
+                fontSize: '16px'
+              }
+            })
+          }
+        });
+        echarts.util.each(waferIds, function (waferIdInfo) {
+          echarts.util.each(paramsInfo, function (item) {
+            const paramWaferIdInfo = waferIdInfo.waferId + '-' + item
+            waferIdRes.push(paramWaferIdInfo);
+            const datasetId = 'dataset_' + paramWaferIdInfo;
+            datasetWithFilters.push({
+              id: datasetId,
+              fromDatasetId: 'dataset_raw',
+              transform: {
+                type: 'filter',
+                config: {
+                  and: [
+                    {dimension: 'plcTimeStamp', gte: startStamp},
+                    {dimension: 'paramWaferId', '=': paramWaferIdInfo}
+                  ]
                 }
               }
-            },
-            name: waferIdInfo.waferId,
-            encode: {
-              x: 'plcTimeStamp',
-              y: 'paramValue',
-              label: ['waferId', 'paramValue'],
-              itemName: 'plcTimeStamp',
-              tooltip: ['paramValue', 'recipePhase']
-            }
-          });
+            });
+            seriesList.push({
+              type: 'line',
+              datasetId: datasetId,
+              showSymbol: false,
+              yAxisIndex: yAxisIndexList.indexOf(item + '_value'),
+              yAxisName: item + '_value',
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 2,
+                    type: waferIdInfo.status === 'ok' ? 'solid' : 'dotted' //'dotted'点型虚线 'solid'实线 'dashed'线性虚线
+                  }
+                }
+              },
+              name: paramWaferIdInfo,
+              encode: {
+                x: 'plcTimeStamp',
+                y: 'paramValue',
+                label: ['paramWaferId', 'paramValue'],
+                itemName: 'plcTimeStamp',
+                tooltip: ['paramValue', 'recipePhase']
+              }
+            });
+          })
+
         });
         option = {
           dataset: [
@@ -629,7 +702,7 @@ export default {
             ...datasetWithFilters
           ],
           title: {
-            text: paramName
+            text: '模造机参数曲线'
           },
           legend: {
             data: waferIdRes,
@@ -649,6 +722,9 @@ export default {
           tooltip: {
             order: 'valueDesc',
             trigger: 'axis',
+            axisPointer: {
+              type: 'cross'
+            },
             confine: true,
             // formatter: function (params) {
             //   if (params instanceof Array) {
@@ -665,18 +741,19 @@ export default {
           },
           xAxis: {
             type: 'category',
-            name: '时间戳/S',
+            name: '秒',
             nameTextStyle: {
               fontSize: '16px'
             }
           },
-          yAxis: {
-            name: '参数值',
-            scale: true,
-            nameTextStyle: {
-              fontSize: '16px'
-            }
-          },
+          // yAxis: {
+          //   name: '参数值',
+          //   scale: true,
+          //   nameTextStyle: {
+          //     fontSize: '16px'
+          //   }
+          // },
+          yAxis: yAxisList,
           grid: {
             right: 140
           },

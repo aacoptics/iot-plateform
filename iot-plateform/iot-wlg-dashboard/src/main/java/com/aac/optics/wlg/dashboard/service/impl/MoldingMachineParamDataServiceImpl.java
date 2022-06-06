@@ -63,6 +63,7 @@ public class MoldingMachineParamDataServiceImpl extends ServiceImpl<MoldingMachi
         firstArray.add("recipeName");
         firstArray.add("recipePhase");
         firstArray.add("createTime");
+        firstArray.add("paramWaferId");
         res.add(firstArray);
 
         for (MoldingMachineParamData moldingMachineParamDatum : moldingMachineParamData) {
@@ -75,13 +76,14 @@ public class MoldingMachineParamDataServiceImpl extends ServiceImpl<MoldingMachi
             JSONArray singleArray = new JSONArray();
             singleArray.add(moldingMachineParamDatum.getMachineName());
             singleArray.add(moldingMachineParamDatum.getWaferId());
-            singleArray.add(moldingMachineParamDatum.getParamName());
+            singleArray.add(paramName);
             singleArray.add(moldingMachineParamDatum.getParamValue());
             singleArray.add(moldingMachineParamDatum.getPlcTime());
             singleArray.add(moldingMachineParamDatum.getPlcTimeStamp());
             singleArray.add(moldingMachineParamDatum.getRecipeName());
             singleArray.add(moldingMachineParamDatum.getRecipePhase().trim());
             singleArray.add(moldingMachineParamDatum.getCreateTime());
+            singleArray.add(moldingMachineParamDatum.getWaferId() + "-" + paramName);
             res.add(singleArray);
         }
         return res;
