@@ -64,7 +64,7 @@
                 </el-col>
               </el-row>
               <el-divider content-position="left">事件：</el-divider>
-              <el-row style="height: 15px;line-height: 15px;font-size: xx-small;">
+              <el-row v-if="moldingEventData[item.ClientId] && moldingEventData[item.ClientId].Data" style="height: 15px;line-height: 15px;font-size: xx-small;">
                 <p v-for="(item, index) of moldingEventData[item.ClientId].Data" :key="index">
                   {{ item.EventInfo }}
                 </p>

@@ -270,7 +270,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlankLine();
                     }
 
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量：" + shipPlanQty + " K");
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -306,8 +306,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 //                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
@@ -317,7 +317,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addBlobContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
                 }
                 else {
                     markdownGroupMessage.addBlobContent(productType);
@@ -339,7 +339,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
-                    markdownGroupMessage.addContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addContent("当月董事会目标出货数量：" + shipPlanQty + " K");
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -376,8 +376,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+                    markdownGroupMessage.addContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
@@ -386,7 +386,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
                     markdownGroupMessage.addBlankLine();
                 }
             }

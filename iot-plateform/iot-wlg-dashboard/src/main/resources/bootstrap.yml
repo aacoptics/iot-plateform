@@ -1,0 +1,20 @@
+server:
+  port: 8068
+spring:
+  application:
+    name: iot-wlg-dashboard
+  cloud:
+    nacos:
+      discovery:
+        server-addr: iot.czne.aacoptics.com:8848
+        namespace: iot-plateform
+        group: iot-plateform
+      config:
+        server-addr: iot.czne.aacoptics.com:8848
+        namespace: iot-plateform
+        group: iot-plateform
+        file-extension: yaml
+    sentinel:
+      transport:
+        dashboard: iot.czne.aacoptics.com:8844
+        client-ip: localhost
