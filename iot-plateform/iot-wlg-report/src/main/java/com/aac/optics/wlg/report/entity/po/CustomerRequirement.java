@@ -28,16 +28,16 @@ public class CustomerRequirement extends BasePo {
      */
     private BigDecimal qty;
 
-    /**
-     * 达成率
-     */
-    private BigDecimal completionRate;
-
 
     /**
      * 需求月份
      */
     private LocalDate requirementDate;
+
+    /**
+     * 目标总产量
+     */
+    private BigDecimal targetYield;
 
 
 }

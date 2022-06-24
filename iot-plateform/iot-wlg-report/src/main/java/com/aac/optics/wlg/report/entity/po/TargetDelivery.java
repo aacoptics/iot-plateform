@@ -7,17 +7,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-
-
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("estimate_fpy")
-public class EstimateFpy extends BasePo {
+@TableName("target_delivery")
+public class TargetDelivery extends BasePo {
+
+    /**
+     * 物料号
+     */
+    private String itemNumber;
+
+
+    /**
+     * 物料描述
+     */
+    private String itemDescription;
+
 
     /**
      * 项目
@@ -25,29 +34,13 @@ public class EstimateFpy extends BasePo {
     private String projectName;
 
     /**
-     * 模具
+     * 交货日期
      */
-    private String mold;
+    private LocalDate deliveryDate;
 
     /**
-     * 周期
+     * 交货数量
      */
-    private String cycle;
+    private Long deliveryQty;
 
-
-    /**
-     * 预估直通率日期
-     */
-    private LocalDate fpyDate;
-
-    /**
-     * 直通率
-     */
-    private BigDecimal fpy;
-
-
-    /**
-     * WLG预估结存
-     */
-    private BigDecimal estimateBalance;
 }

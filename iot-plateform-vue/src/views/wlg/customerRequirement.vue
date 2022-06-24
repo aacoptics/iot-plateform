@@ -110,7 +110,7 @@ export default {
         {prop: "projectName", label: "项目", minWidth: 120},
         {prop: "requirementDate", label: "需求月份", minWidth: 120, formatter:this.dateFormat},
         {prop: "qty", label: "需求数量", minWidth: 100},
-        {prop: "completionRate", label: "达成率", minWidth: 120},
+        {prop: "targetYield", label: "目标总产量", minWidth: 120},
       ],
       pageRequest: {current: 1, size: 10},
       pageResult: {},

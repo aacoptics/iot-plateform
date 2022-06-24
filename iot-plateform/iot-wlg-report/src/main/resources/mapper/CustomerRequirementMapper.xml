@@ -3,7 +3,8 @@
 <mapper namespace="com.aac.optics.wlg.report.mapper.CustomerRequirementMapper">
 
     <select id="queryCustomerRequirementByCondition" resultType="map">
-        select project_name projectName, qty, requirement_date requirementDate, CONVERT(varchar(20),CONVERT(decimal(18,2), completion_rate * 100)) + '%' completionRate
+        select project_name projectName, qty, requirement_date requirementDate,
+            target_yield targetYield
         from customer_requirement
         where 1=1
         <if test="projectName != '' and projectName != null">
