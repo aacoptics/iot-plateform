@@ -89,4 +89,10 @@ public interface CustomerRequirementService {
      * @return
      */
     CustomerRequirement get(Long id);
+
+
+    /**
+     * 通过项目查询是否存在客户需求
+     */
+    int queryCustomerRequirementCountByProjectName(String projectName);
 }

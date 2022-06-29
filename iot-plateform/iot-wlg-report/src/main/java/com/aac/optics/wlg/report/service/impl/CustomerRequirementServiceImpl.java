@@ -214,4 +214,13 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
             throw new BusinessException("项目不能为空");
         }
     }
+
+    @Override
+    public int queryCustomerRequirementCountByProjectName(String projectName) {
+        QueryWrapper<CustomerRequirement> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_name", projectName);
+
+        Integer count = customerRequirementMapper.selectCount(queryWrapper);
+        return count;
+    }
 }

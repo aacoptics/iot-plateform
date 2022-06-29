@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -414,7 +416,47 @@ public class ProductionReportServiceImpl implements ProductionReportService {
     }
 
     @Override
-    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate requirementDate) {
-        return  productionReportMapper.findCustomerRequirementDataByDate(requirementDate);
+    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate monthStart, LocalDate productionDate) {
+        return  productionReportMapper.findCustomerRequirementDataByDate(monthStart, productionDate);
+    }
+
+    @Override
+    public List<Map<String, Object>> findTargetDeliveryDataByDate(LocalDate monthStart, LocalDate productionDate) {
+        return  productionReportMapper.findTargetDeliveryDataByDate(monthStart, productionDate);
+    }
+
+    @Override
+    public List<String> findItemNumberListByDate(LocalDate monthStart, LocalDate productionDate) {
+        return  productionReportMapper.findItemNumberListByDate(monthStart, productionDate);
+    }
+    @Override
+    public Map<String, String> findProjectNameItemNumberMap(LocalDate monthStart, LocalDate productionDate) {
+        List<Map<String, Object>> projectNameItemNumberList = productionReportMapper.findProjectNameItemNumberMap(monthStart, productionDate);
+        Map<String, String> projectNameItemNumberMap = new HashMap<>();
+        if(projectNameItemNumberList != null && projectNameItemNumberList.size() > 0)
+        {
+            for(Map<String, Object> map : projectNameItemNumberList)
+            {
+                projectNameItemNumberMap.put(map.get("project_name")+"", map.get("item_number")+"");
+            }
+        }
+
+        return  projectNameItemNumberMap;
+    }
+
+
+    @Override
+    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart) {
+        return  productionReportMapper.findProductionSummaryDataByDate(monthStart);
+    }
+
+    @Override
+    public List<Map<String, Object>> findDeliveryDataByDate(LocalDate monthStart, LocalDate productionDate, List<String> itemNumberList) {
+        return  productionReportMapper.findDeliveryDataByDate(monthStart, productionDate, itemNumberList);
+    }
+
+    @Override
+    public List<Map<String, Object>> findWarehouseBalanceDataByDate(LocalDateTime shiftStart, LocalDateTime shiftEnd, List<String> projectNameList) {
+        return  productionReportMapper.findWarehouseBalanceDataByDate(shiftStart, shiftEnd, projectNameList);
     }
 }
