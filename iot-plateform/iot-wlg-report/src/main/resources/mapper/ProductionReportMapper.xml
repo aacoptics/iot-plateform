@@ -1248,13 +1248,16 @@
     <select id="findProductionSummaryDataByDate" resultType="map">
         WITH TEMP_PRODUCTION_SUMMARY AS (
         select project_name,
-       FLOOR(target_qty) target_qty,
-       FLOOR(actual_qty) actual_qty,
-       case
-           when target_qty != 0 then CAST(CAST(actual_qty / target_qty * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
-           else '0.00%' end actual_rate
-        from production_summary
-        where production_date = #{monthStart})
+           FLOOR(sum(isnull(target_qty,0))) target_qty,
+           FLOOR(sum(isnull(actual_qty,0))) actual_qty,
+           case
+               when sum(isnull(target_qty,0)) != 0 then CAST(CAST(sum(isnull(actual_qty,0)) / sum(isnull(target_qty,0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
+               else '0.00%' end actual_rate
+            from production_summary
+            where production_date >= #{monthStart}
+            and production_date &lt;= #{productionDate}
+            group by project_name
+            )
         SELECT project_name, target_qty, actual_qty, actual_rate FROM TEMP_PRODUCTION_SUMMARY
         UNION ALL
         SELECT '项目汇总' project_name, sum(target_qty) target_qty, sum(actual_qty) actual_qty,

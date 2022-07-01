@@ -13,11 +13,11 @@
               />
             </el-form-item>
             
-          <el-form-item label="月份 从" prop="requirementDateStart">
-            <el-date-picker v-model="filters.requirementDateStart" type="month" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+          <el-form-item label="日期 从" prop="productionDateStart">
+            <el-date-picker v-model="filters.productionDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
-          <el-form-item label="到" prop="requirementDateEnd">
-            <el-date-picker v-model="filters.requirementDateEnd" type="month" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+          <el-form-item label="到" prop="productionDateEnd">
+            <el-date-picker v-model="filters.productionDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
           </el-row>
         </el-form>
@@ -36,13 +36,13 @@
 
           </el-form>
       </div>
-      <QueryTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
+      <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
                 :data="pageResult" :columns="columns" 
                 ref="queryTable"
                 @findPage="findPage" >
-      </QueryTable>
+      </QueryAllTable>
 
-      <el-dialog :title="'生产汇总Excel导入'" width="400px" v-model="excelUploadDialogVisible"
+      <el-dialog :title="'生产汇总Excel导入'" width="500px" v-model="excelUploadDialogVisible"
                  :close-on-click-modal="false">
           <el-upload
               class="upload-demo"
@@ -59,7 +59,7 @@
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
             <el-progress
-            style="width:350px"
+            style="width:450px"
               :percentage="progressPercentage"
               :text-inside="true"
               :indeterminate="true"
@@ -70,8 +70,9 @@
               <span>{{progressContent}}</span>
             </el-progress>
             <div style="padding-top: 20px;">
-            <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
+            <el-button  type="primary" :size="size"  @click="downloadTemplate('actual')" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">生产实际模板下载</el-button>
+            <el-button  type="primary" :size="size"  @click="downloadTemplate('target')" style="position: absolute;left: 150px;" :loading="downloadTemplateLoading">生产目标模板下载</el-button>
+           <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
             </div>
           </slot>
         </div>
@@ -83,12 +84,12 @@
 
 <script>
 
-import QueryTable from "@/components/QueryTable";
+import QueryAllTable from "@/components/QueryAllTable";
 import {uploadExcel, findProductionSummaryPage, downloadTemplate} from "@/api/wlg/productionSummary";
 
 export default {
   name: "productionSummary",
-  components: {QueryTable},
+  components: {QueryAllTable},
   data() {
     return {
       size: 'small',
@@ -102,8 +103,8 @@ export default {
 
       filters: {
         projectName: '',
-        requirementDateStart:'',
-        requirementDateEnd:'',
+        productionDateStart:'',
+        productionDateEnd:'',
       },
       columns: [
         {prop: "__row_number__", label: "序号", minWidth: 80},
@@ -121,22 +122,23 @@ export default {
   methods: {
     // 获取分页数据
     findPage: function (data) {
-      if (data !== null) {
-        this.pageRequest = data.pageRequest
-      }
+      // if (data !== null) {
+      //   this.pageRequest = data.pageRequest
+      // }
       this.pageRequest.projectName = this.filters.projectName;
-      this.pageRequest.requirementDateStart = this.filters.requirementDateStart;
-      this.pageRequest.requirementDateEnd = this.filters.requirementDateEnd;
+      this.pageRequest.productionDateStart = this.filters.productionDateStart;
+      this.pageRequest.productionDateEnd = this.filters.productionDateEnd;
 
       this.queryLoading = true;
       findProductionSummaryPage(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.pageResult = responseData.data
+          this.columns = responseData.data.titleResult;
+          this.pageResult.records = responseData.data.queryResult;
           this.$message.success(responseData.msg)
         } else
         {
-          this.pageResult = [];
+          this.pageResult.records = [];
           this.$message.error(responseData.msg + "," + responseData.data);
         }
         this.queryLoading = false;
@@ -188,10 +190,12 @@ export default {
     {
       this.excelUploadDialogVisible = false;
     },
-    downloadTemplate()
+    downloadTemplate(type)
     {
       this.downloadTemplateLoading = true;
-      downloadTemplate().then(res => {
+      let params = {};
+      params.type = type;
+      downloadTemplate(params).then(res => {
 
           let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
           let link = document.createElement('a');
@@ -210,7 +214,7 @@ export default {
     },
     // 时间格式化
     dateFormat: function (row, column) {
-      return this.$moment(row[column.property]).format('YYYY-MM')
+      return this.$moment(row[column.property]).format('YYYY-MM-DD')
     },
     getCurrentMonthFirst () {
       var date = new Date()
@@ -219,7 +223,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.requirementDateStart = date.getFullYear() + '-' + month + '-' + day
+      this.filters.productionDateStart = date.getFullYear() + '-' + month + '-' + day
     },
     getCurrentMonthLast () {
       var date = new Date()
@@ -227,7 +231,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.requirementDateEnd = date.getFullYear() + '-' + month + '-' + day
+      this.filters.productionDateEnd = date.getFullYear() + '-' + month + '-' + day
     },
 
   },

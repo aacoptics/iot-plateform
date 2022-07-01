@@ -2,8 +2,10 @@ package com.aac.optics.wlg.report.service;
 
 
 
+import com.aac.optics.wlg.report.entity.param.MoldUseQueryParam;
 import com.aac.optics.wlg.report.entity.param.ProductionSummaryQueryParam;
 import com.aac.optics.wlg.report.entity.po.ProductionSummary;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -56,7 +58,7 @@ public interface ProductionSummaryService {
      *
      * @return
      */
-    IPage<Map<String, Object>> queryProductionSummaryByCondition(Page page, ProductionSummaryQueryParam productionSummaryQueryParam);
+    List<Map<String, Object>> queryProductionSummaryByCondition(Page page, ProductionSummaryQueryParam productionSummaryQueryParam);
 
     /**
      * 更新客户需求信息
@@ -95,4 +97,14 @@ public interface ProductionSummaryService {
      * 通过项目查询是否存在客户需求
      */
     int queryProductionSummaryCountByProjectName(String projectName);
+
+
+
+    /**
+     * 根据条件查询生产汇总标题
+     *
+     * @return
+     */
+    JSONArray queryProductionSummaryTitleByMonth(ProductionSummaryQueryParam productionSummaryQueryParam);
+
 }

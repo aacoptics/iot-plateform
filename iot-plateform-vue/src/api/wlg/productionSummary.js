@@ -11,13 +11,14 @@ export function uploadExcel(param) {
     })
 }
 
-export function downloadTemplate() {
+export function downloadTemplate(params) {
     return request({
         url: '/wlg-report/productionSummary/downloadTemplate',
-        method: 'get',
+        method: 'post',
         headers: {
             'Content-Type': 'application/json'
         },
+        data: params,
         responseType: 'blob',
     })
 }

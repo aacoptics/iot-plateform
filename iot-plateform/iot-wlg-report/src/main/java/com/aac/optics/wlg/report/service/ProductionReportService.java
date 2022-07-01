@@ -120,7 +120,7 @@ public interface ProductionReportService {
      *
      * @return
      */
-    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart);
+    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart, LocalDate productionDate);
 
 
     /**

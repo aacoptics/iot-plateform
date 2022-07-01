@@ -1,11 +1,13 @@
 package com.aac.optics.wlg.report.controller;
 
 import com.aac.optics.common.core.vo.Result;
+import com.aac.optics.wlg.report.entity.form.DownloadTemplateForm;
 import com.aac.optics.wlg.report.entity.form.ProductionSummaryForm;
 import com.aac.optics.wlg.report.entity.form.ProductionSummaryQueryForm;
 import com.aac.optics.wlg.report.entity.param.ProductionSummaryQueryParam;
 import com.aac.optics.wlg.report.entity.po.ProductionSummary;
 import com.aac.optics.wlg.report.service.ProductionSummaryService;
+import com.alibaba.fastjson.JSONArray;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/productionSummary")
@@ -54,7 +59,13 @@ public class ProductionSummaryController {
     @PostMapping(value = "/conditions")
     public Result conditions(@Valid @RequestBody ProductionSummaryQueryForm productionSummaryQueryForm) {
         log.debug("query with name:{}", productionSummaryQueryForm);
-        return Result.success(productionSummaryService.queryProductionSummaryByCondition(productionSummaryQueryForm.getPage(), productionSummaryQueryForm.toParam(ProductionSummaryQueryParam.class)));
+        List<Map<String, Object>> queryResult = productionSummaryService.queryProductionSummaryByCondition(productionSummaryQueryForm.getPage(), productionSummaryQueryForm.toParam(ProductionSummaryQueryParam.class));
+        JSONArray titleResult = productionSummaryService.queryProductionSummaryTitleByMonth(productionSummaryQueryForm.toParam(ProductionSummaryQueryParam.class));
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("queryResult", queryResult);
+        resultMap.put("titleResult", titleResult);
+        return Result.success(resultMap);
     }
 
 
@@ -62,10 +73,19 @@ public class ProductionSummaryController {
      * Excel模板下载
      * @param response
      */
-    @GetMapping("/downloadTemplate")
-    public void downloadWorkHourRecordTemplate(HttpServletResponse response) throws IOException {
+    @PostMapping("/downloadTemplate")
+    public void downloadWorkHourRecordTemplate(HttpServletResponse response, @RequestBody DownloadTemplateForm downloadTemplateForm) throws IOException {
         try {
-            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("excelTemplate/productionSummary.xlsx");
+            InputStream inputStream = null;
+            String type = downloadTemplateForm.getType();
+            if("actual".equals(type))
+            {
+                inputStream = this.getClass().getClassLoader().getResourceAsStream("excelTemplate/productionActualSummary.xlsx");
+            }
+            else
+            {
+                inputStream = this.getClass().getClassLoader().getResourceAsStream("excelTemplate/productionTargetSummary.xlsx");
+            }
             //强制下载不打开
             response.setContentType("application/force-download");
             OutputStream out = response.getOutputStream();

@@ -177,7 +177,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
     @Override
     public void sendProductionDayDataImageNotification(String groupType) throws ApiException {
         LocalDateTime nowTime = LocalDateTime.now();
-        LocalDateTime currentTime = nowTime.minusDays(1).minusMonths(1); //TODO临时减一个月测试
+        LocalDateTime currentTime = nowTime.minusDays(1);
         LocalDateTime shiftStart = currentTime.toLocalDate().atTime(19, 0, 0); //夜班班次开始时间
         LocalDateTime shiftEnd = nowTime.toLocalDate().atTime(7, 0, 0);//夜班班次结束时间
         //获取当月一号
@@ -204,7 +204,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
         List<Map<String, Object>> targetDeliveryDataList = productionReportService.findTargetDeliveryDataByDate(monthStart.toLocalDate(),
                 currentTime.toLocalDate());
         //获取生产汇总数据
-        List<Map<String, Object>> productionSummaryDataList = productionReportService.findProductionSummaryDataByDate(monthStart.toLocalDate());
+        List<Map<String, Object>> productionSummaryDataList = productionReportService.findProductionSummaryDataByDate(monthStart.toLocalDate(), currentTime.toLocalDate());
         //获取项目料号映射关系
         Map<String, String> projectNameItemNumberMap = productionReportService.findProjectNameItemNumberMap(monthStart.toLocalDate(),
                 currentTime.toLocalDate());
@@ -522,42 +522,42 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
         // Excel转为图片
         worksheet.saveToImage(tempDir + "/" + imageFileName);
 
-//        //5 推送图片到群
-//        DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
-//        dingTalkMessageHistory.setProductionDate(currentTime.toLocalDate());
-//
-//        //获取token
-//        OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
-//        String accessToken = oapiGettokenResponse.getAccessToken();
-//
-//        //上传图片
-//        String mediaId = dingTalkApi.uploadMedia(accessToken, "image", tempDir + "/" + imageFileName);
-//        if(StringUtils.isEmpty(mediaId))
-//        {
-//            log.error("上传图片到钉钉异常" + tempDir + "/" + imageFileName);
-//            return;
-//        }
-//
-//        MarkdownGroupMessage markdownGroupMessage = new MarkdownGroupMessage();
-//        markdownGroupMessage.setTitle("WLG项目汇总产出数据（" + currentDate + "）");
-//        markdownGroupMessage.addContent("![WLG项目汇总产出数据](" + mediaId + ")");
-//
-//        for(Map<String, String> robotMap : robotList) {
-//            String robotId = robotMap.get("ROBOT_ID");
-//            String robotUrl = robotMap.get("ROBOT_URL");
-//
-//            Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, "WLG项目汇总产出数据", markdownGroupMessage.toString());
-//            String result = resultMap.get("result");
-//            String message = resultMap.get("message");
-//            //5 保存推送历史
-//            if (!StringUtils.isEmpty(message) && message.length() > 1024) {
-//                message = message.substring(1024);
-//            }
-//            dingTalkMessageHistory.setRobotId(robotId);
-//            dingTalkMessageHistory.setResult(result);
-//            dingTalkMessageHistory.setMessage(message);
-//
-//            dingTalkNotificationMapper.insert(dingTalkMessageHistory);
-//        }
+        //5 推送图片到群
+        DingTalkMessageHistory dingTalkMessageHistory = new DingTalkMessageHistory();
+        dingTalkMessageHistory.setProductionDate(currentTime.toLocalDate());
+
+        //获取token
+        OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+
+        //上传图片
+        String mediaId = dingTalkApi.uploadMedia(accessToken, "image", tempDir + "/" + imageFileName);
+        if(StringUtils.isEmpty(mediaId))
+        {
+            log.error("上传图片到钉钉异常" + tempDir + "/" + imageFileName);
+            return;
+        }
+
+        MarkdownGroupMessage markdownGroupMessage = new MarkdownGroupMessage();
+        markdownGroupMessage.setTitle("WLG项目汇总产出数据（" + currentDate + "）");
+        markdownGroupMessage.addContent("![WLG项目汇总产出数据](" + mediaId + ")");
+
+        for(Map<String, String> robotMap : robotList) {
+            String robotId = robotMap.get("ROBOT_ID");
+            String robotUrl = robotMap.get("ROBOT_URL");
+
+            Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, "WLG项目汇总产出数据", markdownGroupMessage.toString());
+            String result = resultMap.get("result");
+            String message = resultMap.get("message");
+            //5 保存推送历史
+            if (!StringUtils.isEmpty(message) && message.length() > 1024) {
+                message = message.substring(1024);
+            }
+            dingTalkMessageHistory.setRobotId(robotId);
+            dingTalkMessageHistory.setResult(result);
+            dingTalkMessageHistory.setMessage(message);
+
+            dingTalkNotificationMapper.insert(dingTalkMessageHistory);
+        }
     }
 }

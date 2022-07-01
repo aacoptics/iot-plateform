@@ -446,8 +446,8 @@ public class ProductionReportServiceImpl implements ProductionReportService {
 
 
     @Override
-    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart) {
-        return  productionReportMapper.findProductionSummaryDataByDate(monthStart);
+    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart, LocalDate productionDate) {
+        return  productionReportMapper.findProductionSummaryDataByDate(monthStart, productionDate);
     }
 
     @Override
