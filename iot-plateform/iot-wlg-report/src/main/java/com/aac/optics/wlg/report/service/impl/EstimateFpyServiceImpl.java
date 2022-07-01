@@ -60,6 +60,7 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
             String mold = dataArray[2]; //模具
             String cycle = dataArray[3]; //周期
             String fpyStr = dataArray[4];//预估直通率
+            String estimateBalanceStr = dataArray[5];//WLG预估结存
 
             if (StringUtils.isEmpty(fpyDateStr)) {
                 throw new BusinessException("第" + (i + 1) + "行日期不能为空");
@@ -77,6 +78,7 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
                 break;
             }
             BigDecimal fpy = new BigDecimal(fpyStr);
+            BigDecimal estimateBalance = new BigDecimal(estimateBalanceStr);
 
             LocalDate fpyDate = null;
             try {
@@ -103,6 +105,7 @@ public class EstimateFpyServiceImpl extends ServiceImpl<EstimateFpyMapper, Estim
             estimateFpy.setProjectName(projectName);
             estimateFpy.setFpyDate(fpyDate);
             estimateFpy.setFpy(fpy);
+            estimateFpy.setEstimateBalance(estimateBalance);
 
             this.saveOrUpdate(estimateFpy);
         }

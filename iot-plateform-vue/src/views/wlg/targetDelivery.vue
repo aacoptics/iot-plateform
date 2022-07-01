@@ -3,45 +3,26 @@
     <div class="container">
       <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
         <el-form :inline="true" :size="size" label-width="100px">
-          <el-row>
-            <el-form-item label="项目" prop="projectName">
-              <el-input
-                  v-model="filters.projectName"
-                  placeholder="请输入项目"
-                  clearable
-                  size="small"
-              />
-            </el-form-item>
-            <el-form-item label="模具" prop="mold">
-              <el-input
-                  v-model="filters.mold"
-                  placeholder="请输入模具"
-                  clearable
-                  size="small"
-              />
-            </el-form-item>
-            <el-form-item label="周期" prop="cycle">
-              <el-input
-                  v-model="filters.cycle"
-                  placeholder="请输入周期"
-                  clearable
-                  size="small"
-              />
-            </el-form-item>
-          </el-row>
-          <el-row>
-          <el-form-item label="日期 从" prop="fpyDate">
-            <el-date-picker v-model="filters.fpyDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+          <el-form-item label="项目" prop="projectName">
+            <el-input
+                v-model="filters.projectName"
+                placeholder="请输入项目"
+                clearable
+                size="small"
+            />
           </el-form-item>
-          <el-form-item label="到" prop="fpyDate">
-            <el-date-picker v-model="filters.fpyDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+              <el-form-item label="日期 从" prop="deliveryDate">
+            <el-date-picker v-model="filters.deliveryDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
-          </el-row>
+          <el-form-item label="到" prop="deliveryDate">
+            <el-date-picker v-model="filters.deliveryDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+          </el-form-item>
+
         </el-form>
           <el-form :inline="true" :size="size">
             <el-form-item>
               <el-button icon="el-icon-search" type="primary"
-                :loading="queryLoading"
+                        :loading="queryLoading"
                         @click="findPage(null)">查询
               </el-button>
             </el-form-item>
@@ -50,16 +31,16 @@
                         @click="handleOpenExcelUpload">Excel导入
               </el-button>
             </el-form-item>
-
           </el-form>
       </div>
-      <QueryTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
+      <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
                 :data="pageResult" :columns="columns" 
                 ref="queryTable"
                 @findPage="findPage" >
-      </QueryTable>
+      </QueryAllTable>
 
-      <el-dialog :title="'预估直通率Excel导入'" width="400px" v-model="excelUploadDialogVisible"
+      <el-dialog :title="'目标交货Excel导入'" width="400px" v-model="excelUploadDialogVisible"
+                  
                  :close-on-click-modal="false">
           <el-upload
               class="upload-demo"
@@ -73,6 +54,7 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
+
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
             <el-progress
@@ -87,8 +69,8 @@
               <span>{{progressContent}}</span>
             </el-progress>
             <div style="padding-top: 20px;">
-            <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
+              <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
+              <el-button type="success" :size="size"  @click="cancelExcelUpload">关闭</el-button>
             </div>
           </slot>
         </div>
@@ -100,12 +82,12 @@
 
 <script>
 
-import QueryTable from "@/components/QueryTable";
-import {uploadExcel, findEstimateFpyPage, downloadTemplate} from "@/api/wlg/estimateFpy";
+import QueryAllTable from "@/components/QueryAllTable";
+import {uploadExcel, findTargetDeliveryPage, queryTargetDeliveryTitleByMonth, downloadTemplate} from "@/api/wlg/targetDelivery";
 
 export default {
-  name: "estimateFpy",
-  components: {QueryTable},
+  name: "targetDelivery",
+  components: {QueryAllTable},
   data() {
     return {
       size: 'small',
@@ -119,21 +101,17 @@ export default {
 
       filters: {
         projectName: '',
-        mold: '',
-        cycle: '',
-        fpyDateStart:'',
-        fpyDateEnd:'',
+        deliveryDateStart:'',
+        deliveryDateEnd:'',
       },
       columns: [
-        {prop: "__row_number__", label: "序号", minWidth: 80},
+        {prop: "itemNumber", label: "物料号", minWidth: 110},
+        {prop: "itemDescription", label: "物料描述", minWidth: 150},
         {prop: "projectName", label: "项目", minWidth: 120},
-        {prop: "mold", label: "模具", minWidth: 110},
-        {prop: "cycle", label: "周期", minWidth: 100},
-        {prop: "fpyDate", label: "日期", minWidth: 120, formatter:this.dateFormat},
-        {prop: "fpy", label: "预估直通率", minWidth: 120},
-        {prop: "estimateBalance", label: "WLG预计结存（颗）", minWidth: 120},
+        {prop: "deliveryDate", label: "日期", minWidth: 120},
+        {prop: "deliveryQty", label: "数量", minWidth: 120},
       ],
-      pageRequest: {current: 1, size: 10},
+      pageRequest: {},
       pageResult: {},
 
       excelUploadDialogVisible: false,
@@ -142,24 +120,28 @@ export default {
   methods: {
     // 获取分页数据
     findPage: function (data) {
-      if (data !== null) {
-        this.pageRequest = data.pageRequest
-      }
+
       this.pageRequest.projectName = this.filters.projectName;
-      this.pageRequest.mold = this.filters.mold;
-      this.pageRequest.cycle = this.filters.cycle;
-      this.pageRequest.fpyDateStart = this.filters.fpyDateStart;
-      this.pageRequest.fpyDateEnd = this.filters.fpyDateEnd;
+      this.pageRequest.deliveryDateStart = this.filters.deliveryDateStart;
+      this.pageRequest.deliveryDateEnd = this.filters.deliveryDateEnd;
 
       this.queryLoading = true;
-      findEstimateFpyPage(this.pageRequest).then((res) => {
+      queryTargetDeliveryTitleByMonth(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.pageResult = responseData.data
+          this.columns = responseData.data
+        }
+      }).then(data != null ? data.callback : '')
+
+      findTargetDeliveryPage(this.pageRequest).then((res) => {
+        const responseData = res.data
+        if (responseData.code === '000000') {
+          this.pageResult.records = responseData.data
           this.$message.success(responseData.msg)
-        } else
+        }
+        else
         {
-          this.pageResult = [];
+          this.pageResult.records = [];
           this.$message.error(responseData.msg + "," + responseData.data);
         }
         this.queryLoading = false;
@@ -169,8 +151,10 @@ export default {
     handleOpenExcelUpload:function()
     {
       this.excelUploadDialogVisible = true;
+
       this.progressPercentage = 0;
       this.progressContent = "";
+      this.progressStatus = "";
       this.pregressDuration = 6;
     },
 
@@ -207,10 +191,6 @@ export default {
         return false
       }
     },
-    cancelExcelUpload()
-    {
-      this.excelUploadDialogVisible = false;
-    },
     downloadTemplate()
     {
       this.downloadTemplateLoading = true;
@@ -220,12 +200,16 @@ export default {
           let link = document.createElement('a');
           link.style.display = 'none';
           link.href = url;
-          link.setAttribute('download', '预估直通率模板' + "-" + new Date().getTime() + ".xlsx");
+          link.setAttribute('download', '目标交货模板' + "-" + new Date().getTime() + ".xlsx");
           document.body.appendChild(link);
           link.click();
 
           this.downloadTemplateLoading = false;
       });
+    },
+    cancelExcelUpload()
+    {
+      this.excelUploadDialogVisible = false;
     },
     // 时间格式化
     dateTimeFormat: function (row, column) {
@@ -242,7 +226,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.fpyDateStart = date.getFullYear() + '-' + month + '-' + day
+      this.filters.deliveryDateStart = date.getFullYear() + '-' + month + '-' + day
     },
     getCurrentMonthLast () {
       var date = new Date()
@@ -250,7 +234,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.fpyDateEnd = date.getFullYear() + '-' + month + '-' + day
+      this.filters.deliveryDateEnd = date.getFullYear() + '-' + month + '-' + day
     },
 
   },

@@ -1,12 +1,14 @@
 package com.aac.optics.wlg.report.mapper;
 
 import com.aac.optics.wlg.report.entity.po.ProductionPlan;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +78,37 @@ public interface ProductionReportMapper extends BaseMapper<ProductionPlan> {
 
 
     List<Map<String, Object>> findCustomerRequirementDataByDate(
-            @Param("requirementDate") LocalDate requirementDate);
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate);
+
+    List<Map<String, Object>> findTargetDeliveryDataByDate(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate);
+
+    List<Map<String, Object>> findProductionSummaryDataByDate(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate);
+
+    @DS("ODS")
+    List<Map<String, Object>> findDeliveryDataByDate(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate,
+            @Param("itemNumberList") List<String> itemNumberList);
+
+    List<String> findItemNumberListByDate(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate);
+
+    List<Map<String, Object>> findProjectNameItemNumberMap(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("productionDate") LocalDate productionDate);
+
+    @DS("FINEREPORT")
+    List<Map<String, Object>> findWarehouseBalanceDataByDate(
+            @Param("shiftStart") LocalDateTime shiftStart,
+            @Param("shiftEnd") LocalDateTime shiftEnd,
+            @Param("projectNameList") List<String> projectNameList);
+
 
 
 }

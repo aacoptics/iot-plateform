@@ -12,29 +12,12 @@
                   size="small"
               />
             </el-form-item>
-            <el-form-item label="模具" prop="mold">
-              <el-input
-                  v-model="filters.mold"
-                  placeholder="请输入模具"
-                  clearable
-                  size="small"
-              />
-            </el-form-item>
-            <el-form-item label="周期" prop="cycle">
-              <el-input
-                  v-model="filters.cycle"
-                  placeholder="请输入周期"
-                  clearable
-                  size="small"
-              />
-            </el-form-item>
-          </el-row>
-          <el-row>
-          <el-form-item label="日期 从" prop="fpyDate">
-            <el-date-picker v-model="filters.fpyDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+            
+          <el-form-item label="日期 从" prop="productionDateStart">
+            <el-date-picker v-model="filters.productionDateStart" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
-          <el-form-item label="到" prop="fpyDate">
-            <el-date-picker v-model="filters.fpyDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
+          <el-form-item label="到" prop="productionDateEnd">
+            <el-date-picker v-model="filters.productionDateEnd" type="date" value-format="YYYY-MM-DD" auto-complete="off"></el-date-picker>
           </el-form-item>
           </el-row>
         </el-form>
@@ -53,13 +36,13 @@
 
           </el-form>
       </div>
-      <QueryTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
+      <QueryAllTable id="condDataTable" :height="550" :highlightCurrentRow="true" :stripe="true"
                 :data="pageResult" :columns="columns" 
                 ref="queryTable"
                 @findPage="findPage" >
-      </QueryTable>
+      </QueryAllTable>
 
-      <el-dialog :title="'预估直通率Excel导入'" width="400px" v-model="excelUploadDialogVisible"
+      <el-dialog :title="'生产汇总Excel导入'" width="500px" v-model="excelUploadDialogVisible"
                  :close-on-click-modal="false">
           <el-upload
               class="upload-demo"
@@ -76,7 +59,7 @@
         <div class="dialog-footer" style="padding-top: 20px;text-align: end">
           <slot name="footer">
             <el-progress
-            style="width:350px"
+            style="width:450px"
               :percentage="progressPercentage"
               :text-inside="true"
               :indeterminate="true"
@@ -87,8 +70,9 @@
               <span>{{progressContent}}</span>
             </el-progress>
             <div style="padding-top: 20px;">
-            <el-button  type="primary" :size="size"  @click="downloadTemplate" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">模板下载</el-button>
-            <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
+            <el-button  type="primary" :size="size"  @click="downloadTemplate('actual')" style="position: absolute;left: 20px;" :loading="downloadTemplateLoading">生产实际模板下载</el-button>
+            <el-button  type="primary" :size="size"  @click="downloadTemplate('target')" style="position: absolute;left: 150px;" :loading="downloadTemplateLoading">生产目标模板下载</el-button>
+           <el-button type="success" :size="size"  @click="cancelExcelUpload" right>关闭</el-button>
             </div>
           </slot>
         </div>
@@ -100,12 +84,12 @@
 
 <script>
 
-import QueryTable from "@/components/QueryTable";
-import {uploadExcel, findEstimateFpyPage, downloadTemplate} from "@/api/wlg/estimateFpy";
+import QueryAllTable from "@/components/QueryAllTable";
+import {uploadExcel, findProductionSummaryPage, downloadTemplate} from "@/api/wlg/productionSummary";
 
 export default {
-  name: "estimateFpy",
-  components: {QueryTable},
+  name: "productionSummary",
+  components: {QueryAllTable},
   data() {
     return {
       size: 'small',
@@ -119,19 +103,15 @@ export default {
 
       filters: {
         projectName: '',
-        mold: '',
-        cycle: '',
-        fpyDateStart:'',
-        fpyDateEnd:'',
+        productionDateStart:'',
+        productionDateEnd:'',
       },
       columns: [
         {prop: "__row_number__", label: "序号", minWidth: 80},
         {prop: "projectName", label: "项目", minWidth: 120},
-        {prop: "mold", label: "模具", minWidth: 110},
-        {prop: "cycle", label: "周期", minWidth: 100},
-        {prop: "fpyDate", label: "日期", minWidth: 120, formatter:this.dateFormat},
-        {prop: "fpy", label: "预估直通率", minWidth: 120},
-        {prop: "estimateBalance", label: "WLG预计结存（颗）", minWidth: 120},
+        {prop: "productionDate", label: "月份", minWidth: 120, formatter:this.dateFormat},
+        {prop: "targetQty", label: "目标产出数量", minWidth: 100},
+        {prop: "actualQty", label: "实际产出数量", minWidth: 120},
       ],
       pageRequest: {current: 1, size: 10},
       pageResult: {},
@@ -142,24 +122,23 @@ export default {
   methods: {
     // 获取分页数据
     findPage: function (data) {
-      if (data !== null) {
-        this.pageRequest = data.pageRequest
-      }
+      // if (data !== null) {
+      //   this.pageRequest = data.pageRequest
+      // }
       this.pageRequest.projectName = this.filters.projectName;
-      this.pageRequest.mold = this.filters.mold;
-      this.pageRequest.cycle = this.filters.cycle;
-      this.pageRequest.fpyDateStart = this.filters.fpyDateStart;
-      this.pageRequest.fpyDateEnd = this.filters.fpyDateEnd;
+      this.pageRequest.productionDateStart = this.filters.productionDateStart;
+      this.pageRequest.productionDateEnd = this.filters.productionDateEnd;
 
       this.queryLoading = true;
-      findEstimateFpyPage(this.pageRequest).then((res) => {
+      findProductionSummaryPage(this.pageRequest).then((res) => {
         const responseData = res.data
         if (responseData.code === '000000') {
-          this.pageResult = responseData.data
+          this.columns = responseData.data.titleResult;
+          this.pageResult.records = responseData.data.queryResult;
           this.$message.success(responseData.msg)
         } else
         {
-          this.pageResult = [];
+          this.pageResult.records = [];
           this.$message.error(responseData.msg + "," + responseData.data);
         }
         this.queryLoading = false;
@@ -211,16 +190,18 @@ export default {
     {
       this.excelUploadDialogVisible = false;
     },
-    downloadTemplate()
+    downloadTemplate(type)
     {
       this.downloadTemplateLoading = true;
-      downloadTemplate().then(res => {
+      let params = {};
+      params.type = type;
+      downloadTemplate(params).then(res => {
 
           let url = window.URL.createObjectURL(new Blob([res.data],{type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
           let link = document.createElement('a');
           link.style.display = 'none';
           link.href = url;
-          link.setAttribute('download', '预估直通率模板' + "-" + new Date().getTime() + ".xlsx");
+          link.setAttribute('download', '生产汇总模板' + "-" + new Date().getTime() + ".xlsx");
           document.body.appendChild(link);
           link.click();
 
@@ -242,7 +223,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.fpyDateStart = date.getFullYear() + '-' + month + '-' + day
+      this.filters.productionDateStart = date.getFullYear() + '-' + month + '-' + day
     },
     getCurrentMonthLast () {
       var date = new Date()
@@ -250,7 +231,7 @@ export default {
       var day = date.getDate()
       if (month < 10)  month = '0' + month
       if (day < 10)  day = '0' + day
-      this.filters.fpyDateEnd = date.getFullYear() + '-' + month + '-' + day
+      this.filters.productionDateEnd = date.getFullYear() + '-' + month + '-' + day
     },
 
   },

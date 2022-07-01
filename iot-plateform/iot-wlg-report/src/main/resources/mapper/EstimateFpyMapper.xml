@@ -3,7 +3,9 @@
 <mapper namespace="com.aac.optics.wlg.report.mapper.EstimateFpyMapper">
 
     <select id="queryEstimateFpyByCondition" resultType="map">
-        select project_name projectName, mold, cycle, fpy_date fpyDate, CONVERT(varchar(20),CONVERT(decimal(18,2), fpy * 100)) + '%' fpy
+        select project_name projectName, mold, cycle, fpy_date fpyDate,
+            CONVERT(varchar(20),CONVERT(decimal(18,2), fpy * 100)) + '%' fpy,
+            estimate_balance estimateBalance
         from estimate_fpy
         where 1=1
         <if test="projectName != '' and projectName != null">

@@ -66,7 +66,7 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
             String projectName = dataArray[0]; //项目
             String requirementDateStr = dataArray[1]; //需求月份
             String qtyStr = dataArray[2]; //需求数量
-            String completionRateStr = dataArray[3]; //达成率
+            String targetYieldStr = dataArray[3];//目标总产量
 
             if (StringUtils.isEmpty(projectName)) {
                 throw new BusinessException("第" + (i + 1) + "行，项目不能为空");
@@ -77,14 +77,14 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
             if (StringUtils.isEmpty(qtyStr)) {
                 throw new BusinessException("第" + (i + 1) + "行，数量不能为空");
             }
-            if (StringUtils.isEmpty(completionRateStr)) {
-                throw new BusinessException("第" + (i + 1) + "行，达成率不能为空");
+            if (StringUtils.isEmpty(targetYieldStr)) {
+                throw new BusinessException("第" + (i + 1) + "行，目标总产量不能为空");
             }
             if (StringUtils.isEmpty(requirementDateStr)) {
                 break;
             }
-            BigDecimal completionRate = new BigDecimal(completionRateStr);
             BigDecimal qty = new BigDecimal(qtyStr);
+            BigDecimal targetYield = new BigDecimal(targetYieldStr);
 
             LocalDate requirementDate = null;
             try {
@@ -107,8 +107,8 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
 
             customerRequirement.setProjectName(projectName);
             customerRequirement.setRequirementDate(requirementDate);
-            customerRequirement.setCompletionRate(completionRate);
             customerRequirement.setQty(qty);
+            customerRequirement.setTargetYield(targetYield);
 
             this.saveOrUpdate(customerRequirement);
         }
@@ -207,12 +207,20 @@ public class CustomerRequirementServiceImpl extends ServiceImpl<CustomerRequirem
     private void validationCustomerRequirement(CustomerRequirement customerRequirement)
     {
         String projectName = customerRequirement.getProjectName();
-        BigDecimal completionRate = customerRequirement.getCompletionRate();
         BigDecimal qty = customerRequirement.getQty();
         LocalDate requirementDate = customerRequirement.getRequirementDate();
         if(StringUtils.isEmpty(projectName))
         {
             throw new BusinessException("项目不能为空");
         }
+    }
+
+    @Override
+    public int queryCustomerRequirementCountByProjectName(String projectName) {
+        QueryWrapper<CustomerRequirement> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_name", projectName);
+
+        Integer count = customerRequirementMapper.selectCount(queryWrapper);
+        return count;
     }
 }

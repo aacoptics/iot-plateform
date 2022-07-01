@@ -81,6 +81,19 @@ public class ExcelUtil {
     }
 
     /**
+     * 读取excel全部sheet全部行数据<br>未关闭io
+     *
+     * @param in
+     * @return List<List < String [ ]>> <br>List<String[]>表示第i个sheet<br> String[]表示sheet某行
+     */
+    public static List<String[]> readBySheetNum(InputStream in, int sheetNum) throws IOException, InvalidFormatException {
+        // 创建工作簿
+        Workbook wb = createWorkBook(in);
+        // 默认读取所有行，所有列
+        return readExcelBySheetNum(wb, sheetNum);
+    }
+
+    /**
      * 读取excel<br>自定义解析方式<br>未关闭io
      *
      * @param in
@@ -168,6 +181,28 @@ public class ExcelUtil {
         }
 
         return list;
+    }
+
+    /**
+     * 读取excel文件
+     *
+     * @param wb
+     * @return List<List < String [ ]>> <br>List<String[]>表示第i个sheet<br> String[]表示sheet某行
+     */
+    public static List<String[]> readExcelBySheetNum(Workbook wb, int sheetNum) {
+        // 总sheet数
+        int workbookSheetNum = wb.getNumberOfSheets();
+        logger.info("excel sheetNum is :" + sheetNum);
+        if(workbookSheetNum < sheetNum)
+        {
+            logger.error("sheetNum" + sheetNum + "不能大于总excel总sheet数" + workbookSheetNum);
+            return null;
+        }
+        // 遍历sheet
+        Sheet sheet = wb.getSheetAt(sheetNum);
+        List<String[]> sheetData = readOneSheet(sheet);
+
+        return sheetData;
     }
 
     /**

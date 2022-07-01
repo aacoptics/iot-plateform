@@ -7,6 +7,7 @@ import com.aac.optics.wlg.report.entity.param.ProductionProjectReportQueryParam;
 import com.alibaba.fastjson.JSONArray;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -78,8 +79,69 @@ public interface ProductionReportService {
     /**
      * 查询客户需求
      *
-     * @param requirementDate 需求月份
+     * @param monthStart 需求月份开始日期
      * @return
      */
-    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate requirementDate);
+    public List<Map<String, Object>> findCustomerRequirementDataByDate(LocalDate monthStart, LocalDate productionDate);
+
+
+    /**
+     * 查询目标交货数据
+     *
+     * @param monthStart 需求月份开始日期
+     *
+     * @return
+     */
+    public List<Map<String, Object>> findTargetDeliveryDataByDate(LocalDate monthStart, LocalDate productionDate);
+
+
+    /**
+     * 查询目标交货料号
+     *
+     * @param monthStart 需求月份开始日期
+     *
+     * @return
+     */
+    public List<String> findItemNumberListByDate(LocalDate monthStart, LocalDate productionDate);
+
+    /**
+     * 查询项目，料号关系
+     *
+     * @param monthStart 需求月份开始日期
+     *
+     * @return
+     */
+    public Map<String, String> findProjectNameItemNumberMap(LocalDate monthStart, LocalDate productionDate);
+
+    /**
+     * 查询生产汇总数据，包括目标生产数量，实际生产数量，实际出货率
+     *
+     * @param monthStart 需求月份开始日期
+     *
+     * @return
+     */
+    public List<Map<String, Object>> findProductionSummaryDataByDate(LocalDate monthStart, LocalDate productionDate);
+
+
+    /**
+     * 获取实际出货数据
+     *
+     * @param monthStart 需求月份开始日期
+     *
+     * @return
+     */
+    public List<Map<String, Object>> findDeliveryDataByDate(LocalDate monthStart, LocalDate productionDate, List<String> itemNumberList);
+
+    /**
+     * 获取实际结存数据
+     *
+     * @param shiftStart 班次开始时间
+     * @param shiftEnd 班次结束时间
+     * @param projectNameList 需要统计的项目
+     *
+     * @return
+     */
+    public List<Map<String, Object>> findWarehouseBalanceDataByDate(LocalDateTime shiftStart, LocalDateTime shiftEnd, List<String> projectNameList);
+
+
 }

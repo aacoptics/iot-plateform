@@ -11,13 +11,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("estimate_fpy")
-public class EstimateFpy extends BasePo {
+@TableName("production_summary")
+public class ProductionSummary extends BasePo {
 
     /**
      * 项目
@@ -25,29 +24,21 @@ public class EstimateFpy extends BasePo {
     private String projectName;
 
     /**
-     * 模具
+     * 生产月份
      */
-    private String mold;
-
-    /**
-     * 周期
-     */
-    private String cycle;
+    private LocalDate productionDate;
 
 
     /**
-     * 预估直通率日期
+     * 目标生产数量
      */
-    private LocalDate fpyDate;
-
-    /**
-     * 直通率
-     */
-    private BigDecimal fpy;
+    private BigDecimal targetQty;
 
 
     /**
-     * WLG预估结存
+     * 实际生产数量
      */
-    private BigDecimal estimateBalance;
+    private BigDecimal actualQty;
+
+
 }
