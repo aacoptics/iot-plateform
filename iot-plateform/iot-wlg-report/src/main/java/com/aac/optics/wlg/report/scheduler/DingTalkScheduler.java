@@ -34,7 +34,8 @@ public class DingTalkScheduler {
     public void sendProductionDayDataImageTestNotification() {
         log.info(LocalDateTime.now() + "开始执行推送每日产出报告到测试群(表格图片格式)");
         try {
-            dingTalkNotificationService.sendProductionDayDataImageNotification("TABLE_TEST");
+            dingTalkNotificationService.sendWLGProductionDayDataImageNotification("TABLE_TEST");
+            dingTalkNotificationService.sendGPProductionDayDataImageNotification("TABLE_TEST");
         } catch (ApiException e) {
             log.error("推送每日产出报告异常(表格图片格式)", e);
         }
@@ -59,7 +60,8 @@ public class DingTalkScheduler {
     public void sendProductionDayDataImageManageNotification() {
         log.info(LocalDateTime.now() + "开始执行推送每日产出报告到管理群(表格图片格式)");
         try {
-            dingTalkNotificationService.sendProductionDayDataImageNotification("TABLE_MANAGE");
+            dingTalkNotificationService.sendWLGProductionDayDataImageNotification("TABLE_MANAGE");
+            dingTalkNotificationService.sendGPProductionDayDataImageNotification("TABLE_MANAGE");
         } catch (ApiException e) {
             log.error("开始执行推送每日产出报告到管理群(表格图片格式)", e);
         }

@@ -86,6 +86,15 @@ public interface ProductionReportService {
 
 
     /**
+     * 查询客户需求
+     *
+     * @param productionDate 当前日期
+     * @return
+     */
+    public List<Map<String, Object>> findProductionCurrentDayDataByDate(LocalDate productionDate);
+
+
+    /**
      * 查询目标交货数据
      *
      * @param monthStart 需求月份开始日期

@@ -48,7 +48,8 @@ public class DingTalkMessageController {
     @PostMapping(value = "/sendProductionDayDataImageNotification")
     public Result sendProductionDayDataImageNotification() {
         try {
-            dingTalkNotificationService.sendProductionDayDataImageNotification("TABLE_TEST");
+            dingTalkNotificationService.sendWLGProductionDayDataImageNotification("TABLE_TEST");
+            dingTalkNotificationService.sendGPProductionDayDataImageNotification("TABLE_TEST");
         } catch (Exception e) {
             log.error("推送失败", e);
             return Result.fail(e.getMessage());
