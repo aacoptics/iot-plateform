@@ -72,11 +72,11 @@ public class TargetDeliveryServiceImpl extends ServiceImpl<TargetDeliveryMapper,
             if (StringUtils.isEmpty(itemDescription)) {
                 throw new BusinessException("第" + (i + 1) + "行，物料描述不能为空");
             }
-            int count = customerRequirementService.queryCustomerRequirementCountByProjectName(projectName);
-            if(count == 0)
-            {
-                throw new BusinessException("第" + (i + 1) + "行，项目【" + projectName + "】对应的客户需求不存在，请先导入客户需求数据！");
-            }
+//            int count = customerRequirementService.queryCustomerRequirementCountByProjectName(projectName);
+//            if(count == 0)
+//            {
+//                throw new BusinessException("第" + (i + 1) + "行，项目【" + projectName + "】对应的客户需求不存在，请先导入客户需求数据！");
+//            }
 
             for (int j = 3; j < dataArray.length; j++) {
 
