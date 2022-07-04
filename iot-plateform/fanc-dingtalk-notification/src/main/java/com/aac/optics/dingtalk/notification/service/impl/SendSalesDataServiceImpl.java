@@ -250,6 +250,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 String shipQtyRate = productContent.getShipQtyRate() != null ? percentDecimalFormat.format(productContent.getShipQtyRate()) : "-";
                 String shipAmountRate = productContent.getShipAmountRate() != null ? percentDecimalFormat.format(productContent.getShipAmountRate()) : "-";
 
+                String fcstMonQty = productContent.getFcstMonQty() != null ? decimalFormat.format(productContent.getFcstMonQty()) : "-";
+                String fcstMonQtyRate = productContent.getFcstMonQtyRate() != null ? percentDecimalFormat.format(productContent.getFcstMonQtyRate()) : "-";
+                String fcstMonAmount = productContent.getFcstMonAmount() != null ? decimalFormat.format(productContent.getFcstMonAmount()) : "-";
+                String fcstMonAmountRate = productContent.getFcstMonAmountRate() != null ? percentDecimalFormat.format(productContent.getFcstMonAmountRate()) : "-";
+
                 if ("汇总".equals(productType)) {
                     markdownGroupMessage.addBlobContent(productType);
                     if (!StringUtils.isEmpty(dayTabProductType)) {
@@ -271,6 +276,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
 
                     markdownGroupMessage.addBlobContent("当月董事会目标出货数量：" + shipPlanQty + " K");
+
+                    if(!"-".equals(fcstMonQty)){
+                        markdownGroupMessage.addContent("当月预测目标出货数量：" + fcstMonQty + " K");
+                    }
+
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -307,7 +317,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
 //                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
                     markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+
+                    if(!"-".equals(fcstMonQtyRate)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货数量达成：" + fcstMonQtyRate);
+                    }
+
                     markdownGroupMessage.addBlobContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addContent("当月预测目标出货金额：" + fcstMonAmount + " K");
+                    }
+
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
@@ -318,6 +338,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
                     markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货金额达成：" + fcstMonAmountRate);
+                    }
                 }
                 else {
                     markdownGroupMessage.addBlobContent(productType);
@@ -340,6 +364,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlankLine();
                     }
                     markdownGroupMessage.addContent("当月董事会目标出货数量：" + shipPlanQty + " K");
+
+                    if(!"-".equals(fcstMonQty)){
+                        markdownGroupMessage.addContent("当月预测目标出货数量：" + fcstMonQty + " K");
+                    }
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -377,7 +405,17 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
 
                     markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+
+                    if(!"-".equals(fcstMonQtyRate)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货数量达成：" + fcstMonQtyRate);
+                    }
+
                     markdownGroupMessage.addContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addContent("当月预测目标出货金额：" + fcstMonAmount + " K");
+                    }
+
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
@@ -387,6 +425,10 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
                     }
                     markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货金额达成：" + fcstMonAmountRate);
+                    }
                     markdownGroupMessage.addBlankLine();
                 }
             }

@@ -72,6 +72,14 @@ public class ProductContent implements Serializable {
 
     private BigDecimal mtdShipQtyRate;
 
+    private BigDecimal fcstMonQty;
+
+    private BigDecimal fcstMonQtyRate;
+
+    private BigDecimal fcstMonAmount;
+
+    private BigDecimal fcstMonAmountRate;
+
     private String flag;
 
     private String createdBy;
