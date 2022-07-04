@@ -1231,7 +1231,7 @@
             group by project_name
         union all
         select '项目汇总' project_name, sum(delivery_qty) delivery_qty,
-            (select delivery_qty
+            (select sum(delivery_qty) delivery_qty
                 from target_delivery
                 where delivery_date = #{productionDate}) day_delivery_qty
             from TEMP_TARGET_DELIVERY
