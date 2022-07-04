@@ -1231,7 +1231,7 @@
             group by project_name
         union all
         select '项目汇总' project_name, sum(delivery_qty) delivery_qty,
-            (select delivery_qty
+            (select sum(delivery_qty) delivery_qty
                 from target_delivery
                 where delivery_date = #{productionDate}) day_delivery_qty
             from TEMP_TARGET_DELIVERY
@@ -1368,11 +1368,43 @@
                  where plan_date = #{productionDate}
                    and code = 'MBLIANGLV'
              ),
-             TEMP_JHCHANCHU AS (
-                 select a.project_name, a.mold, a.cycle, floor(a.JHTOURU * b.MBLIANGLV) JHCHANCHU
+             TEMP_JHXUESHU AS (
+                 SELECT project_name,
+                        mold,
+                        cycle,
+                        plan_value JHXUESHU
+                 FROM production_plan
+                 WHERE plan_date = #{productionDate}
+                   and code = 'JHXUESHU'),
+             TEMP_JHHDLIANGLV AS (
+                 SELECT project_name,
+                        mold,
+                        cycle,
+                        plan_value JHHDLIANGLV
+                 FROM production_plan
+                 WHERE plan_date = #{productionDate}
+                   and code = 'JHHDLIANGLV'),
+             TEMP_JHXNLIANGLV AS (
+                 SELECT project_name,
+                        mold,
+                        cycle,
+                        plan_value JHHDLIANGLV
+                 FROM production_plan
+                 WHERE plan_date = #{productionDate}
+                   and code = 'JHXNLIANGLV'),
+             TEMP_JHHDCHANCHU AS (
+                 select a.project_name,
+                        a.mold,
+                        a.cycle,
+                        floor(a.JHTOURU * b.MBLIANGLV * c.JHXUESHU * d.JHHDLIANGLV * e.JHHDLIANGLV) JHHDCHANCHU
                  from TEMP_JHTOURU a
                           left join TEMP_MBLIANGLV b
                                     on a.project_name = b.project_name and a.mold = b.mold and a.cycle = b.cycle
+                          left join TEMP_JHXUESHU c on a.project_name = c.project_name and a.mold = c.mold and a.cycle = c.cycle
+                          left join TEMP_JHHDLIANGLV d
+                                    on a.project_name = d.project_name and a.mold = d.mold and a.cycle = d.cycle
+                          left join TEMP_JHXNLIANGLV e
+                                    on a.project_name = e.project_name and a.mold = e.mold and a.cycle = e.cycle
              ),
              TEMP_MOLD_RESULT AS (
                  select a.project_name,
@@ -1381,10 +1413,10 @@
                         sum(isnull(a.mold_press_output_qty, 0)) mold_press_output_qty,
                         sum(isnull(a.after_output_qty, 0))      after_output_qty,
                         sum(isnull(b.JHTOURU, 0))               JHTOURU,
-                        sum(isnull(c.JHCHANCHU, 0))             JHCHANCHU
+                        sum(isnull(c.JHHDCHANCHU, 0))           JHHDCHANCHU
                  from TEMP_PRODUCTION_ACTUAL a
                           left join TEMP_JHTOURU b on a.project_name = b.project_name and a.mold = b.mold and a.cycle = b.cycle
-                          left join TEMP_JHCHANCHU c
+                          left join TEMP_JHHDCHANCHU c
                                     on a.project_name = c.project_name and a.mold = c.mold and a.cycle = c.cycle
                  group by a.project_name, a.mold)
         select project_name,
@@ -1393,42 +1425,44 @@
                mold_press_output_qty,
                after_output_qty,
                JHTOURU,
-               JHCHANCHU,
+               JHHDCHANCHU,
                case
-                   when JHCHANCHU != 0 THEN
-                           CAST(CAST(after_output_qty / JHCHANCHU * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
+                   when JHHDCHANCHU != 0 THEN
+                           CAST(CAST(after_output_qty / JHHDCHANCHU * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
                    else '0.00%' END output_rate
         from TEMP_MOLD_RESULT
         union all
         select project_name,
-               '汇总'                 mold,
-               sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+               '汇总'                                  mold,
+               sum(isnull(mold_press_input_qty, 0))  mold_press_input_qty,
                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
-               sum(isnull(after_output_qty, 0)) after_output_qty,
-               sum(isnull(JHTOURU, 0)) JHTOURU,
-               sum(isnull(JHCHANCHU, 0)) JHCHANCHU,
+               sum(isnull(after_output_qty, 0))      after_output_qty,
+               sum(isnull(JHTOURU, 0))               JHTOURU,
+               sum(isnull(JHHDCHANCHU, 0))           JHCHANCHU,
                case
-                   when sum(isnull(JHCHANCHU, 0)) != 0 THEN
+                   when sum(isnull(JHHDCHANCHU, 0)) != 0 THEN
                            CAST(CAST(
-                                   sum(isnull(after_output_qty, 0)) / sum(isnull(JHCHANCHU, 0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                                       sum(isnull(after_output_qty, 0)) / sum(isnull(JHHDCHANCHU, 0)) *
+                                       100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
                            '%'
-                   else '0.00%' END output_rate
+                   else '0.00%' END                  output_rate
         from TEMP_MOLD_RESULT
         group by project_name
         union all
-        select '项目汇总'               project_name,
-               '汇总'                 mold,
-               sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+        select '项目汇总'                                project_name,
+               '汇总'                                  mold,
+               sum(isnull(mold_press_input_qty, 0))  mold_press_input_qty,
                sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
-               sum(isnull(after_output_qty, 0)) after_output_qty,
-               sum(isnull(JHTOURU, 0)) JHTOURU,
-               sum(isnull(JHCHANCHU, 0)) JHCHANCHU,
+               sum(isnull(after_output_qty, 0))      after_output_qty,
+               sum(isnull(JHTOURU, 0))               JHTOURU,
+               sum(isnull(JHHDCHANCHU, 0))           JHCHANCHU,
                case
-                   when sum(isnull(JHCHANCHU, 0)) != 0 THEN
+                   when sum(isnull(JHHDCHANCHU, 0)) != 0 THEN
                            CAST(CAST(
-                                   sum(isnull(after_output_qty, 0)) / sum(isnull(JHCHANCHU, 0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                                       sum(isnull(after_output_qty, 0)) / sum(isnull(JHHDCHANCHU, 0)) *
+                                       100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
                            '%'
-                   else '0.00%' END output_rate
+                   else '0.00%' END                  output_rate
         from TEMP_MOLD_RESULT
         order by project_name, mold
     </select>
