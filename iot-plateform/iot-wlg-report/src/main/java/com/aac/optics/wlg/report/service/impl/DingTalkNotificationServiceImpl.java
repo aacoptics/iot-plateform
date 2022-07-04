@@ -310,7 +310,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                             dataRow.getCell(13).setCellValue(productionCurrentDayDataMap.get("JHTOURU") != null ? productionCurrentDayDataMap.get("JHTOURU") + "" : ""); //计划投入模数（模）
                             dataRow.getCell(14).setCellValue(productionCurrentDayDataMap.get("mold_press_input_qty") != null ? productionCurrentDayDataMap.get("mold_press_input_qty") + "" : ""); //实际投入模数（模）
                             dataRow.getCell(15).setCellValue(productionCurrentDayDataMap.get("mold_press_output_qty") != null ? productionCurrentDayDataMap.get("mold_press_output_qty") + "" : ""); //实际转出模数（模）
-                            dataRow.getCell(16).setCellValue(productionCurrentDayDataMap.get("JHCHANCHU") != null ? productionCurrentDayDataMap.get("JHCHANCHU") + "" : ""); //计划产出（颗)
+                            dataRow.getCell(16).setCellValue(productionCurrentDayDataMap.get("JHHDCHANCHU") != null ? productionCurrentDayDataMap.get("JHHDCHANCHU") + "" : ""); //计划产出（颗)
                             dataRow.getCell(17).setCellValue(productionCurrentDayDataMap.get("after_output_qty") != null ? productionCurrentDayDataMap.get("after_output_qty") + "" : ""); //实际产出（颗）
                             dataRow.getCell(18).setCellValue(productionCurrentDayDataMap.get("output_rate") != null ? productionCurrentDayDataMap.get("output_rate") + "" : ""); //实际产出达成率%
                             break;
