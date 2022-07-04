@@ -248,7 +248,7 @@ public class ExcelUtil {
                 continue;
             }
             // int startColIdx = row.getFirstCellNum();
-            int endColIdx = row.getLastCellNum();
+            int endColIdx = sheet.getRow(startRow).getLastCellNum();
             String[] objs = new String[endColIdx + 1];
             int colIdx = 0;
             // 遍历列
