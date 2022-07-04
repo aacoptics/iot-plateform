@@ -1222,11 +1222,18 @@
             from target_delivery
             where delivery_date >= #{monthStart}
             and delivery_date &lt;= #{productionDate})
-        SELECT project_name, sum(delivery_qty) delivery_qty
+        SELECT project_name, sum(delivery_qty) delivery_qty,
+            (select delivery_qty
+            from target_delivery
+            where target_delivery.project_name = TEMP_TARGET_DELIVERY.project_name
+              and delivery_date = #{productionDate}) day_delivery_qty
             from TEMP_TARGET_DELIVERY
             group by project_name
         union all
-        select '项目汇总' project_name, sum(delivery_qty) delivery_qty
+        select '项目汇总' project_name, sum(delivery_qty) delivery_qty,
+            (select delivery_qty
+                from target_delivery
+                where delivery_date = #{productionDate}) day_delivery_qty
             from TEMP_TARGET_DELIVERY
         order by project_name
     </select>
@@ -1252,25 +1259,53 @@
            FLOOR(sum(isnull(actual_qty,0))) actual_qty,
            case
                when sum(isnull(target_qty,0)) != 0 then CAST(CAST(sum(isnull(actual_qty,0)) / sum(isnull(target_qty,0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
-               else '0.00%' end actual_rate
+               else '0.00%' end actual_rate,
+              (select floor(target_qty)
+                from production_summary a
+                where a.project_name = production_summary.project_name
+                  and a.production_date = #{productionDate}) day_target_qty,
+               (select floor(actual_qty)
+                from production_summary a
+                where a.project_name = production_summary.project_name
+                  and a.production_date = #{productionDate}) day_actual_qty
             from production_summary
             where production_date >= #{monthStart}
             and production_date &lt;= #{productionDate}
             group by project_name
             )
-        SELECT project_name, target_qty, actual_qty, actual_rate FROM TEMP_PRODUCTION_SUMMARY
+        SELECT project_name, target_qty, actual_qty, actual_rate,
+                day_target_qty,
+               day_actual_qty,
+               case
+                   when day_target_qty != 0 then
+                           CAST(CAST(
+                                   isnull(day_actual_qty, 0) / isnull(day_target_qty, 0) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                           '%'
+                   else '0.00%' end day_actual_rate
+            FROM TEMP_PRODUCTION_SUMMARY
         UNION ALL
         SELECT '项目汇总' project_name, sum(target_qty) target_qty, sum(actual_qty) actual_qty,
                case
            when sum(target_qty) is null then  null
            when sum(target_qty) != 0 then CAST(CAST(sum(actual_qty) / sum(target_qty) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
-           else '0.00%' end actual_rate
+           else '0.00%' end actual_rate,
+           sum(day_target_qty)  day_target_qty,
+           sum(day_actual_qty)  day_actual_qty,
+           case
+               when sum(day_target_qty) is null then null
+               when sum(day_target_qty) != 0 then
+                       CAST(CAST(sum(day_actual_qty) / sum(day_target_qty) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
+               else '0.00%' end day_actual_rate
         FROM TEMP_PRODUCTION_SUMMARY
     </select>
 
     <select id="findDeliveryDataByDate" resultType="map">
         with temp_omestic_delivery_op AS (
-            select matnr, floor(sum(fkimg)) fkimg
+            select matnr, floor(sum(fkimg)) fkimg,
+                (select floor(sum(fkimg))
+                from erp_z_sd1052_domestic_delivery_op a
+                where wadat_ist_1 = #{productionDate}
+                and a.matnr = erp_z_sd1052_domestic_delivery_op.matnr) day_fkimg
             from erp_z_sd1052_domestic_delivery_op
             where wadat_ist_1 >= #{monthStart}
             and wadat_ist_1 &lt;= #{productionDate}
@@ -1282,10 +1317,10 @@
                 </foreach>
             </if>
             group by matnr)
-        SELECT matnr, fkimg
+        SELECT matnr, fkimg,  isnull(day_fkimg, 0) day_fkimg
             FROM temp_omestic_delivery_op
         UNION ALL
-        SELECT '项目汇总' matnr, sum(fkimg) fkimg
+        SELECT '项目汇总' matnr, sum(fkimg) fkimg, isnull(sum(day_fkimg), 0) day_fkimg
             from temp_omestic_delivery_op
     </select>
 
@@ -1313,5 +1348,88 @@
         union all
         select N'项目汇总' project_name, sum(qty_today) qty_today
             from temp_transfer_warehouse_balance
+    </select>
+
+    <select id="findProductionCurrentDayDataByDate" resultType="map">
+        WITH TEMP_PRODUCTION_ACTUAL AS (
+            select project_name, mold, cycle, mold_press_input_qty, mold_press_output_qty, after_output_qty
+            from production_actual
+            WHERE actual_date = #{productionDate}
+        ),
+             TEMP_JHTOURU AS (
+                 select project_name, mold, cycle, floor(plan_value) JHTOURU
+                 from production_plan
+                 where plan_date = #{productionDate}
+                   and code = 'JHTOURU'
+             ),
+             TEMP_MBLIANGLV AS (
+                 select project_name, mold, cycle, plan_value MBLIANGLV
+                 from production_plan
+                 where plan_date = #{productionDate}
+                   and code = 'MBLIANGLV'
+             ),
+             TEMP_JHCHANCHU AS (
+                 select a.project_name, a.mold, a.cycle, floor(a.JHTOURU * b.MBLIANGLV) JHCHANCHU
+                 from TEMP_JHTOURU a
+                          left join TEMP_MBLIANGLV b
+                                    on a.project_name = b.project_name and a.mold = b.mold and a.cycle = b.cycle
+             ),
+             TEMP_MOLD_RESULT AS (
+                 select a.project_name,
+                        a.mold,
+                        sum(isnull(a.mold_press_input_qty, 0))  mold_press_input_qty,
+                        sum(isnull(a.mold_press_output_qty, 0)) mold_press_output_qty,
+                        sum(isnull(a.after_output_qty, 0))      after_output_qty,
+                        sum(isnull(b.JHTOURU, 0))               JHTOURU,
+                        sum(isnull(c.JHCHANCHU, 0))             JHCHANCHU
+                 from TEMP_PRODUCTION_ACTUAL a
+                          left join TEMP_JHTOURU b on a.project_name = b.project_name and a.mold = b.mold and a.cycle = b.cycle
+                          left join TEMP_JHCHANCHU c
+                                    on a.project_name = c.project_name and a.mold = c.mold and a.cycle = c.cycle
+                 group by a.project_name, a.mold)
+        select project_name,
+               mold,
+               mold_press_input_qty,
+               mold_press_output_qty,
+               after_output_qty,
+               JHTOURU,
+               JHCHANCHU,
+               case
+                   when JHCHANCHU != 0 THEN
+                           CAST(CAST(after_output_qty / JHCHANCHU * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) + '%'
+                   else '0.00%' END output_rate
+        from TEMP_MOLD_RESULT
+        union all
+        select project_name,
+               '汇总'                 mold,
+               sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+               sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
+               sum(isnull(after_output_qty, 0)) after_output_qty,
+               sum(isnull(JHTOURU, 0)) JHTOURU,
+               sum(isnull(JHCHANCHU, 0)) JHCHANCHU,
+               case
+                   when sum(isnull(JHCHANCHU, 0)) != 0 THEN
+                           CAST(CAST(
+                                   sum(isnull(after_output_qty, 0)) / sum(isnull(JHCHANCHU, 0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                           '%'
+                   else '0.00%' END output_rate
+        from TEMP_MOLD_RESULT
+        group by project_name
+        union all
+        select '项目汇总'               project_name,
+               '汇总'                 mold,
+               sum(isnull(mold_press_input_qty, 0)) mold_press_input_qty,
+               sum(isnull(mold_press_output_qty, 0)) mold_press_output_qty,
+               sum(isnull(after_output_qty, 0)) after_output_qty,
+               sum(isnull(JHTOURU, 0)) JHTOURU,
+               sum(isnull(JHCHANCHU, 0)) JHCHANCHU,
+               case
+                   when sum(isnull(JHCHANCHU, 0)) != 0 THEN
+                           CAST(CAST(
+                                   sum(isnull(after_output_qty, 0)) / sum(isnull(JHCHANCHU, 0)) * 100 AS DECIMAL(18, 2)) AS VARCHAR(50)) +
+                           '%'
+                   else '0.00%' END output_rate
+        from TEMP_MOLD_RESULT
+        order by project_name, mold
     </select>
 </mapper>
