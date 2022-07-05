@@ -468,6 +468,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
                 if (robotUrl.contains("feishu")) {
                     String message = feishuApi.SendGroupMessage(robotUrl, markdownGroupMessage.toString());
+                    log.debug(message);
                     JSONObject messageJson = new JSONObject();
                     try {
                         messageJson = JSONObject.parseObject(message);
@@ -486,6 +487,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
                 } else {
                     Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+                    JSONObject resultMapJson = (JSONObject)JSONObject.toJSON(resultMap);
+                    log.debug(JSONObject.toJSONString(resultMapJson));
                     String result = resultMap.get("result");
                     String message = resultMap.get("message");
                     if (!StringUtils.isEmpty(message) && message.length() > 1024) {
