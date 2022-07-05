@@ -459,8 +459,8 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
     public void sendGPProductionDayDataImageNotification(String groupType) throws ApiException {
         LocalDateTime nowTime = LocalDateTime.now();
         LocalDateTime currentTime = nowTime.minusDays(1);
-        LocalDateTime shiftStart = currentTime.toLocalDate().atTime(19, 0, 0); //夜班班次开始时间
-        LocalDateTime shiftEnd = nowTime.toLocalDate().atTime(7, 0, 0);//夜班班次结束时间
+        LocalDateTime shiftStart = nowTime.toLocalDate().atTime(3, 0, 0); //夜班班次开始时间，取时间为3:00,3:30的数据
+        LocalDateTime shiftEnd = nowTime.toLocalDate().atTime(3, 30, 0);//夜班班次结束时间
         //获取当月一号
         LocalDateTime monthStart = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.firstDayOfMonth())), LocalTime.MIN);
         LocalDateTime monthEnd = LocalDateTime.of(LocalDate.from(currentTime.with(TemporalAdjusters.lastDayOfMonth())), LocalTime.MAX);

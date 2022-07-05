@@ -1326,11 +1326,18 @@
 
     <select id="findWarehouseBalanceDataByDate" resultType="map">
         with temp_transfer_warehouse_balance as (
-            select distinct project_name, item_name, model, MARK_NO, hole, qty_today
+            select project_name, item_name, model, MARK_NO, hole, qty_today
             from [finereport].[dbo].[z_transfer_warehouse_balance]
-            where site in ('2210', '2210_1')
-            and date_time >= #{shiftStart}
-            and date_time &lt;= #{shiftEnd}
+            where site in ('2080_1', '2210_1')
+            <if test="projectNameList!=null and projectNameList.size()!=0">
+                AND project_name IN
+                <foreach collection="projectNameList" item="item" index="index"
+                         open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and (date_time_byFourTimes = #{shiftStart}
+                or date_time_byFourTimes = #{shiftEnd})
             and shift = N'夜班'),
         temp_COATING_QTY as (
             SELECT [Project]
@@ -1341,22 +1348,13 @@
             ,[ID]
             ,[Modelno]
             FROM [wipreport].[dbo].[Z_COATING_QTY]
-            where SITE in('2210','2210_1')
         ),
         temp_warehouse_balance_sum as (
-            select project_name, sum(case when isnull(b.QTY,0) = 0 then 0 else a.qty_today / b.QTY end) sumQty from
+            select project_name, sum(case when isnull(b.QTY,0) = 0 then 0 else CEILING(a.qty_today / b.QTY) end) sumQty from
             temp_transfer_warehouse_balance a
             left join temp_COATING_QTY b on a.project_name collate chinese_prc_ci_as = b.Project
             and a.model collate chinese_prc_ci_as = b.Modelno
             and a.item_name collate chinese_prc_ci_as = b.Batchno
-            where 1=1
-            <if test="projectNameList!=null and projectNameList.size()!=0">
-                AND project_name IN
-                <foreach collection="projectNameList" item="item" index="index"
-                         open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
             group by a.project_name
         )
         select project_name, sumQty from temp_warehouse_balance_sum
