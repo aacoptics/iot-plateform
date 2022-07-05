@@ -660,7 +660,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                         if(projectName.equals(warehouseBalanceDataMap.get("project_name")))
                         {
                             XSSFRow dataRow = sheet.getRow(i + 2);
-                            dataRow.getCell(8).setCellValue(warehouseBalanceDataMap.get("qty_today") != null ? warehouseBalanceDataMap.get("qty_today") + "" : ""); //结存数据
+                            dataRow.getCell(8).setCellValue(warehouseBalanceDataMap.get("sumQty") != null ? warehouseBalanceDataMap.get("sumQty") + "" : ""); //结存数据
                             break;
                         }
                     }
