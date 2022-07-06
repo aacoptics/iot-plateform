@@ -1348,18 +1348,19 @@
             ,[ID]
             ,[Modelno]
             FROM [wipreport].[dbo].[Z_COATING_QTY]
+            where SITE in('2080','2210')
         ),
         temp_warehouse_balance_sum as (
-            select project_name, sum(case when isnull(b.QTY,0) = 0 then 0 else CEILING(a.qty_today / b.QTY) end) sumQty from
+            select project_name, sum(case when isnull(b.QTY, 0) = 0 then 0 else cast (a.qty_today / cast(b.QTY as decimal(18,2)) as decimal(18,1)) end) sumQty from
             temp_transfer_warehouse_balance a
             left join temp_COATING_QTY b on a.project_name collate chinese_prc_ci_as = b.Project
             and a.model collate chinese_prc_ci_as = b.Modelno
             and a.item_name collate chinese_prc_ci_as = b.Batchno
             group by a.project_name
         )
-        select project_name, sumQty from temp_warehouse_balance_sum
+        select project_name, cast(ROUND(sumQty, 0) as int) sumQty from temp_warehouse_balance_sum
         union all
-        select N'项目汇总' project_name, sum(sumQty) sumQty
+        select N'项目汇总' project_name, cast(sum(ROUND(sumQty,0)) as int) sumQty
         from temp_warehouse_balance_sum
     </select>
 
