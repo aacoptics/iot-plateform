@@ -683,19 +683,6 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             xssfTitleFont.setFontHeightInPoints((short) 11);
             xssfTitleCellStyle.setFont(xssfTitleFont);
 
-            XSSFCellStyle xssfMoldCellStyle = xssfWorkbook.createCellStyle();
-            xssfMoldCellStyle.setBorderTop(XSSFCellStyle.BORDER_THIN);
-            xssfMoldCellStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN);
-            xssfMoldCellStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN);
-            xssfMoldCellStyle.setBorderRight(XSSFCellStyle.BORDER_THIN);
-            xssfMoldCellStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);
-            xssfMoldCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-            XSSFFont xssfMoldFont = xssfWorkbook.createFont();
-            xssfMoldFont.setFontName("微软雅黑");
-            xssfMoldFont.setFontHeightInPoints((short) 10);
-            xssfMoldCellStyle.setFont(xssfMoldFont);
-
             XSSFCellStyle xssfContentCellStyle = xssfWorkbook.createCellStyle();
             xssfContentCellStyle.setBorderTop(XSSFCellStyle.BORDER_THIN);
             xssfContentCellStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN);
@@ -718,10 +705,6 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                     if(k==1)
                     {
                         cell.setCellStyle(xssfTitleCellStyle);
-                    }
-                    else if(k==7)
-                    {
-                        cell.setCellStyle(xssfMoldCellStyle);
                     }
                     else {
                         cell.setCellStyle(xssfContentCellStyle);
