@@ -5,6 +5,7 @@ import com.aac.optics.dingtalk.notification.mapper.SendSalesDataMapper;
 import com.aac.optics.dingtalk.notification.provider.DingTalkApi;
 import com.aac.optics.dingtalk.notification.provider.FeishuApi;
 import com.aac.optics.dingtalk.notification.service.SendSalesDataService;
+import com.aac.optics.dingtalk.notification.util.BIRsaEncrypt;
 import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
@@ -64,35 +65,113 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             String content = salesDataContent.getContent();
             String tabType = salesDataContent.getTabType();
             String tabDate = salesDataContent.getTabDate();
+            String userid = salesDataContent.getUserid(); //需要推送的用户
+            String tabUrl = salesDataContent.getTabUrl();
+            String adaccount = salesDataContent.getAdaccount(); //域账号
+
+            String flag = salesDataContent.getFlag();//工作通知发送状态
+            String dingtalkFlag = salesDataContent.getDingtalkFlag();//代办事项发送状态
 
             //获取需要推送的用户
-            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
-            if (salesUserList == null || salesUserList.size() == 0) {
-                log.warn("类型{}未配置推送用户", tabType);
-                return;
+//            List<SalesUser> salesUserList = sendSalesDataMapper.getSendUsersByType(tabType);
+//            if (salesUserList == null || salesUserList.size() == 0) {
+//                log.warn("类型{}未配置推送用户", tabType);
+//                return;
+//            }
+//
+//            String tabUrl = "";
+//            StringBuffer userIds = new StringBuffer();
+//            for (SalesUser salesUser : salesUserList) {
+//                tabUrl = salesUser.getTabUrl();
+//
+//                String userId = salesUser.getUserid();
+//                userIds.append(userId + ",");
+//            }
+
+            String ssoUrl = tabUrl;
+            try {
+                String ssoToken = BIRsaEncrypt.getSsoToken(adaccount);
+                if(tabUrl.contains("?"))
+                {
+                    ssoUrl = tabUrl + "&ssoToken=" + ssoToken;
+                }
+                else
+                {
+                    ssoUrl = tabUrl + "?ssoToken=" + ssoToken;
+                }
+
+                log.info("ssoUrl=" + ssoUrl);
+            } catch (Exception exception) {
+                log.error("获取单点登录token异常", exception);
             }
 
-            String tabUrl = "";
-            StringBuffer userIds = new StringBuffer();
-            for (SalesUser salesUser : salesUserList) {
-                tabUrl = salesUser.getTabUrl();
+            MarkdownCard markdownCard = this.convertContentToMarkdown(content);
+            markdownCard.addContent("[查看详情](" + ssoUrl + ")");
 
-                String userId = salesUser.getUserid();
-                userIds.append(userId + ",");
+            if("0".equals(flag))
+            {
+                //发送销售数据工作通知
+                boolean result = dingTalkApi.sendCardCorpConversation(accessToken, userid, title + "（" + tabDate + "）", markdownCard.toString(), "查看详情", ssoUrl);
+                if(result) {
+                    //更新发送状态，成功
+                    sendSalesDataMapper.updateSalesContentSendFlag(contentId, "1");
+                }else
+                {
+                    //更新发送状态，失败
+                    sendSalesDataMapper.updateSalesContentSendFlag(contentId, "2");
+                }
             }
 
-            String markdownContent = this.convertContentToMarkdown(content);
+            if("0".equals(dingtalkFlag))
+            {
+                String unionId = dingTalkApi.getUnionId(accessToken, userid);
+                if(StringUtils.isEmpty(unionId))
+                {
+                    //更新发送状态-失败
+                    sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "4");
+                    continue;
+                }
+                //创建待办事项
+                try {
+                    dingTalkApi.createDingtalkTodo(accessToken, unionId, "cost_" + contentId, title+ "（" + tabDate + "）", content, ssoUrl);
+                    //更新发送状态-已发送
+                    sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "1");
+                } catch (Exception exception) {
+                    log.error("创建待办事项异常, contentId=" + contentId, exception);
+                }
+            }
+            log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userid);
 
-            //发送销售数据工作通知
-            dingTalkApi.sendCardCorpConversation(accessToken, userIds.toString(), title + "（" + tabDate + "）", markdownContent, "查看详情", tabUrl);
-
-            log.info("销售数据【{}】推送到用户【{}】工作通知", contentId, userIds);
-            //更新发送状态
-            sendSalesDataMapper.updateSalesContentSendFlag(contentId);
         }
 
     }
 
+
+    @Override
+    public void deleteSalesDataTodoTask() throws ApiException {
+        List<Content> salesDataDeleteTodoTaskList = sendSalesDataMapper.getDeleteTodoTask();
+        if (salesDataDeleteTodoTaskList == null || salesDataDeleteTodoTaskList.size() == 0) {
+            return;
+        }
+
+        //获取token
+        OapiGettokenResponse oapiGettokenResponse = dingTalkApi.getAccessToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        for(Content deleteTodoTask : salesDataDeleteTodoTaskList)
+        {
+            Integer contentId = deleteTodoTask.getId();
+            String userid = deleteTodoTask.getUserid(); //需要推送的用户
+
+            String unionId = dingTalkApi.getUnionId(accessToken, userid);
+            try {
+                dingTalkApi.deleteDingtalkTodoTask(accessToken, unionId, "cost_" + contentId);
+
+                sendSalesDataMapper.updateSalesContentDingtalkFlag(contentId, "3");
+            } catch (Exception exception) {
+                log.error("删除待办事项异常, contentId=" + contentId, exception);
+            }
+        }
+    }
 
     /**
      * 转换字符串为markdown格式
@@ -100,9 +179,9 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
      * @param content
      * @return
      */
-    private String convertContentToMarkdown(String content) {
+    private MarkdownCard convertContentToMarkdown(String content) {
         if (StringUtils.isEmpty(content)) {
-            return "";
+            return null;
         }
         String[] contentArray = content.split(";");
 
@@ -113,7 +192,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
             markdownCard.addContent(contentArray[i]);
         }
 
-        return markdownCard.toString();
+        return markdownCard;
     }
 
     @Override
@@ -160,12 +239,21 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                 String subShipQty = productContent.getSubShipQty() != null ? decimalFormat.format(productContent.getSubShipQty()) : "-";
                 String subShipAmount = productContent.getSubShipAmount() != null ? decimalFormat.format(productContent.getSubShipAmount()) : "-";
 
+                String subStandardProductType = productContent.getSubStandardTabProductType();
+                String subStandardShipQty = productContent.getSubStandardShipQty() != null ? decimalFormat.format(productContent.getSubStandardShipQty()) : "-";
+                String subStandardShipAmount = productContent.getSubStandardShipAmount() != null ? decimalFormat.format(productContent.getSubStandardShipAmount()) : "-";
+
                 String shipQty = productContent.getShipQty() != null ? decimalFormat.format(productContent.getShipQty()) : "-";
                 String shipAmount = productContent.getShipAmount() != null ? decimalFormat.format(productContent.getShipAmount()) : "-";
                 String shipPlanQty = productContent.getShipPlanQty() != null ? decimalFormat.format(productContent.getShipPlanQty()) : "-";
                 String shipPlanAmount = productContent.getShipPlanAmount() != null ? decimalFormat.format(productContent.getShipPlanAmount()) : "-";
                 String shipQtyRate = productContent.getShipQtyRate() != null ? percentDecimalFormat.format(productContent.getShipQtyRate()) : "-";
                 String shipAmountRate = productContent.getShipAmountRate() != null ? percentDecimalFormat.format(productContent.getShipAmountRate()) : "-";
+
+                String fcstMonQty = productContent.getFcstMonQty() != null ? decimalFormat.format(productContent.getFcstMonQty()) : "-";
+                String fcstMonQtyRate = productContent.getFcstMonQtyRate() != null ? percentDecimalFormat.format(productContent.getFcstMonQtyRate()) : "-";
+                String fcstMonAmount = productContent.getFcstMonAmount() != null ? decimalFormat.format(productContent.getFcstMonAmount()) : "-";
+                String fcstMonAmountRate = productContent.getFcstMonAmountRate() != null ? percentDecimalFormat.format(productContent.getFcstMonAmountRate()) : "-";
 
                 if ("汇总".equals(productType)) {
                     markdownGroupMessage.addBlobContent(productType);
@@ -187,7 +275,12 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlankLine();
                     }
 
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量：" + shipPlanQty + " K");
+
+                    if(!"-".equals(fcstMonQty)){
+                        markdownGroupMessage.addContent("当月预测目标出货数量：" + fcstMonQty + " K");
+                    }
+
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -214,19 +307,41 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipQty))
+                    {
+                        markdownGroupMessage.addBlobContent(subStandardProductType + "出货数量：" + subStandardShipQty + " K");
+                    }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         markdownGroupMessage.addBlobContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 //                    markdownGroupMessage.addBlobContent("当月实际出货数量：" + shipQty + " K");
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+
+                    if(!"-".equals(fcstMonQtyRate)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货数量达成：" + fcstMonQtyRate);
+                    }
+
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addContent("当月预测目标出货金额：" + fcstMonAmount + " K");
+                    }
+
                     markdownGroupMessage.addBlobContent("当月实际出货金额：" + shipAmount + " K");
                     if(!StringUtils.isEmpty(subProductType))
                     {
                         markdownGroupMessage.addBlobContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipAmount))
+                    {
+                        markdownGroupMessage.addBlobContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
+                    }
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货金额达成：" + fcstMonAmountRate);
+                    }
                 }
                 else {
                     markdownGroupMessage.addBlobContent(productType);
@@ -248,7 +363,11 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                         markdownGroupMessage.addBlobContent(dayTabProductType + "出货数量达成：" + dayShipRate);
                         markdownGroupMessage.addBlankLine();
                     }
-                    markdownGroupMessage.addContent("当月军令状目标出货数量：" + shipPlanQty + " K");
+                    markdownGroupMessage.addContent("当月董事会目标出货数量：" + shipPlanQty + " K");
+
+                    if(!"-".equals(fcstMonQty)){
+                        markdownGroupMessage.addContent("当月预测目标出货数量：" + fcstMonQty + " K");
+                    }
                     //MTD
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
@@ -276,18 +395,40 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     {
                         markdownGroupMessage.addContent(subProductType + "出货数量：" + subShipQty + " K");
                     }
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipQty))
+                    {
+                        markdownGroupMessage.addContent(subStandardProductType + "出货数量：" + subStandardShipQty + " K");
+                    }
                     if(!StringUtils.isEmpty(mtdTabProductType))
                     {
                         markdownGroupMessage.addContent(mtdTabProductType + "预测出货数量达成：" + mtdShipRate);
                     }
 
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货数量达成：" + shipQtyRate);
-                    markdownGroupMessage.addContent("当月军令状目标出货金额：" + shipPlanAmount + " K");
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货数量达成：" + shipQtyRate);
+
+                    if(!"-".equals(fcstMonQtyRate)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货数量达成：" + fcstMonQtyRate);
+                    }
+
+                    markdownGroupMessage.addContent("当月董事会目标出货金额：" + shipPlanAmount + " K");
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addContent("当月预测目标出货金额：" + fcstMonAmount + " K");
+                    }
+
                     markdownGroupMessage.addContent("当月实际出货金额：" + shipAmount + " K");
                     if (!StringUtils.isEmpty(subProductType)) {
                         markdownGroupMessage.addContent(subProductType + "出货金额：" + subShipAmount + " K");
                     }
-                    markdownGroupMessage.addBlobContent("当月军令状目标出货金额达成：" + shipAmountRate);
+                    if(!StringUtils.isEmpty(subStandardProductType) && !"-".equals(subStandardShipAmount))
+                    {
+                        markdownGroupMessage.addContent(subStandardProductType + "出货金额：" + subStandardShipAmount + " K");
+                    }
+                    markdownGroupMessage.addBlobContent("当月董事会目标出货金额达成：" + shipAmountRate);
+
+                    if(!"-".equals(fcstMonAmount)){
+                        markdownGroupMessage.addBlobContent("当月预测目标出货金额达成：" + fcstMonAmountRate);
+                    }
                     markdownGroupMessage.addBlankLine();
                 }
             }
@@ -327,6 +468,7 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
 
                 if (robotUrl.contains("feishu")) {
                     String message = feishuApi.SendGroupMessage(robotUrl, markdownGroupMessage.toString());
+                    log.debug(message);
                     JSONObject messageJson = new JSONObject();
                     try {
                         messageJson = JSONObject.parseObject(message);
@@ -345,6 +487,8 @@ public class SendSalesDataServiceImpl implements SendSalesDataService {
                     }
                 } else {
                     Map<String, String> resultMap = dingTalkApi.sendGroupRobotMessage(robotUrl, title, markdownGroupMessage.toString());
+                    JSONObject resultMapJson = (JSONObject)JSONObject.toJSON(resultMap);
+                    log.debug(JSONObject.toJSONString(resultMapJson));
                     String result = resultMap.get("result");
                     String message = resultMap.get("message");
                     if (!StringUtils.isEmpty(message) && message.length() > 1024) {

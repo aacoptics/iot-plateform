@@ -21,10 +21,16 @@ public interface SendSalesDataMapper extends BaseMapper<Content> {
     List<Content> getSalesContent();
 
     @DS("jiraDB")
+    List<Content> getDeleteTodoTask();
+
+    @DS("jiraDB")
     List<SalesUser> getSendUsersByType(@Param("tabType") String tabType);
 
     @DS("jiraDB")
-    void updateSalesContentSendFlag(@Param("id") Integer id);
+    void updateSalesContentSendFlag(@Param("id") Integer id, @Param("flag") String flag);
+
+    @DS("jiraDB")
+    void updateSalesContentDingtalkFlag(@Param("id") Integer id, @Param("dingtalkFlag") String dingtalkFlag);
 
     @DS("jiraDB")
     List<Map<String, String>> getSalesDataBatch();

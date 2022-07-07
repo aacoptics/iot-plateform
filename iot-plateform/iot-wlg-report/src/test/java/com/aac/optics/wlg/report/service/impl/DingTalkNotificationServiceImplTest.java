@@ -27,4 +27,25 @@ class DingTalkNotificationServiceImplTest {
             e.printStackTrace();
         }
     }
+
+
+    @Test
+    void sendWLGProductionDayDataImageNotification() {
+
+        try {
+            dingTalkNotificationService.sendWLGProductionDayDataImageNotification("TABLE_TEST");
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void sendGPProductionDayDataImageNotification() {
+
+        try {
+            dingTalkNotificationService.sendGPProductionDayDataImageNotification("TABLE_TEST");
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+    }
 }

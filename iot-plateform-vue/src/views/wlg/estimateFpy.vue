@@ -131,6 +131,7 @@ export default {
         {prop: "cycle", label: "周期", minWidth: 100},
         {prop: "fpyDate", label: "日期", minWidth: 120, formatter:this.dateFormat},
         {prop: "fpy", label: "预估直通率", minWidth: 120},
+        {prop: "estimateBalance", label: "WLG预计结存（颗）", minWidth: 120},
       ],
       pageRequest: {current: 1, size: 10},
       pageResult: {},

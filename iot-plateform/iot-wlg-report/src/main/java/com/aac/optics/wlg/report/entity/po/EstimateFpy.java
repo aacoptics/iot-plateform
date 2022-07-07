@@ -45,4 +45,9 @@ public class EstimateFpy extends BasePo {
      */
     private BigDecimal fpy;
 
+
+    /**
+     * WLG预估结存
+     */
+    private BigDecimal estimateBalance;
 }
