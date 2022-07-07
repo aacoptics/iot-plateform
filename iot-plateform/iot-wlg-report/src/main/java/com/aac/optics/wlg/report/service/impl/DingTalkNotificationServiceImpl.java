@@ -12,10 +12,7 @@ import com.spire.xls.Worksheet;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -374,6 +371,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             xssfContentCellStyle.setBorderRight(XSSFCellStyle.BORDER_THIN);
             xssfContentCellStyle.setAlignment(XSSFCellStyle.ALIGN_RIGHT);
             xssfContentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            xssfContentCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
 
             XSSFFont xssfContentFont = xssfWorkbook.createFont();
             xssfContentFont.setFontName("微软雅黑");
@@ -396,6 +394,9 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                     }
                     else {
                         cell.setCellStyle(xssfContentCellStyle);
+                        if(StringUtils.isNotEmpty(cell.getStringCellValue()) && !cell.getStringCellValue().contains("%")) {
+                            cell.setCellValue(Double.parseDouble(cell.getStringCellValue()));
+                        }
                     }
                 }
             }
@@ -690,6 +691,7 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
             xssfContentCellStyle.setBorderRight(XSSFCellStyle.BORDER_THIN);
             xssfContentCellStyle.setAlignment(XSSFCellStyle.ALIGN_RIGHT);
             xssfContentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            xssfContentCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
 
             XSSFFont xssfContentFont = xssfWorkbook.createFont();
             xssfContentFont.setFontName("微软雅黑");
@@ -708,6 +710,9 @@ public class DingTalkNotificationServiceImpl implements DingTalkNotificationServ
                     }
                     else {
                         cell.setCellStyle(xssfContentCellStyle);
+                        if(StringUtils.isNotEmpty(cell.getStringCellValue()) && !cell.getStringCellValue().contains("%")) {
+                            cell.setCellValue(Double.parseDouble(cell.getStringCellValue()));
+                        }
                     }
                 }
             }
