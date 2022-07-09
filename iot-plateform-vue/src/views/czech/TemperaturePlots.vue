@@ -261,6 +261,17 @@ export default {
           max: maxValue,
           interval: intervalValue
         },
+        dataZoom: [
+          {
+            type: 'slider',
+            xAxisIndex: 0,
+          },
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            zoomOnMouseWheel: 'alt'
+          }
+        ],
         series: [
           {
             name: 'Air Shower',
@@ -337,6 +348,17 @@ export default {
           max: maxValue,
           interval: intervalValue,
         },
+        dataZoom: [
+          {
+            type: 'slider',
+            xAxisIndex: 0,
+          },
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            zoomOnMouseWheel: 'alt'
+          }
+        ],
         series: [
           {
             name: 'Spindle',
@@ -402,6 +424,17 @@ export default {
           max: 21.035,
           interval: 0.002
         },
+        dataZoom: [
+          {
+            type: 'slider',
+            xAxisIndex: 0,
+          },
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            zoomOnMouseWheel: 'alt'
+          }
+        ],
         series: [
           {
             name: 'Bearing',
@@ -458,6 +491,17 @@ export default {
           max: 21.035,
           interval: 0.002
         },
+        dataZoom: [
+          {
+            type: 'slider',
+            xAxisIndex: 0,
+          },
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            zoomOnMouseWheel: 'alt'
+          }
+        ],
         series: [
           {
             name: 'Motor',

@@ -11,12 +11,10 @@
     </select>
 
     <select id="getAllMachineInfo" resultType="com.aac.optics.czech.entity.FloorPlanMachineInfo">
-        WITH fgLive AS (
-            select *,row_number() over (PARTITION BY fg order by lastupdate desc) rn from live
-        ), fgInfo AS(
+        WITH fgInfo AS(
             select *,row_number() over (partition by fGNumber order by lastupdate desc) r from fGLiveStatus
         )
-        select a.fGNumber as machineNo,a.mold,a.project,a.surface as side,a.processCategory as process, a.waitCat as status,  b.lenstype as ML from fgInfo a left join fgLive b on a.fGNumber=b.fg where a.r=1 and b.rn=1 order by a.fGNumber desc
+        select a.fGNumber as machineNo,a.mold,a.project,a.surface as side,a.processCategory as process, a.waitCat as status,  a.lensDesign as ML from fgInfo a  where a.r=1  order by a.fGNumber desc
     </select>
 
     <select id="getTemperatureByMachineNo" parameterType="java.lang.String" resultType="float">
