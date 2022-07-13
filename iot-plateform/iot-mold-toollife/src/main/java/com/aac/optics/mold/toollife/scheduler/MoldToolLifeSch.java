@@ -2,6 +2,7 @@ package com.aac.optics.mold.toollife.scheduler;
 
 import com.aac.optics.mold.toollife.service.AbnormalToolService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ public class MoldToolLifeSch {
     AbnormalToolService abnormalToolService;
 
     @Scheduled(cron = "${toolLife.scheduler.OneDayCron}")
+    @SchedulerLock(name = "saveMoldToolLifeAbnormalTool", lockAtMostFor = "40m", lockAtLeastFor = "10m")
     public void dingTalkSchedule() {
         try {
             abnormalToolService.saveAbnormalTool();

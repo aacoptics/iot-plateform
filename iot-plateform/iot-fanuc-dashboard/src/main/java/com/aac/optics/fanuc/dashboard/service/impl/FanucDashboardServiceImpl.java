@@ -8,6 +8,7 @@ import com.aac.optics.fanuc.dashboard.entity.FanucDataEntity;
 import com.aac.optics.fanuc.dashboard.entity.RealFanucStatusInfo;
 import com.aac.optics.fanuc.dashboard.exception.MachineNotFoundException;
 import com.aac.optics.fanuc.dashboard.service.FanucOneHourShotCountDataService;
+import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
             FanucDigitalData fanucStatusInfo = new FanucDigitalData();
             JSONObject monitData = (JSONObject) realMonitData.get(machineName).getMonitData();
             JSONObject moldData = (JSONObject) realMonitData.get(machineName).getMoldData();
-            if (!monitData.getString("Status").equals("-1")) {
+            if (monitData != null && !StringUtil.isBlank(monitData.getString("Status")) && !monitData.getString("Status").equals("-1")) {
                 //fanucStatusInfo.setCondMoldFileName(realMonitData.get(machineName).getMoldFileName());
                 fanucStatusInfo.setMonitCycle(monitData.getString("Cycle"));
                 fanucStatusInfo.setMonitCycleCount(monitData.getString("CycleCount"));
@@ -119,7 +120,8 @@ public class FanucDashboardServiceImpl implements FanucDashboardService {
                     fanucStatusInfo.setUph(machineUph);
                 }
             }
-            fanucStatusInfo.setMonitStatus(monitData.getString("Status"));
+            if(monitData != null && !StringUtil.isBlank(monitData.getString("Status")) )
+                fanucStatusInfo.setMonitStatus(monitData.getString("Status"));
             fanucStatusInfo.setMonitMcName(machineName);
             fanucStatusInfos.add(fanucStatusInfo);
         }
